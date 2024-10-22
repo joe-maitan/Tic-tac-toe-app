@@ -36,10 +36,12 @@ def login_user():
     username = data.get("username")
     password = data.get("password")
 
-    queried_user = User.query.filter_by(username=username).first()
+    queried_username = User.query.filter_by(username=username).first()    
+    queried_password = User.query.filter_by(password=password).first()
 
-    if queried_user is None:
+    if not queried_username or not queried_password:
         return {"error": "User not found"}, 404
+
     
 
 
