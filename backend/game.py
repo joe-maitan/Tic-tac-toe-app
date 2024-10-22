@@ -7,14 +7,19 @@ class Game():
     player1 = None
     player2 = None
 
+
     def __init__(self, player1, player2):
         self.board = [[None for _ in range(3)] for _ in range(3)]
-        
+
+
     def print_board(self):
         print(self.board)
 
+
     def make_move(self, player, position):
-        pass
+        # where do they want to place their symbol?
+        self.update_board(position, player)
+
 
     def update_board(self, position, player):
         # assumming position is a tuple (x, y)
@@ -28,10 +33,12 @@ class Game():
             self.board[x][y] = player.get_symbol()
             self.check_winner(player)
 
+
     def check_winner(self, player):
         if (self.checkRows(self, player) or self.checkCols(self, player) or self.checkDiagonals(self, player)):
             return True
         
+
     def checkRows(self, player):
         for row in self.board:
             if all([cell == player.get_symbol() for cell in row]):
@@ -39,6 +46,7 @@ class Game():
         
         return False
     
+
     def checkCols(self, player):
         for i in range(0, 3, 1):
             for j in range(0, 3, 1):
@@ -49,6 +57,7 @@ class Game():
         
         return False
     
+
     def checkDiagonals(self, player):
         if self.board[0][0] == player.get_symbol() and self.board[1][1] == player.get_symbol() and self.board[2][2] == player.get_symbol():
             return True
