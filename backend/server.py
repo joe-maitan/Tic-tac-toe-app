@@ -36,3 +36,10 @@ def invite_user():
 # @app.route('/play_game') with another user
 
 # @app.route('/play_game_with_bot')
+
+
+if __name__ == "__main__":
+    with app.app_context():  # When we are about to run the app, we create the models defined in the database, if they are not already created
+        db.create_all()
+
+    app.run(debug=True)  # Run all of different routes and our API
