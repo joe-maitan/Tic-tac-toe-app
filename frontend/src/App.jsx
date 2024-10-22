@@ -6,7 +6,9 @@ import './App.css'
 export default function App() {
   return (
     <div>
-      <h1>THIS IS FROM APP.JSX!</h1>
+      <h1>TicTacToe.com</h1>
+      <PlayOnline/>
+      <PlayOffline/>
     </div>
   );
 }; // End App() function
