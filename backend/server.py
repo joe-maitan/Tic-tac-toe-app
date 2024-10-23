@@ -1,5 +1,6 @@
 from flask import request
 from config import app, db
+from models import User
 
 # CONVETION: AVOID VERBS IN THE ROUTES
 # PLURAL NOUNS ARE PREFFERED
@@ -9,16 +10,39 @@ from config import app, db
 # greet the user
 
 
-@app.route('/signup', methods=["GET"])
+@app.route('/user', methods=["POST"])
 def create_user():
     # creates a user object with a username, email, and password. This is how they will be identified in the system
-    pass
+    data = request.get_json()
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+
+    if not username or not email or not password:
+        return {"error": "Missing username, email, or password"}, 400
+    
+    hashed_password = password  # hash the password
+
+    newUser = User(username=username, email=email, password=hashed_password)
+    db.session.add(newUser)
+    db.session.commit()
 
 
-@app.route('/login', methods=["POST"])
+
+@app.route('/user', methods=["GET"])
 def login_user():
     # logs in a user assumming the input username and password match with a username and password
-    pass
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    queried_username = User.query.filter_by(username=username).first()    
+    queried_password = User.query.filter_by(password=password).first()
+
+    if not queried_username or not queried_password:
+        return {"error": "User not found"}, 404
+
+    
 
 
 @app.route('/logout', methods=["GET"])
