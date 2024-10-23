@@ -1,6 +1,7 @@
 from flask import request
 from config import app, db
 from models import User
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # CONVETION: AVOID VERBS IN THE ROUTES
 # PLURAL NOUNS ARE PREFFERED
@@ -9,8 +10,8 @@ from models import User
 # @app.route('/)
 # greet the user
 
-
-@app.route('/user', methods=["POST"])
+# route was previously /user
+@app.route('/signup', methods=["POST"])
 def create_user():
     # creates a user object with a username, email, and password. This is how they will be identified in the system
     data = request.get_json()
@@ -21,26 +22,33 @@ def create_user():
     if not username or not email or not password:
         return {"error": "Missing username, email, or password"}, 400
     
-    hashed_password = password  # hash the password
+    hashed_password = generate_password_hash(password) # hash the password
 
-    newUser = User(username=username, email=email, password=hashed_password)
-    db.session.add(newUser)
-    db.session.commit()
+    newUser = {
+        "username": username,
+        "email": email,
+        "password": hashed_password
+    }
+
+    db.users.insert_one(newUser)
+
+    return {"message": "User created successfully"}, 201
+    
 
 
-
-@app.route('/user', methods=["GET"])
+# route was previously /user
+@app.route('/login', methods=["GET"])
 def login_user():
     # logs in a user assumming the input username and password match with a username and password
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
 
-    queried_username = User.query.filter_by(username=username).first()    
-    queried_password = User.query.filter_by(password=password).first()
+    # queried_username = User.query.filter_by(username=username).first()    
+    # queried_password = User.query.filter_by(password=password).first()
 
-    if not queried_username or not queried_password:
-        return {"error": "User not found"}, 404
+    # if not queried_username or not queried_password:
+    #     return {"error": "User not found"}, 404
 
     
 
