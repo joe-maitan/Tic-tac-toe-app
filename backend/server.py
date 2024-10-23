@@ -1,6 +1,7 @@
 from flask import request
 from config import app, db
 from models import User
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # CONVETION: AVOID VERBS IN THE ROUTES
@@ -22,7 +23,8 @@ def create_user():
     if not username or not email or not password:
         return {"error": "Missing username, email, or password"}, 400
     
-    hashed_password = generate_password_hash(password) # hash the password
+    # hashed_password = generate_password_hash(password) # hash the password
+    hashed_password = password
 
     newUser = {
         "username": username,
