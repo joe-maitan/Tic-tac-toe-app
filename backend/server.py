@@ -1,6 +1,6 @@
 from flask import request
 from config import app, db
-from models import User
+# from models import User
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -73,7 +73,9 @@ def invite_user():
 
 
 if __name__ == "__main__":
-    with app.app_context():  # When we are about to run the app, we create the models defined in the database, if they are not already created
-        db.create_all()
+    # TODO: HOOK UP DATABASE PROPERLY IN server.py
+    # with app.app_context():  # When we are about to run the app, we create the models defined in the database, if they are not already created
+    #     # db.create_all()
+    # initialize mongoDB database here?
 
     app.run(debug=True)  # Run all of different routes and our API
