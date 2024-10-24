@@ -3,29 +3,29 @@ from bson.objectid import ObjectId
 
 class Post:
 
-    def __init__(self, title, content, date_posted=None, _id=None):
-        self.title = title
-        self.content = content
-        self.date_posted = date_posted if date_posted else datetime.utcnow()
+    def __init__(self, username, email, password, _id=None):
         self._id = _id if _id else ObjectId()
+        self.username = username
+        self.email = email
+        self.password = password
     
     
     def to_dict(self):
         return {
-            "title": self.title,
-            "content": self.content,
-            "date_posted": self.date_posted,
-            "_id": self._id
+            "_id": self._id,
+            "username": self.username,
+            "email": self.email,
+            "password": self.password
         }
     
     
     @staticmethod
     def from_dict(data):
         return Post(
-            title=data.get('title'),
-            content=data.get('content'),
-            date_posted=data.get('date_posted'),
-            _id=data.get('_id')
+            _id=data.get("_id"),
+            username=data.get("username"),
+            email=data.get("email"),
+            password=data.get("password")
         )
     
     
