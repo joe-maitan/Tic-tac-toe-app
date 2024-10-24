@@ -18,3 +18,10 @@ app.config['MONGO_URI'] = 'mongodb://localhost:27017/'
 # Initialize MongoDB client
 client = MongoClient(app.config['MONGO_URI'])
 db = client.get_database()
+
+try:
+    client.admin.command('ping')
+    app.logger.info("Connected to database")
+except Exception as e:
+    app.logger.error("Error connecting to database")
+    app.logger.error(e)

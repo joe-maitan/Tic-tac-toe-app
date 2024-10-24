@@ -17,7 +17,7 @@ def index():
 @app.route('/signup', methods=["POST"])
 def create_user():
     app.logger.info("/signup route was hit, creating a new user")
-    # creates a user object with a username, email, and password. This is how they will be identified in the system
+
     data = request.get_json()
     username = data.get("username")
     email = data.get("email")
