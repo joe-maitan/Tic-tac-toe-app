@@ -8,12 +8,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # PLURAL NOUNS ARE PREFFERED
 # USE DIFFERENT METHODS TO INDICATE WHAT THE ACTION IS DOING
 
-# @app.route('/)
-# greet the user
+@app.route('/')
+def index():
+    app.logger.info("client has joined. Index route was hit")
+    # greet the user at the index
 
 # route was previously /user
 @app.route('/signup', methods=["POST"])
 def create_user():
+    app.logger.info("/signup route was hit, creating a new user")
     # creates a user object with a username, email, and password. This is how they will be identified in the system
     data = request.get_json()
     username = data.get("username")
@@ -21,6 +24,7 @@ def create_user():
     password = data.get("password")
 
     if not username or not email or not password:
+        app.logger.error("create_user() - Missing username, email, or password")
         return {"error": "Missing username, email, or password"}, 400
     
     # hashed_password = generate_password_hash(password) # hash the password
@@ -34,6 +38,7 @@ def create_user():
 
     db.users.insert_one(newUser)
 
+    app.logger.info("create_user() - User created successfully")    
     return {"message": "User created successfully"}, 201
     
 
@@ -41,29 +46,31 @@ def create_user():
 # route was previously /user
 @app.route('/login', methods=["GET"])
 def login_user():
+    app.logger.info("/login route was hit, logging in a user")
     # logs in a user assumming the input username and password match with a username and password
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
 
-    # queried_username = User.query.filter_by(username=username).first()    
-    # queried_password = User.query.filter_by(password=password).first()
+    queried_username = None # User.query.filter_by(username=username).first()    
+    queried_password = None # User.query.filter_by(password=password).first()
 
-    # if not queried_username or not queried_password:
-    #     return {"error": "User not found"}, 404
+    if not queried_username or not queried_password:
+        app.logger.error("login_user() - User not found")
+        return {"error": "User not found"}, 404
 
     
 
 
 @app.route('/logout', methods=["GET"])
 def logout_user():
-    # logs out a user
+    app.logger.info("/logout route was hit, logging out a user")
     pass
 
 
 @app.route("/invite_user", methods=["POST"])
 def invite_user():
-    # invites a user to play a game
+    app.logger.info("/invite_user route was hit, inviting a user to play a game")
     pass
 
 

@@ -1,8 +1,7 @@
 from flask import Flask
 # from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-
-from pymongo import MongoClient
+from pymongo.mongo_client import MongoClient
 
 app = Flask(__name__)
 CORS(app)
@@ -11,7 +10,8 @@ CORS(app)
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # MongoDB configuration
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/tictactoe'
+#app.config['MONGO_URI'] = 'mongodb://localhost:27017/tictactoe'
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/'
 
 # db = SQLAlchemy(app)
 
