@@ -1,7 +1,5 @@
 from flask import request
-from config import app, db
-# from models import User
-
+from config import app, mongo
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # CONVETION: AVOID VERBS IN THE ROUTES
@@ -9,12 +7,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # USE DIFFERENT METHODS TO INDICATE WHAT THE ACTION IS DOING
 
 @app.route('/')
-def index():
+def index():  # greet the user at the index
     app.logger.info("client has joined. Index route was hit")
-    # greet the user at the index
+    pass
 
-# route was previously /user
-@app.route('/signup', methods=["POST"])
+
+@app.route('/user', methods=["POST"])
 def create_user():
     app.logger.info("/signup route was hit, creating a new user")
 
@@ -42,9 +40,7 @@ def create_user():
     return {"message": "User created successfully"}, 201
     
 
-
-# route was previously /user
-@app.route('/login', methods=["GET"])
+@app.route('/user', methods=["GET"])
 def login_user():
     app.logger.info("/login route was hit, logging in a user")
     # logs in a user assumming the input username and password match with a username and password
@@ -60,15 +56,14 @@ def login_user():
         return {"error": "User not found"}, 404
 
     
-
-
-@app.route('/logout', methods=["GET"])
+@app.route('/user', methods=["GET"])
 def logout_user():
     app.logger.info("/logout route was hit, logging out a user")
     pass
 
 
-@app.route("/invite_user", methods=["POST"])
+# TODO: Figure out custom route name for invite, gamemove, etc.
+@app.route("/invite", methods=["POST"])
 def invite_user():
     app.logger.info("/invite_user route was hit, inviting a user to play a game")
     pass
