@@ -88,13 +88,15 @@ def create_user():
         
         try:
             db['users'].insert_one(newUser)
+            app.logger.info("create_user() - User created and added to database successfully")
         except Exception as e:
             app.logger.error(f"create_user() - Error inserting user into database {e}")
             return {"error": "Bad request"}, 400
 
         user = User(True, newUser['username'])
 
-        app.logger.info("create_user() - User created successfully")    
+        login_user(user)
+           
         return {"message": "User created successfully"}, 201
     # TODO: after creation/log in, redirect them to the game/lobby page
     except Exception as e:
@@ -117,7 +119,7 @@ def login_user():
         username = data.get("username")
         password = data.get("password")
 
-        searched_username = mongo.db.users.find_one({"username": username})
+        searched_username = db.users.find_one({"username": username})
 
         if not searched_email:
             return {"error": "User not found"}, 404
