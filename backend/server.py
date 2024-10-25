@@ -98,7 +98,7 @@ def create_user():
         login_user(user)
            
         return {"message": "User created successfully"}, 201
-    # TODO: after creation/log in, redirect them to the game/lobby page
+    # TODO: redirect them to the game/lobby page
     except Exception as e:
         app.logger.error(f"create_user() - Error creating user {e}")
         return {"error": "Internal server error"}, 500
@@ -121,21 +121,22 @@ def login_user():
 
         searched_username = db.users.find_one({"username": username})
 
-        if not searched_email:
+        if not searched_username:
             return {"error": "User not found"}, 404
         
-        if searched_email.get("password") != password:
+        if searched_username.get("password") != password:
             return {"error": "Invalid password"}, 400
+        
+        user = User(True, searched_username["username"])
+        login_user(user)
 
         app.logger.info("login_user() - User logged in successfully")
-        # TODO: after creation/log in, redirect them to the game/lobby page
+        # TODO: redirect them to the game/lobby page
     except Exception as e:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
 
 
-    
-    
 @app.route('/logout', methods=["GET"])
 @login_required  # an action that requires the user to be logged in
 def logout_user():
@@ -158,5 +159,4 @@ def invite_user():
 
 
 if __name__ == "__main__":
-    
     app.run(debug=True)  # Run all of different routes and our API
