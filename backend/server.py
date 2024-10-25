@@ -1,6 +1,40 @@
 from flask import request
-from config import app, mongo
+from flask_login import login_required
+from config import app, login_manager, db
 from werkzeug.security import generate_password_hash, check_password_hash
+
+active_users = []
+
+class User():
+
+    def __init__(self, is_authenticated, user_id):
+        self._id = user_id
+        self._is_authenticated = is_authenticated
+        self._is_active = True
+        self._is_anonymous = False
+
+    @property
+    def is_authenticated(self):
+        return self._is_authenticated
+    
+
+    @property
+    def is_active(self):
+        return self._is_active
+    
+
+    @property
+    def is_anonymous(self):
+        return self._is_anonymous
+
+
+    def get_id(self):
+        return self._id
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db['users'].find_one({"_id": user_id})
 
 # CONVETION: AVOID VERBS IN THE ROUTES
 # PLURAL NOUNS ARE PREFFERED
@@ -8,12 +42,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 @app.route('/')
 def index():  # greet the user at the index
-    app.logger.info("client has joined. Index route was hit")
-    # render_template("index.html")
     pass
 
 
-@app.route('/user', methods=["POST"])
+# @app.route('/heartbeat', methods=["GET"])
+# def index():  # greet the user at the index
+#     active_users.append(flask_login.current_user.get_id())
+#     app.logger.info("client has joined. Index route was hit")
+#     # render_template("index.html")
+#     pass
+
+
+@app.route('/users', methods=["POST"])
 def create_user():
     app.logger.info("/signup route was hit, creating a new user")
 
@@ -27,8 +67,9 @@ def create_user():
             app.logger.error("create_user() - Missing username, email, or password")
             return {"error": "Missing username, email, or password"}, 400
         
-        existing_email = mongo.db.users.find_one({"email": email})
-        existing_username = mongo.db.users.find_one({"username": username})
+        existing_email = db['users'].find_one({"email": email})
+        existing_username = db['users'].find_one({"username": username})
+
         if existing_email: 
             return {"error": "Email is already in use."}, 400
               
@@ -44,7 +85,14 @@ def create_user():
             "password": hashed_password
         }
 
-        mongo.db.users.insert_one(newUser)
+        
+        try:
+            db['users'].insert_one(newUser)
+        except Exception as e:
+            app.logger.error(f"create_user() - Error inserting user into database {e}")
+            return {"error": "Bad request"}, 400
+
+        user = User(True, newUser['username'])
 
         app.logger.info("create_user() - User created successfully")    
         return {"message": "User created successfully"}, 201
@@ -53,17 +101,23 @@ def create_user():
         app.logger.error(f"create_user() - Error creating user {e}")
         return {"error": "Internal server error"}, 500
     
-    
-@app.route('/user', methods=["GET"])
+
+@login_manager.user_loader
+def load_user(user_id):
+    # replace with call to database to get user by userID
+    pass   
+
+
+@app.route('/login', methods=["POST"])
 def login_user():
     app.logger.info("/login route was hit, logging in a user")
 
     try:
         data = request.get_json()
-        email = data.get("email")
+        username = data.get("username")
         password = data.get("password")
 
-        searched_email = mongo.db.users.find_one({"email": email})
+        searched_username = mongo.db.users.find_one({"username": username})
 
         if not searched_email:
             return {"error": "User not found"}, 404
@@ -80,7 +134,8 @@ def login_user():
 
     
     
-@app.route('/user', methods=["GET"])
+@app.route('/logout', methods=["GET"])
+@login_required  # an action that requires the user to be logged in
 def logout_user():
     app.logger.info("/logout route was hit, logging out a user")
     pass
@@ -101,9 +156,5 @@ def invite_user():
 
 
 if __name__ == "__main__":
-    # TODO: HOOK UP DATABASE PROPERLY IN server.py
-    # with app.app_context():  # When we are about to run the app, we create the models defined in the database, if they are not already created
-    #     # db.create_all()
-    # initialize mongoDB database here?
-
+    
     app.run(debug=True)  # Run all of different routes and our API

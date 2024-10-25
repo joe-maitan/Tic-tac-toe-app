@@ -1,4 +1,6 @@
-Flask
-Flask-PyMongo
-flask-CORS
+flask
+flask-cors
+
+flask-Login
+
 pymongo

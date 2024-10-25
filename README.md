@@ -24,6 +24,11 @@ To install the necessary libraries from requirements.txt run:
 pip3 install -r requirements.txt
 ```
 
+Windows
+```
+python3 -m pip  install -r requirements.txt
+```
+
 
 # How to run the program
 ## The backend
