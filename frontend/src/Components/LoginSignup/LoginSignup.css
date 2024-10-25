@@ -62,6 +62,18 @@
     font-size: 19px;
 }
 
+.submit-sign-up {
+    padding-left: 45px;
+    margin-top: 27px;
+    color: #797979;
+    font-size: 18px;
+}
+
+.sign-up span {
+    color: #33acff;
+    cursor: pointer;
+}
+
 .submit-container {
     display: flex;
     gap: 30px;

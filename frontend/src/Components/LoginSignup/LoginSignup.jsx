@@ -18,7 +18,7 @@ const LoginSignup = () => {
           console.log(error);
         });
       }; // End fetchContacts
-
+  
   return (
     <div className="container">
         <div className="header">
@@ -39,10 +39,12 @@ const LoginSignup = () => {
             <input type="password" placeholder="Password"/>
         </div>
     </div>
-    <div className="submit-container">
-        <div className={action==="Login"?"submit gray":"submit"} onClick={()=>{setAction("Sign Up")}}>Sign Up</div>
-        <div className={action==="Sign Up"?"submit gray":"submit"} onClick={()=>{setAction("Login")}}>Login</div>
-    </div>
+    {action==="Login"?<div className="submit-sign-up">
+        <div className="sign-up" onClick={()=>{setAction("Sign Up")}}><div className="sign-up">Don't have an account? <span>Click Here!</span></div></div>
+    </div>:<div></div>}
+    {action==="Login"?<div className="submit-container"><div className={action==="Login"?"submit":"submit gray"}>Login</div></div>:
+    <div className="submit-container"><div className={action==="Sign Up"?"submit":"submit gray"}>Sign Up</div>
+    </div>}
     </div>
   );
 };
