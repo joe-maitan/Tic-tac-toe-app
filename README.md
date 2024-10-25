@@ -24,20 +24,25 @@ To install the necessary libraries from requirements.txt run:
 pip3 install -r requirements.txt
 ```
 
+Windows
+```
+python3 -m pip  install -r requirements.txt
+```
+
 
 # How to run the program
 ## The backend
 The program has two pieces of right now, the backend and the frontend.
 
-To run the backend you must be in the backend directory, from there type:
+To run the backend you must be in the backend directory (/Tic-tac-toe-app/backend), from there type:
 ```
-python3 main.py
+python3 server.py
 ```
 
 This will initiate the backend server.
 
 ## The frontend
-To run the frontend you need to be in the frontend directory, from there type:
+To run the frontend you need to be in the frontend directory (/Tic-tac-toe-app/frontend), from there type:
 ```
 npm run dev
 ```

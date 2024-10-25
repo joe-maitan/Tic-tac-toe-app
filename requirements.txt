@@ -1,3 +1,6 @@
-Flask
-Flask-SQLAlchemy
-flask-CORS
+flask
+flask-cors
+
+flask-Login
+
+pymongo

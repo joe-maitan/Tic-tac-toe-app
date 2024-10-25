@@ -7,7 +7,18 @@ import email_pic from '../Images/email.png'
 import password_pic from '../Images/password.png'
 
 const LoginSignup = () => {
-    const [action, setAction] = useState("Login");
+    const [action, setAction] = useState("Sign Up");
+
+    const onSubmit = () => {
+        // TODO: Finish onSubmit button for login and signup
+        axios.get("http://127.0.0.1:5000/").then((response) => {
+          // Sends a get request to the server to fetch the contacts, this axios returns a promise object
+          
+        }).catch((error) => {
+          console.log(error);
+        });
+      }; // End fetchContacts
+  
   return (
     <div className="container">
         <div className="header">
