@@ -5,7 +5,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from flask_login import LoginManager
-import database.users # from database import users
+# import database.users # from database import users
 
 app = Flask(__name__)
 CORS(app)

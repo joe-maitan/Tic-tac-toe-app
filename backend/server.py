@@ -3,6 +3,9 @@ from flask_login import login_required
 from config import app, login_manager, db
 from werkzeug.security import generate_password_hash, check_password_hash
 
+import unittest
+from tests import *
+
 active_users = []
 
 class User():
@@ -36,6 +39,7 @@ class User():
 def load_user(user_id):
     return db['users'].find_one({"_id": user_id})
 
+
 # CONVETION: AVOID VERBS IN THE ROUTES
 # PLURAL NOUNS ARE PREFFERED
 # USE DIFFERENT METHODS TO INDICATE WHAT THE ACTION IS DOING
@@ -53,7 +57,7 @@ def index():  # greet the user at the index
 #     pass
 
 
-@app.route('/users', methods=["POST"])
+@app.route('/signup', methods=["POST"])
 def create_user():
     app.logger.info("/signup route was hit, creating a new user")
 
@@ -97,17 +101,11 @@ def create_user():
 
         login_user(user)
            
-        return {"message": "User created successfully"}, 201
-    # TODO: redirect them to the game/lobby page
+        return {"message": "User created successfully"}, 201 # This is the status code for created, on the frontend we should redirect them to the lobby
     except Exception as e:
         app.logger.error(f"create_user() - Error creating user {e}")
         return {"error": "Internal server error"}, 500
     
-
-@login_manager.user_loader
-def load_user(user_id):
-    # replace with call to database to get user by userID
-    pass   
 
 
 @app.route('/login', methods=["POST"])
@@ -158,5 +156,16 @@ def invite_user():
 # @app.route('/play_game_with_bot')
 
 
+
+def run_server_tests():
+    try:
+        tests = unittest.TestLoader().discover('tests')
+        unittest.TextTestRunner().run(tests)
+    except Exception as e:
+        app.logger.error(f"Failed server tests {e}")
+        exit(1)
+
+
 if __name__ == "__main__":
+    run_server_tests()
     app.run(debug=True)  # Run all of different routes and our API
