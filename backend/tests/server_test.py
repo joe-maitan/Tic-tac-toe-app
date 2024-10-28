@@ -1,9 +1,12 @@
 import pytest
 import pymongo
-
-from flask import json, request
 from pymongo import MongoClient
-from config import app  # import app from config because that is where the app is created
+
+from flask import Flask, json, request
+from flask_cors import CORS
+
+from flask_login import LoginManager
+# from ..config import app  # import app from config because that is where the app is created
 
 
 # Declare a mock fixture for the MongoDB client (this will be torn down after the tests)
@@ -17,17 +20,21 @@ def mock_mongo(mocker):
 
     return mock_client
 
+@pytest.fixture()
+def app():
+    app = Flask(__name__)
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    return app
 
-@pytest.fixture
-def client():
-    app.config.update({"TESTING": True})
 
-    with app.test_client() as client:
-        yield client
+@pytest.fixture()
+def client(app):
+    app.testing = True
+    return app.test_client()
 
 
-@pytest.mark.usefixtures("mock_mongo")
-def test_signup_success(client):
+def test_signup_success(client, mock_mongo):
     data = {
         "username": "jjmaitan",
         "email": "jjm@gmail.com",
@@ -43,7 +50,7 @@ def test_signup_success(client):
     assert response.json == {"message": "User created successfully"}  # Assert expected success response message
     
 
-def test_signup_invalid_data(client):
+def test_signup_invalid_data(client, mock_mongo):
     # Invalid data (missing username)
     data = {
         "email": "jjm@gmail.com",
