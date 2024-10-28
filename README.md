@@ -57,7 +57,7 @@ pip3 install -r requirements.txt
 
 * On Windows:
 ```
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 7. Navigate to the frontend directory:
