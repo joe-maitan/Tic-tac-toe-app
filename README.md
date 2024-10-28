@@ -2,54 +2,83 @@
 CS457 Term Project
 
 # Module load
-Because this is being developed on the CS machines from CSU we have a module load command to load python 3.9
+Because this is being developed on the CS machines from CSU we have a module load command to load python 3.10 or greater
 ```
 module load python/bundle-3.10
 ```
 
 But if you have a version of python downloaded that is greater than python 3.6, do not worry about using specifically 3.9.
 
-To create a virtual environment (venv) in Python 3 on Linux, you can use the following command:
+# How to run the app
+1. Clone the repository
+```
+git clone https://github.com/joe-maitan/Tic-tac-toe-app.git
+```
+
+2. Navigate to the project directory
+```
+cd Tic-tac-toe-app
+```
+
+3. Navigate to the backend directory
+```
+cd backend
+```
+
+4. Create a virtual enviornment
+* On MacOS and Linux
 ```
 python3 -m venv venv
 ```
 
-After creating the virtual enviornment active it using:
+* On Windows
+```
+python -m venv venv
+```
+
+NOTE: The venv is already included in the project, just needs to be activated.
+
+5. Activate the virtual enviornment:
+* On MacOS and Linux:
 ```
 source venv/bin/activate
 ```
 
-To install the necessary libraries from requirements.txt run:
+* On Windows:
+```
+venv/Scripts/activate
+```
+
+6. Install dependencies:
+* On MacOS and Linux:
 ```
 pip3 install -r requirements.txt
 ```
 
-Windows
+* On Windows:
 ```
-python3 -m pip  install -r requirements.txt
-```
-
-
-# How to run the program
-## The backend
-The program has two pieces of right now, the backend and the frontend.
-
-To run the backend you must be in the backend directory (/Tic-tac-toe-app/backend), from there type:
-```
-python3 server.py
+pip install -r requirements.txt
 ```
 
-This will initiate the backend server.
-
-## The frontend
-To run the frontend you need to be in the frontend directory (/Tic-tac-toe-app/frontend), from there type:
+7. Navigate to the frontend directory:
 ```
-npm run dev
+cd ../frontend
 ```
 
-or
+8. Install the dependencies for the frontend:
+NOTE: Must have Node.js and NVM installed on machine
+```
+npm install
+```
 
+9. Run the dev enviornments of each (until we figure out how to deploy)
+* For the backend:
 ```
-npm start
+C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py
 ```
+* For the frontend:
+```
+C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend npm run dev
+```
+
 
