@@ -57,7 +57,7 @@ def index():  # greet the user at the index
 #     pass
 
 
-@app.route('/signup', methods=["POST"])
+@app.route("/signup", methods=["POST"])
 def create_user():
     app.logger.info("/signup route was hit, creating a new user")
 
@@ -67,9 +67,17 @@ def create_user():
         email = data.get("email")
         password = data.get("password")
 
-        if not username or not email or not password:
-            app.logger.error("create_user() - Missing username, email, or password")
-            return {"error": "Missing username, email, or password"}, 400
+        if not username:
+            app.logger.error("create_user() - Missing username")
+            return {"error": "Missing username"}, 400
+        
+        if not email:
+            app.logger.error("create_user() - Missing email")
+            return {"error": "Missing email"}, 400
+        
+        if not password:
+            app.logger.error("create_user() - Missing password")
+            return {"error": "Missing password"}, 400
         
         existing_email = db['users'].find_one({"email": email})
         existing_username = db['users'].find_one({"username": username})
@@ -89,12 +97,11 @@ def create_user():
             "password": hashed_password
         }
 
-        
         try:
             db['users'].insert_one(newUser)
             app.logger.info("create_user() - User created and added to database successfully")
         except Exception as e:
-            app.logger.error(f"create_user() - Error inserting user into database {e}")
+            app.logger.error(f"create_user() - Error inserting user into database - {e}")
             return {"error": "Bad request"}, 400
 
         user = User(True, newUser['username'])
@@ -156,16 +163,5 @@ def invite_user():
 # @app.route('/play_game_with_bot')
 
 
-
-def run_server_tests():
-    try:
-        tests = unittest.TestLoader().discover('tests')
-        unittest.TextTestRunner().run(tests)
-    except Exception as e:
-        app.logger.error(f"Failed server tests {e}")
-        exit(1)
-
-
 if __name__ == "__main__":
-    run_server_tests()
     app.run(debug=True)  # Run all of different routes and our API

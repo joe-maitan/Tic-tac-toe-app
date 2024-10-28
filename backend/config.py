@@ -8,6 +8,7 @@ from flask_login import LoginManager
 # import database.users # from database import users
 
 app = Flask(__name__)
+
 CORS(app)
 
 app.logger.info("congfig.py - Flask app created")
