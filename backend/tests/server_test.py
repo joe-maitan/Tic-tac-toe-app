@@ -13,9 +13,6 @@ def mock_mongo(mocker):
     mock_client = mocker.patch('pymongo.MongoClient')
     mock_database = mock_client.return_value
     mock_collection = mock_database.return_value
-
-    # Customize the mock behavior as needed (optional)
-    # For example, simulate a successful user creation
     mock_collection.insert_one.return_value = True
 
     return mock_client
@@ -31,26 +28,21 @@ def client():
 
 @pytest.mark.usefixtures("mock_mongo")
 def test_signup_success(client):
-    # Valid user data
     data = {
         "username": "jjmaitan",
         "email": "jjm@gmail.com",
         "password": "1234567890"
     }
 
-    # Send a POST request with valid data
-    response = client.post("/signup", data=data)
+    response = client.post("/signup", data=data)  # Send a POST request with valid data
 
-    print(f"Response data {response.data}")
-    print(f"Response Status Code: {response.status_code}")  # Add print statement
-    print(f"Response Data: {response.json}")  # Add print statement
+    print(f"Response Status Code: {response.status_code}")
+    print(f"Response Data: {response.json}") 
 
-    # Assert successful response code (201 Created)
-    assert response.status_code == 201
-    # Assert successful response message
+    assert response.status_code == 201   # Assert successful response code (201 Created)
+    assert response.json == {"message": "User created successfully"}  # Assert expected success response message
     
 
-@pytest.mark.usefixtures("mock_mongo")
 def test_signup_invalid_data(client):
     # Invalid data (missing username)
     data = {
@@ -61,9 +53,11 @@ def test_signup_invalid_data(client):
     # Send a POST request with invalid data
     response = client.post("/signup", data=data)
 
-    # Assert expected error response code (e.g., 400 Bad Request)
-    assert response.response == {"error": "Missing username, email, or password"}
-    assert response.status_code == 400
+    print(f"Response Status Code: {response.status_code}")
+    print(f"Response Data: {response.json}") 
+
+    assert response.status_code == 400  # Assert expected error response code (e.g., 400 Bad Request)
+    assert response.json == {"error": "Missing username"}  # Assert expected error response message
 
     
 

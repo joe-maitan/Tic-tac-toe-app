@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, render_template
 from flask_login import login_required
 from config import app, login_manager, db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -44,13 +44,8 @@ def load_user(user_id):
 # PLURAL NOUNS ARE PREFFERED
 # USE DIFFERENT METHODS TO INDICATE WHAT THE ACTION IS DOING
 
-@app.route('/')
-def index():  # greet the user at the index
-    pass
-
-
 # @app.route('/heartbeat', methods=["GET"])
-# def index():  # greet the user at the index
+# def hearbeat():  # greet the user at the index
 #     active_users.append(flask_login.current_user.get_id())
 #     app.logger.info("client has joined. Index route was hit")
 #     # render_template("index.html")
