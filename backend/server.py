@@ -51,9 +51,10 @@ def load_user(user_id):
 #     # render_template("index.html")
 #     pass
 
-@app.route("/", methods=["GET"])
-def index():
-    return {"Hello world!"}
+@app.route("/")
+def hello_world():
+    app.logger.info("Index route was hit")
+    return jsonify({"message": "Hello, World!"}), 200
 
 
 @app.route("/signup", methods=["POST"])
