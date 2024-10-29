@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import request, jsonify, render_template
 from flask_login import login_required
 from config import app, login_manager, db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -64,24 +64,24 @@ def create_user():
 
         if not username:
             app.logger.error("create_user() - Missing username")
-            return {"error": "Missing username"}, 400
+            return jsonify({"error": "Missing username"}), 400
         
         if not email:
             app.logger.error("create_user() - Missing email")
-            return {"error": "Missing email"}, 400
+            return jsonify({"error": "Missing email"}), 400
         
         if not password:
             app.logger.error("create_user() - Missing password")
-            return {"error": "Missing password"}, 400
+            return jsonify({"error": "Missing password"}) , 400
         
         existing_email = db['users'].find_one({"email": email})
         existing_username = db['users'].find_one({"username": username})
 
         if existing_email: 
-            return {"error": "Email is already in use."}, 400
+            return jsonify({"error": "Email is already in use."}), 400
               
         if existing_username:
-            return {"error": "Username already exists."}, 400 
+            return jsonify({"error": "Username already exists."}), 400
         
         # hashed_password = generate_password_hash(password) # hash the password
         hashed_password = password
@@ -94,19 +94,16 @@ def create_user():
 
         try:
             db['users'].insert_one(newUser)
+            user = User(True, newUser['username'])
+            login_user(user)
             app.logger.info("create_user() - User created and added to database successfully")
+            return jsonify({"message": "User created successfully"}), 201 # This is the status code for created, on the frontend we should redirect them to the lobby
         except Exception as e:
             app.logger.error(f"create_user() - Error inserting user into database - {e}")
-            return {"error": "Bad request"}, 400
-
-        user = User(True, newUser['username'])
-
-        login_user(user)
-           
-        return {"message": "User created successfully"}, 201 # This is the status code for created, on the frontend we should redirect them to the lobby
+            return jsonify({"error": "Bad request"}), 400
     except Exception as e:
         app.logger.error(f"create_user() - Error creating user {e}")
-        return {"error": "Internal server error"}, 500
+        return jsonify({"error": "Internal server error"}), 500
     
 
 
