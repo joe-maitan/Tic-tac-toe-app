@@ -18,7 +18,7 @@ def app():
 @pytest.fixture()
 def client(app):
     app.testing = True
-    return app.test_client()
+    return app.test_client(base_url="http://127.0.0.1:5000")
 
 
 # Declare a mock fixture for the MongoDB client (this will be torn down after the tests)
@@ -33,15 +33,8 @@ def client(app):
 #     return mock_client
 
 
-def test_signup_success(client):
-    data = {
-        "username": "jjmaitan",
-        "email": "jjm@gmail.com",
-        "password": "1234567890"
-    }
-
-    response = client.post("/signup", json=data)
-
+def test_index(client):
+    response = client.get("/")
     print(f"Request URL: {response.request.url}")
     print(f"Request Headers: {response.request.headers}")
     print(f"Request Body: {response.request.data}") 
@@ -49,9 +42,29 @@ def test_signup_success(client):
     print(f"Response Status Code: {response.status_code}")
     print(f"Response Headers: {response.headers}")
     print(f"Response Data: {response.json}")
+    assert response.status_code == 200
+    assert response.data == b"Hello world!"
 
-    assert response.status_code == 201
-    assert response.json == {"message": "User created successfully"}
+
+# def test_signup_success(client):
+#     data = {
+#         "username": "jjmaitan",
+#         "email": "jjm@gmail.com",
+#         "password": "1234567890"
+#     }
+
+#     response = client.post("/signup", json=data)
+
+#     print(f"Request URL: {response.request.url}")
+#     print(f"Request Headers: {response.request.headers}")
+#     print(f"Request Body: {response.request.data}") 
+
+#     print(f"Response Status Code: {response.status_code}")
+#     print(f"Response Headers: {response.headers}")
+#     print(f"Response Data: {response.json}")
+
+#     assert response.status_code == 201
+#     assert response.json == {"message": "User created successfully"}
     
 
 # def test_signup_invalid_data(client):

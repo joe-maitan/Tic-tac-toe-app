@@ -51,6 +51,10 @@ def load_user(user_id):
 #     # render_template("index.html")
 #     pass
 
+@app.route("/", methods=["GET"])
+def index():
+    return {"Hello world!"}
+
 
 @app.route("/signup", methods=["POST"])
 def create_user():
@@ -93,10 +97,11 @@ def create_user():
         }
 
         try:
+            app.logger.info("create_user() - User created and added to database successfully")
             db['users'].insert_one(newUser)
             user = User(True, newUser['username'])
             login_user(user)
-            app.logger.info("create_user() - User created and added to database successfully")
+            
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created, on the frontend we should redirect them to the lobby
         except Exception as e:
             app.logger.error(f"create_user() - Error inserting user into database - {e}")
