@@ -40,5 +40,17 @@ def test_signup(client):
     assert response.json == {"message": "User created successfully."}
 
 
+def test_signup_missing_data(client):
+    test_user_information = {
+        "email": "jjm@gmail.com",
+        "password": "123456"
+    }
+
+    response = client.post('/signup', json=test_user_information)
+    print(f"{response}")
+    assert response.status_code == 400
+    assert response.json == {"error": "Missing username"}
+
+
 def test_login(client):
     pass
