@@ -25,10 +25,12 @@ const LoginSignup = () => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
             if (response.status === 201) {
-                navigate('/lobby');
+              toast.success("Account created successfully!")
+              navigate('/lobby');
             }
           })
           .catch(error => {
+            toast.error("Error." + error.response.data.message)
             if (error.response) {
               console.error('Error response data:', error.response.data);
               console.error('Error status:', error.response.status);
@@ -53,7 +55,7 @@ const LoginSignup = () => {
             } 
           })
           .catch(error => {
-            toast.error("This didn't work.")
+            toast.error("Sign In Error." + error.response.data.message)
 
             if (error.response) {
               console.error('Error response data:', error.response.data);
