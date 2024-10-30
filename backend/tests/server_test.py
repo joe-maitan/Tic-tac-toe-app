@@ -1,6 +1,8 @@
 import pytest
-from flask import Flask
+from pymongo import MongoClient
+from pytest_mock_resources import create_mongo_fixture
 
+from flask import Flask
 from config import app, db
 from server import *
 
@@ -13,7 +15,7 @@ def client():
 
 @pytest.fixture(autouse=True)
 def mock_db(mocker):
-    mock_db = mocker.patch('db')
+    mock_db = mocker.patch('config.db')
     mock_users_collection = mock_db.get_collection('users')
 
     # Setup mock responses for the collection
