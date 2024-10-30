@@ -7,7 +7,7 @@ from flask_cors import CORS
 from flask_login import LoginManager
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins='*')
 
 app.logger.info("congfig.py - Flask app created")
 app.logger.info("congfig.py - Establishing connection to database")

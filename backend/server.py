@@ -1,12 +1,16 @@
 from flask import request, jsonify, render_template
 from flask_login import login_required
 from config import app, login_manager, db
-from werkzeug.security import generate_password_hash, check_password_hash
+#from werkzeug.security import generate_password_hash, check_password_hash
+from flask_cors import CORS
+from flask import Flask, jsonify
 
 import unittest
 from tests import *
 
 active_users = []
+app = Flask(__name__)
+CORS(app, origins='*')
 
 class User():
 
@@ -83,9 +87,11 @@ def create_user():
         existing_username = db['users'].find_one({"username": username})
 
         if existing_email: 
+            app.logger.error("create_user() - email already in the database")
             return jsonify({"error": "Email is already in use."}), 400
               
         if existing_username:
+            app.logger.error("create_user() - username already in the database")
             return jsonify({"error": "Username already exists."}), 400
         
         # hashed_password = generate_password_hash(password) # hash the password
@@ -101,7 +107,7 @@ def create_user():
             app.logger.info("create_user() - User created and added to database successfully")
             db['users'].insert_one(newUser)
             user = User(True, newUser['username'])
-            login_user(user)
+            #login_user(user)
             
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created, on the frontend we should redirect them to the lobby
         except Exception as e:
@@ -122,18 +128,19 @@ def login_user():
         username = data.get("username")
         password = data.get("password")
 
-        searched_username = db.users.find_one({"username": username})
-
+        searched_username = db['users'].find_one({"username": username})
         if not searched_username:
+            app.logger.info("/login username not found in database")
             return {"error": "User not found"}, 404
         
         if searched_username.get("password") != password:
             return {"error": "Invalid password"}, 400
         
         user = User(True, searched_username["username"])
-        login_user(user)
+        #login_user(user)
 
         app.logger.info("login_user() - User logged in successfully")
+        return jsonify({"message": "User logged in successfully"}), 201
         # TODO: redirect them to the game/lobby page
     except Exception as e:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
