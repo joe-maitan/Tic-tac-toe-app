@@ -140,7 +140,7 @@ def login_user():
         #login_user(user)
 
         app.logger.info("login_user() - User logged in successfully")
-        return jsonify({"message": "User created successfully"}), 201
+        return jsonify({"message": "User logged in successfully"}), 201
         # TODO: redirect them to the game/lobby page
     except Exception as e:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
