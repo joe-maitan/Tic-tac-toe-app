@@ -6,6 +6,13 @@ from config import socketio, app, login_manager, db
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
+# Constant HTTP status codes
+HTTP_OK = 200
+HTTP_CREATED = 201
+HTTP_BAD_REQUEST = 400
+HTTP_NOT_FOUND = 404
+HTTP_INTERNAL_SERVER_ERROR = 500
+
 active_users = []
 
 class User():
@@ -94,7 +101,7 @@ def create_user():
             user = User(True, newUser['username'])
             login_user(user)
             
-            return jsonify({"message": "User created successfully"}), 201 # This is the status code for created, on the frontend we should redirect them to the lobby
+            return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
         except Exception as e:
             app.logger.error(f"create_user() - Error inserting user into database - {e}")
             return jsonify({"error": "Bad request"}), 400
@@ -127,7 +134,6 @@ def login():
 
         app.logger.info("login_user() - User logged in successfully")
         return jsonify({"message": "User logged in successfully"}), 201
-        # TODO: redirect them to the game/lobby page
     except Exception as e:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
@@ -135,8 +141,10 @@ def login():
 
 @login_required  # an action that requires the user to be logged in
 @app.route('/logout', methods=["GET"])
-def logout_user():
+def logout():
     app.logger.info("/logout route was hit, logging out a user")
+    # how to get the username/id of the user that sent this request
+    # logout_user()
     pass
 
     # TODO: After logout, take them back to the login page
@@ -146,7 +154,7 @@ def logout_user():
 @socketio.on('connect')
 def handle_connection():
     app.logger.info("A user has connected to the server")
-    active_users.append(flask_login.current_user.get_id())
+    active_users.append(login_manager.current_user.get_id())
     active_users.append(request.sid)
     pass
 
@@ -159,35 +167,27 @@ def handle_disconnection():
     pass
 
 
-# @app.route('/heartbeat', methods=["GET"])
-# def hearbeat():  # greet the user at the index
-#     active_users.append(flask_login.current_user.get_id())
-#     app.logger.info("client has joined. Index route was hit")
-#     # render_template("index.html")
+# @login_required
+# @socketio.on('heartbeat')
+# def send_heartbeat():
+#     app.logger.info("A user has sent a heartbeat")
+#     emit('heartbeat', {"data": "Hello, World!"})
 #     pass
 
 
-@login_required
-@socketio.on('heartbeat')
-def send_heartbeat():
-    app.logger.info("A user has sent a heartbeat")
-    emit('heartbeat', {"data": "Hello, World!"})
-    pass
+# TODO: Figure out the socket stuff behind invite, creating the room for two players, and make move
+# @login_required
+# @socketio.on('invite')
+# def invite_user():
+#     app.logger.info("/invite_user route was hit, inviting a user to play a game")
+#     pass
 
 
-# TODO: Figure out custom route name for invite, gamemove, etc.
-@login_required
-@socketio.on('invite')
-def invite_user():
-    app.logger.info("/invite_user route was hit, inviting a user to play a game")
-    pass
-
-
-@login_required
-@socketio.on('gamemove')
-def game_move(game_board, postion):
-    app.logger.info("/game_move route was hit, making a move in the game")
-    pass
+# @login_required
+# @socketio.on('gamemove')
+# def game_move(game_board, postion):
+#     app.logger.info("/game_move route was hit, making a move in the game")
+#     pass
 
 
 if __name__ == "__main__":

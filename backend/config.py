@@ -9,7 +9,7 @@ from flask_login import LoginManager
 # from flask_socketio import SocketIO
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.u_random(100)
+app.config['SECRET_KEY'] = 'secret!' #os.u_random(100)
 socketio = SocketIO(app)
 CORS(app, origins='*')
 

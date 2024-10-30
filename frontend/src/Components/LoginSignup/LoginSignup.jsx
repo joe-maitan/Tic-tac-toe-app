@@ -7,6 +7,7 @@ import user_pic from '../Images/user.png'
 import email_pic from '../Images/email.png'
 import password_pic from '../Images/password.png'
 import axios from "axios";
+import { toast } from 'react-hot-toast';
 
 const LoginSignup = () => {
     console.log('LoginSignup component rendered');
@@ -25,12 +26,12 @@ const LoginSignup = () => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
             if (response.status === 201) {
-              toast.success("Account created successfully!")
+              toast.success("Logged in!")
               navigate('/lobby');
             }
           })
           .catch(error => {
-            toast.error("Error." + error.response.data.message)
+            toast.error("Error logging in. " + error.message)
             if (error.response) {
               console.error('Error response data:', error.response.data);
               console.error('Error status:', error.response.status);
@@ -50,12 +51,12 @@ const LoginSignup = () => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
             if (response.status === 201) {
-                toast.success("Account created successfully!")
+                toast.success("Account created successfully!");
                 navigate('/lobby');
             } 
           })
           .catch(error => {
-            toast.error("Sign In Error." + error.response.data.message)
+            toast.error("Sign In Error.");
 
             if (error.response) {
               console.error('Error response data:', error.response.data);

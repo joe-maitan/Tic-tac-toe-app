@@ -15,8 +15,6 @@ const App = () => {
       <Route path='/' element={<LoginSignup />} />
       <Route path='/lobby' element={<Lobby />} />
       </Routes>
-
-      Hello WorlDQ
       
       <Toaster 
         position="bottom-right"
