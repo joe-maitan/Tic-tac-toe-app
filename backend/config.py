@@ -10,7 +10,7 @@ from flask_login import LoginManager
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!' #os.u_random(100)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173") # the only accepted origin is our front end server
 CORS(app, origins='*')
 
 app.logger.info("congfig.py - Flask app created")

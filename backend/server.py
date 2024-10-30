@@ -1,6 +1,6 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, session, jsonify, render_template
 from flask_cors import CORS
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, current_user, logout_user
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from config import socketio, app, login_manager, db
 
@@ -42,9 +42,14 @@ class User():
         return self._id
 
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return db['users'].find_one({"_id": user_id})
+
+
+def get_user(username):
+    return db['users'].find_one({"username": username})
 
 
 @app.route("/")
@@ -100,6 +105,10 @@ def create_user():
             db['users'].insert_one(newUser)
             user = User(True, newUser['username'])
             login_user(user)
+
+            # Set session as authenticated
+            session['authenticated'] = True
+            session['username'] = username  # You can add other user information if needed
             
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
         except Exception as e:
@@ -117,7 +126,7 @@ def login():
 
     try:
         data = request.get_json()
-        print(data)
+        # print(data)
         username = data.get("username")
         password = data.get("password")
 
@@ -153,9 +162,10 @@ def logout():
 @login_required
 @socketio.on('connect')
 def handle_connection():
+    print("server.py - handle_connection() - user has connected to the server VIA sockets")
     app.logger.info("A user has connected to the server")
-    active_users.append(login_manager.current_user.get_id())
-    active_users.append(request.sid)
+    # emit('connect', {"data": current_user.username + " has connected"})
+    active_users.append(current_user)
     pass
 
 
@@ -163,7 +173,8 @@ def handle_connection():
 @socketio.on('disconnect')
 def handle_disconnection():
     app.logger.info("A user has disconnected from the server")
-    active_users.remove(request.sid)
+    # emit('disconnect', {"data": current_user['username'] + " has disconnected"})
+    active_users.remove(current_user)
     pass
 
 
