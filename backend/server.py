@@ -166,6 +166,7 @@ def handle_connection():
     app.logger.info("A user has connected to the server")
     # emit('connect', {"data": current_user.username + " has connected"})
     active_users.append(current_user)
+    print(f"Active users: {active_users}")
     pass
 
 
