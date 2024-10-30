@@ -2,14 +2,15 @@
 
 class Game():
 
-    spaces = ["-" for _ in range(9)]
+    # spaces = ["-" for _ in range(9)]
     board = None
     player1 = None
     player2 = None
 
 
     def __init__(self, player1, player2):
-        self.board = [[None for _ in range(3)] for _ in range(3)]
+        self.board = [[" " for _ in range(3)] for _ in range(3)]
+        # could also be a string of characters
 
 
     def print_board(self):

@@ -1,7 +1,9 @@
 flask
 flask-cors
 flask-Login
+flask-socketio
 pymongo
 mongomock
 pytest
 pytest_mock
+pytest_mock_resources
