@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from flask_login import login_required
-from flask_socketio import SocketIO, send, emit
+from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from config import app, login_manager, db
 
 #from werkzeug.security import generate_password_hash, check_password_hash
@@ -38,11 +38,6 @@ class User():
 @login_manager.user_loader
 def load_user(user_id):
     return db['users'].find_one({"_id": user_id})
-
-
-# CONVETION: AVOID VERBS IN THE ROUTES
-# PLURAL NOUNS ARE PREFFERED
-# USE DIFFERENT METHODS TO INDICATE WHAT THE ACTION IS DOING
 
 
 @app.route("/")
