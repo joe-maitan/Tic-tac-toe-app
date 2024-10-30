@@ -16,18 +16,18 @@ def mock_mongo(mocker):
     mock_client = mocker.patch('pymongo.MongoClient')
     mock_database = mock_client.return_value
     mock_collection = mock_database.return_value
-    mock_collection.insert_one.return_value = True
+    # mock_collection.insert_one.return_value = True
 
     return mock_client
 
 
-def test_index_route(client):
+def test_index_route(client, mock_mongo):
     response = client.get('/')
     assert response.status_code == 200
     assert response.json == {"message": "Hello, World!"}
 
 
-def test_signup(client):
+def test_signup(client, mock_mongo):
     test_user_information = {
         "username": "jjmaitan",
         "email": "jjm@gmail.com",
@@ -40,7 +40,7 @@ def test_signup(client):
     assert response.json == {"message": "User created successfully."}
 
 
-def test_signup_missing_data(client):
+def test_signup_missing_data(client, mock_mongo):
     test_user_information = {
         "email": "jjm@gmail.com",
         "password": "123456"

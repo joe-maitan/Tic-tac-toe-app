@@ -1,12 +1,16 @@
 import pymongo
+import os
 from pymongo import MongoClient
 
 from flask import Flask
+from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_login import LoginManager
 # from flask_socketio import SocketIO
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.u_random(100)
+socketio = SocketIO(app)
 CORS(app, origins='*')
 
 app.logger.info("congfig.py - Flask app created")

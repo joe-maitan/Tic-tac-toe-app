@@ -48,10 +48,13 @@ const LoginSignup = () => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
             if (response.status === 201) {
+                toast.success("Account created successfully!")
                 navigate('/lobby');
-            }
+            } 
           })
           .catch(error => {
+            toast.error("This didn't work.")
+
             if (error.response) {
               console.error('Error response data:', error.response.data);
               console.error('Error status:', error.response.status);

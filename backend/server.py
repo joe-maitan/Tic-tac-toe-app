@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from flask_login import login_required
+from flask_login import login_required, login_user, logout_user
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
-from config import app, login_manager, db
+from config import socketio, app, login_manager, db
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -92,7 +92,7 @@ def create_user():
             app.logger.info("create_user() - User created and added to database successfully")
             db['users'].insert_one(newUser)
             user = User(True, newUser['username'])
-            #login_user(user)
+            login_user(user)
             
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created, on the frontend we should redirect them to the lobby
         except Exception as e:
@@ -105,7 +105,7 @@ def create_user():
 
 
 @app.route('/login', methods=["POST"])
-def login_user():
+def login():
     app.logger.info("/login route was hit, logging in a user")
 
     try:
@@ -123,7 +123,7 @@ def login_user():
             return {"error": "Invalid password"}, 400
         
         user = User(True, searched_username["username"])
-        #login_user(user)
+        login_user(user)
 
         app.logger.info("login_user() - User logged in successfully")
         return jsonify({"message": "User logged in successfully"}), 201
@@ -185,12 +185,11 @@ def invite_user():
 
 @login_required
 @socketio.on('gamemove')
-def game_move(game_board):
+def game_move(game_board, postion):
     app.logger.info("/game_move route was hit, making a move in the game")
     pass
 
 
 if __name__ == "__main__":
     # app.run(debug=True)  # Run all of different routes and our API
-    socketio = SocketIO(app)
     socketio.run(app, debug=True)  # Run all of different routes and our API

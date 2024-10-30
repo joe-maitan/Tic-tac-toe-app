@@ -5,13 +5,25 @@ import { useState } from 'react'
 import './App.css'
 import LoginSignup from "./Components/LoginSignup/LoginSignup";
 import Lobby from "./Components/Lobby/Lobby";
+import { Toaster } from 'react-hot-toast';
 
 const App = () => {
   return(
-    <Routes>
+    <>
+      
+      <Routes>
       <Route path='/' element={<LoginSignup />} />
       <Route path='/lobby' element={<Lobby />} />
-    </Routes>
+      </Routes>
+
+      Hello WorlDQ
+      
+      <Toaster 
+        position="bottom-right"
+        reverseOrder={false}
+      />
+    </>
+    
   )
 };
 
