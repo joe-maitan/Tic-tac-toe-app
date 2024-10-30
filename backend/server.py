@@ -1,12 +1,9 @@
-from flask import request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 from flask_login import login_required
 from config import app, login_manager, db
-#from werkzeug.security import generate_password_hash, check_password_hash
-from flask_cors import CORS
-from flask import Flask, jsonify
 
-import unittest
-from tests import *
+#from werkzeug.security import generate_password_hash, check_password_hash
 
 active_users = []
 app = Flask(__name__)
@@ -170,4 +167,5 @@ def invite_user():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)  # Run all of different routes and our API
+    # app.run(debug=True)  # Run all of different routes and our API
+    socketio.run(app, debug=True)  # Run all of different routes and our API
