@@ -44,12 +44,6 @@ def load_user(user_id):
 # PLURAL NOUNS ARE PREFFERED
 # USE DIFFERENT METHODS TO INDICATE WHAT THE ACTION IS DOING
 
-# @app.route('/heartbeat', methods=["GET"])
-# def hearbeat():  # greet the user at the index
-#     active_users.append(flask_login.current_user.get_id())
-#     app.logger.info("client has joined. Index route was hit")
-#     # render_template("index.html")
-#     pass
 
 @app.route("/")
 def hello_world():
@@ -144,8 +138,8 @@ def login_user():
         return {"error": "Invalid JSON"}, 400
 
 
-@app.route('/logout', methods=["GET"])
 @login_required  # an action that requires the user to be logged in
+@app.route('/logout', methods=["GET"])
 def logout_user():
     app.logger.info("/logout route was hit, logging out a user")
     pass
@@ -153,13 +147,16 @@ def logout_user():
     # TODO: After logout, take them back to the login page
 
 
+@login_required
 @socketio.on('connect')
 def handle_connection():
     app.logger.info("A user has connected to the server")
+    active_users.append(flask_login.current_user.get_id())
     active_users.append(request.sid)
     pass
 
 
+@login_required
 @socketio.on('disconnect')
 def handle_disconnection():
     app.logger.info("A user has disconnected from the server")
@@ -167,6 +164,15 @@ def handle_disconnection():
     pass
 
 
+# @app.route('/heartbeat', methods=["GET"])
+# def hearbeat():  # greet the user at the index
+#     active_users.append(flask_login.current_user.get_id())
+#     app.logger.info("client has joined. Index route was hit")
+#     # render_template("index.html")
+#     pass
+
+
+@login_required
 @socketio.on('heartbeat')
 def send_heartbeat():
     app.logger.info("A user has sent a heartbeat")
@@ -175,12 +181,14 @@ def send_heartbeat():
 
 
 # TODO: Figure out custom route name for invite, gamemove, etc.
+@login_required
 @socketio.on('invite')
 def invite_user():
     app.logger.info("/invite_user route was hit, inviting a user to play a game")
     pass
 
 
+@login_required
 @socketio.on('gamemove')
 def game_move(game_board):
     app.logger.info("/game_move route was hit, making a move in the game")
