@@ -1,11 +1,9 @@
 # Virtual environment
 venv/
 venv*/
-__pycache__/
-__pycache__*/
+# __pycache__/
+# __pycache__*/
+/.pytest_cache/
+/__pycache__
 
-
-
-*.pyc
-
-.pytest_cache/
+/.pytest_cache/*.pyc
