@@ -125,6 +125,7 @@ def login_user():
 
     try:
         data = request.get_json()
+        print(data)
         username = data.get("username")
         password = data.get("password")
 
