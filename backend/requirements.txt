@@ -2,3 +2,6 @@ flask
 flask-cors
 flask-Login
 pymongo
+mongomock
+pytest
+pytest_mock

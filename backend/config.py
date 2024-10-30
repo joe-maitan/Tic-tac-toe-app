@@ -5,7 +5,6 @@ from flask import Flask
 from flask_cors import CORS
 
 from flask_login import LoginManager
-import database.users # from database import users
 
 app = Flask(__name__)
 CORS(app)
@@ -35,7 +34,6 @@ except Exception as e:
     app.logger.error("congfig.py - Error creating user collection.")
     app.logger.error(e)
     exit(1)
-
 
 login_manager = LoginManager()
 login_manager.init_app(app)

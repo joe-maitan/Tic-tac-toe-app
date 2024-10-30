@@ -1,7 +1,10 @@
-from flask import request
+from flask import request, jsonify, render_template
 from flask_login import login_required
 from config import app, login_manager, db
 from werkzeug.security import generate_password_hash, check_password_hash
+
+import unittest
+from tests import *
 
 active_users = []
 
@@ -36,24 +39,25 @@ class User():
 def load_user(user_id):
     return db['users'].find_one({"_id": user_id})
 
+
 # CONVETION: AVOID VERBS IN THE ROUTES
 # PLURAL NOUNS ARE PREFFERED
 # USE DIFFERENT METHODS TO INDICATE WHAT THE ACTION IS DOING
 
-@app.route('/')
-def index():  # greet the user at the index
-    pass
-
-
 # @app.route('/heartbeat', methods=["GET"])
-# def index():  # greet the user at the index
+# def hearbeat():  # greet the user at the index
 #     active_users.append(flask_login.current_user.get_id())
 #     app.logger.info("client has joined. Index route was hit")
 #     # render_template("index.html")
 #     pass
 
+@app.route("/")
+def hello_world():
+    app.logger.info("Index route was hit")
+    return jsonify({"message": "Hello, World!"}), 200
 
-@app.route('/users', methods=["POST"])
+
+@app.route("/signup", methods=["POST"])
 def create_user():
     app.logger.info("/signup route was hit, creating a new user")
 
@@ -63,18 +67,26 @@ def create_user():
         email = data.get("email")
         password = data.get("password")
 
-        if not username or not email or not password:
-            app.logger.error("create_user() - Missing username, email, or password")
-            return {"error": "Missing username, email, or password"}, 400
+        if not username:
+            app.logger.error("create_user() - Missing username")
+            return jsonify({"error": "Missing username"}), 400
+        
+        if not email:
+            app.logger.error("create_user() - Missing email")
+            return jsonify({"error": "Missing email"}), 400
+        
+        if not password:
+            app.logger.error("create_user() - Missing password")
+            return jsonify({"error": "Missing password"}) , 400
         
         existing_email = db['users'].find_one({"email": email})
         existing_username = db['users'].find_one({"username": username})
 
         if existing_email: 
-            return {"error": "Email is already in use."}, 400
+            return jsonify({"error": "Email is already in use."}), 400
               
         if existing_username:
-            return {"error": "Username already exists."}, 400 
+            return jsonify({"error": "Username already exists."}), 400
         
         # hashed_password = generate_password_hash(password) # hash the password
         hashed_password = password
@@ -85,29 +97,20 @@ def create_user():
             "password": hashed_password
         }
 
-        
         try:
-            db['users'].insert_one(newUser)
             app.logger.info("create_user() - User created and added to database successfully")
+            db['users'].insert_one(newUser)
+            user = User(True, newUser['username'])
+            login_user(user)
+            
+            return jsonify({"message": "User created successfully"}), 201 # This is the status code for created, on the frontend we should redirect them to the lobby
         except Exception as e:
-            app.logger.error(f"create_user() - Error inserting user into database {e}")
-            return {"error": "Bad request"}, 400
-
-        user = User(True, newUser['username'])
-
-        login_user(user)
-           
-        return {"message": "User created successfully"}, 201
-    # TODO: redirect them to the game/lobby page
+            app.logger.error(f"create_user() - Error inserting user into database - {e}")
+            return jsonify({"error": "Bad request"}), 400
     except Exception as e:
         app.logger.error(f"create_user() - Error creating user {e}")
-        return {"error": "Internal server error"}, 500
+        return jsonify({"error": "Internal server error"}), 500
     
-
-@login_manager.user_loader
-def load_user(user_id):
-    # replace with call to database to get user by userID
-    pass   
 
 
 @app.route('/login', methods=["POST"])
