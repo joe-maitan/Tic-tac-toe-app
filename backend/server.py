@@ -1,13 +1,12 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from flask_login import login_required
+from flask_socketio import SocketIO, send, emit
 from config import app, login_manager, db
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
 active_users = []
-app = Flask(__name__)
-CORS(app, origins='*')
 
 class User():
 
@@ -154,18 +153,41 @@ def logout_user():
     # TODO: After logout, take them back to the login page
 
 
+@socketio.on('connect')
+def handle_connection():
+    app.logger.info("A user has connected to the server")
+    active_users.append(request.sid)
+    pass
+
+
+@socketio.on('disconnect')
+def handle_disconnection():
+    app.logger.info("A user has disconnected from the server")
+    active_users.remove(request.sid)
+    pass
+
+
+@socketio.on('heartbeat')
+def send_heartbeat():
+    app.logger.info("A user has sent a heartbeat")
+    emit('heartbeat', {"data": "Hello, World!"})
+    pass
+
+
 # TODO: Figure out custom route name for invite, gamemove, etc.
-@app.route("/invite", methods=["POST"])
+@socketio.on('invite')
 def invite_user():
     app.logger.info("/invite_user route was hit, inviting a user to play a game")
     pass
 
 
-# @app.route('/play_game') with another user
-
-# @app.route('/play_game_with_bot')
+@socketio.on('gamemove')
+def game_move(game_board):
+    app.logger.info("/game_move route was hit, making a move in the game")
+    pass
 
 
 if __name__ == "__main__":
     # app.run(debug=True)  # Run all of different routes and our API
+    socketio = SocketIO(app)
     socketio.run(app, debug=True)  # Run all of different routes and our API

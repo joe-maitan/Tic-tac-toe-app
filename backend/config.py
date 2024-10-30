@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from flask import Flask
 from flask_cors import CORS
 from flask_login import LoginManager
-from flask_socketio import SocketIO
+# from flask_socketio import SocketIO
 
 app = Flask(__name__)
 CORS(app, origins='*')
@@ -37,4 +37,4 @@ except Exception as e:
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-socketio = SocketIO(app)
+# socketio = SocketIO(app)
