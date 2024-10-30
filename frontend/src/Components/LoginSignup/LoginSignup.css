@@ -74,14 +74,10 @@
     cursor: pointer;
 }
 
-.submit-container {
+.button {
     display: flex;
     gap: 30px;
     margin: 60px auto;
-}
-
-.submit {
-    display: flex;
     justify-content: center;
     align-items: center;
     width: 220px;
@@ -92,9 +88,4 @@
     font-size: 19px;
     font-weight: 700;
     cursor: pointer;
-}
-
-.gray {
-    background: #EAEAEA;
-    color: #676767;
 }
