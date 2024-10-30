@@ -1,45 +1,66 @@
 //import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from 'react'
 import './LoginSignup.css'
+//import Lobby from "../Lobby/Lobby";
 import user_pic from '../Images/user.png'
 import email_pic from '../Images/email.png'
 import password_pic from '../Images/password.png'
 import axios from "axios";
 
 const LoginSignup = () => {
+    console.log('LoginSignup component rendered');
     const [action, setAction] = useState('Login');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleLoginInput = (username, password) => {
         console.log(username, password);
-        try {
-            axios.post("http://127.0.0.1:5000/login", {
-                'username': username, 'password': password
-            })
-        }
-        catch(e) {
-            console.log(e);
-        }
+        axios.post('http://127.0.0.1:5000/login', {
+            "username": username, "password": password
+          })
+          .then(response => {
+            console.log('Response data:', response.data);
+            console.log('Response status:', response.status);
+            if (response.status === 201) {
+                navigate('/lobby');
+            }
+          })
+          .catch(error => {
+            if (error.response) {
+              console.error('Error response data:', error.response.data);
+              console.error('Error status:', error.response.status);
+            } else if (error.request) {
+              console.error('Error request:', error.request);
+            } else {
+              console.error('Error message:', error.message);
+            }
+          });        
     }
 
     const handleSignUpInput = (username, email, password) => {
-        console.log(username, email, password);
-        try {
-            axios({
-                method: 'POST',
-                url: 'http://127.0.0.1:5000/signup',
-                data : {'username': username, 'email': email, 'password': password},
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-        }
-        catch(e) {
-            console.log(e);
-        }
+        axios.post('http://127.0.0.1:5000/signup', {
+            "username": username, "email": email,"password": password
+          })
+          .then(response => {
+            console.log('Response data:', response.data);
+            console.log('Response status:', response.status);
+            if (response.status === 201) {
+                navigate('/lobby');
+            }
+          })
+          .catch(error => {
+            if (error.response) {
+              console.error('Error response data:', error.response.data);
+              console.error('Error status:', error.response.status);
+            } else if (error.request) {
+              console.error('Error request:', error.request);
+            } else {
+              console.error('Error message:', error.message);
+            }
+          });  
     }
 
   return (
