@@ -32,7 +32,9 @@ def test_index_route(client):
 
 
 def test_signup(client, mock_db):
-    mock_db.get_collection('users').find_one.return_value = None
+    if db['users'].find_one({"username": "bobbybiceps"}):
+        db['users'].delete_one({"username": "bobbybiceps"})
+
     test_user_information = {
         "username": "bobbybiceps",
         "email": "logic@gmail.com",
@@ -43,8 +45,9 @@ def test_signup(client, mock_db):
     print(f"response: {response}")
     assert response.status_code == 201
     assert response.json == {"message": "User created successfully"}
-    mock_db.get_collection('users').insert_one.assert_called_once()
 
+    db['users'].delete_one({"username": "bobbybiceps"})
+    
 
 def test_signup_missing_data(client, mock_db):
     test_user_information = {
@@ -58,7 +61,7 @@ def test_signup_missing_data(client, mock_db):
     assert response.json == {"error": "Missing username"}
 
 
-def test_signup_existing_email(client, mock_db):
+def test_signup_existing_username(client, mock_db):
     test_user_information = {
         "username": "jjmaitan",
         "email": "jjm@gmail.com",
@@ -66,9 +69,70 @@ def test_signup_existing_email(client, mock_db):
     }
 
     response = client.post('/signup', json=test_user_information)
-    print(f"{response}")
     assert response.status_code == 400
+    assert response.json == {"error": "Username already exists. Please choose another."}
+
+
+def test_signup_existing_email(client, mock_db):
+    test_user_information = {
+        "username": "temp_name",
+        "email": "jjm@gmail.com",
+        "password": "123456"
+    }
+
+    response = client.post('/signup', json=test_user_information)
+    assert response.status_code == 400
+    assert response.json == {"error": "Email already exists. Please choose another."}
 
 
 def test_login(client):
-    pass
+    test_login_information = {
+        "username": "jjmaitan",
+        "password": "joePassword"
+    }
+
+    response = client.post('/login', json=test_login_information)
+    assert response.status_code == 201
+    assert response.json == {"message": "User logged in successfully"}
+
+
+def test_login_missing_data_password(client):
+    test_login_information = {
+        "username": "jjmaitan"
+    }
+
+    response = client.post('/login', json=test_login_information)
+    assert response.status_code == 400
+    assert response.json == {"error": "Missing password"}
+
+
+def test_login_missing_data_username(client):
+    test_login_information = {
+        "password": "joePassword"
+    }
+
+    response = client.post('/login', json=test_login_information)
+    assert response.status_code == 400
+    assert response.json == {"error": "Missing username"}
+
+
+def test_login_invalid_username(client):
+    test_login_information = {
+        "username": "jjmaitan123",
+        "password": "joePassword"
+    }
+
+    response = client.post('/login', json=test_login_information)
+    assert response.status_code == 404
+    assert response.json == {"error": "Username not found"}
+
+
+def test_login_invalid_password(client):
+    test_login_information = {
+        "username": "jjmaitan",
+        "password": "wrongPassword"
+    }
+
+    response = client.post('/login', json=test_login_information)
+    assert response.status_code == 400
+    assert response.json == {"error": "Invalid password"}

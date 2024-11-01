@@ -14,6 +14,7 @@ HTTP_NOT_FOUND = 404
 HTTP_INTERNAL_SERVER_ERROR = 500
 
 active_users = []
+active_users_sockets = []
 
 class User():
 
@@ -80,17 +81,17 @@ def create_user():
             app.logger.error("create_user() - Missing password")
             return jsonify({"error": "Missing password"}) , 400
         
-        existing_email = db['users'].find_one({"email": email})
         existing_username = db['users'].find_one({"username": username})
-
-        if existing_email: 
-            app.logger.error("create_user() - email already in the database")
-            return jsonify({"error": "Email is already in use."}), 400
-              
-        if existing_username:
-            app.logger.error("create_user() - username already in the database")
-            return jsonify({"error": "Username already exists."}), 400
+        existing_email = db['users'].find_one({"email": email})
         
+        if existing_username:
+            app.logger.error("create_user() - username already in use for another account")
+            return jsonify({"error": "Username already exists. Please choose another."}), 400
+        
+        if existing_email: 
+            app.logger.error("create_user() - email in use for another account")
+            return jsonify({"error": "Email already exists. Please choose another."}), 400
+              
         # hashed_password = generate_password_hash(password) # hash the password
         hashed_password = password
 
@@ -119,7 +120,6 @@ def create_user():
         return jsonify({"error": "Internal server error"}), 500
     
 
-
 @app.route('/login', methods=["POST"])
 def login():
     app.logger.info("/login route was hit, logging in a user")
@@ -130,10 +130,18 @@ def login():
         username = data.get("username")
         password = data.get("password")
 
+        if not username:
+            app.logger.error("login_user() - Missing username")
+            return jsonify({"error": "Missing username"}), 400
+        
+        if not password:
+            app.logger.error("login_user() - Missing password")
+            return jsonify({"error": "Missing password"}), 400
+
         searched_username = db['users'].find_one({"username": username})
         if not searched_username:
             app.logger.info("/login username not found in database")
-            return {"error": "User not found"}, 404
+            return {"error": "Username not found"}, 404
         
         if searched_username.get("password") != password:
             return {"error": "Invalid password"}, 400
@@ -167,6 +175,7 @@ def handle_connection():
     # emit('connect', {"data": current_user.username + " has connected"})
     active_users.append(current_user)
     print(f"Active users: {active_users}")
+    print(f"Active users sockets: {active_users_sockets}")  
     pass
 
 
@@ -175,7 +184,9 @@ def handle_connection():
 def handle_disconnection():
     app.logger.info("A user has disconnected from the server")
     # emit('disconnect', {"data": current_user['username'] + " has disconnected"})
-    active_users.remove(current_user)
+    # user = get_user()
+    # active_users.remove(current_user)
+    logout_user(current_user)
     pass
 
 
