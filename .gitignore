@@ -1,2 +1,8 @@
+# Ignore Python virtual environment directory
 .venv/
-.vscode/
+
+# Ignore Python cache and test cache directories
+__pycache__/
+backend/__pycache__/
+.pytest_cache/
+backend/.pytest_cache/
