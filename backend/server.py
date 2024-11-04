@@ -13,7 +13,7 @@ HTTP_BAD_REQUEST = 400
 HTTP_NOT_FOUND = 404
 HTTP_INTERNAL_SERVER_ERROR = 500
 
-active_users = []
+active_users = {}  # dictionary of active users {"username": "socket_id"}
 
 class User():
 
@@ -47,7 +47,8 @@ class User():
 def load_user(user_id):
     user_data = db['users'].find_one({"username": user_id})
 
-    if user_data is not None:
+    if user_data:
+        print(f"load_user() - User {user_data['username']} loaded successfully")
         return User(is_authenticated=True, user_id=user_data["username"])
 
     return None
@@ -104,12 +105,12 @@ def create_user():
         try:
             app.logger.info("create_user() - User created and added to database successfully")
             db['users'].insert_one(newUser)
+            
             user = load_user(username)
             login_user(user)
-
-            # Set session as authenticated
-            session['authenticated'] = True
-            session['username'] = username  # You can add other user information if needed
+            
+            session['username'] = username
+            session['is_authenticated'] = True
             
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
         except Exception as e:
@@ -126,7 +127,6 @@ def login():
 
     try:
         data = request.get_json()
-        # print(data)
         username = data.get("username")
         password = data.get("password")
 
@@ -146,11 +146,15 @@ def login():
         if searched_username.get("password") != password:
             return {"error": "Invalid password"}, 400
         
-        # user = User(True, searched_username["username"])
+        
         user = load_user(searched_username["username"])
         login_user(user)
 
+        session['username'] = username
+        session['is_authenticated'] = True
+        
         app.logger.info("login_user() - User logged in successfully")
+
         return jsonify({"message": "User logged in successfully"}), 201
     except Exception as e:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
@@ -172,12 +176,15 @@ def logout():
 @socketio.on('connect')
 def handle_connection():
     print(f"server.py - handle_connection() - event hit")
-    if current_user.is_authenticated:
-        username = current_user.get_id()
-        active_users.append(username)
-        emit('welcome', {"data": username + " has connected"})
+    # print(f"server.py - handle_connection() - request.sid = {request.sid}")
+
+    if session.get('is_authenticated') == True:
+        print(f"handle_connection() - current session is {session.get('is_authenticated')}:")
+        active_users[session.get('username')] = request.sid  # pairs the current user to their socket id
+
+    # active_users[username] = request.sid  # pairs the current user to their socket id
+    # emit("user_list_update", {"users": list(active_users.keys())}, broadcast=True)
     
-    print(f"server.py - handle_connection() - {username} has connected to the server VIA sockets")
 
 
 @login_required
@@ -187,13 +194,15 @@ def handle_disconnection():
     # emit('disconnect', {"data": current_user['username'] + " has disconnected"})
     # user = get_user()
     # active_users.remove(current_user)
+    session.clear()
     logout_user()
     return redirect(url_for('login'))
+
 
 @login_required
 @socketio.on('user_list_update')
 def update_user_list():
-    pass
+    return active_users
 
 
 # TODO: Figure out the socket stuff behind invite, creating the room for two players, and make move

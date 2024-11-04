@@ -10,8 +10,12 @@ from flask_login import LoginManager
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!' #os.u_random(100)
+# app.config['SESSION_COOKIE_HTTPONLY'] = True
+# app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+# app.config['SESSION_PERMANENT'] = False  # Non-permanent session
+
 socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173") # the only accepted origin is our front end server
-CORS(app, origins='*')
+CORS(app, origins='*', supports_credentials=True)
 
 app.logger.info("congfig.py - Flask app created")
 app.logger.info("congfig.py - Establishing connection to database")

@@ -21,8 +21,10 @@ const LoginSignup = () => {
         console.log(username, password);
         axios.post('http://127.0.0.1:5000/login', {
             "username": username, "password": password
-          })
-          .then(response => {
+          },
+          {
+            withCredentials: true
+          }).then(response => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
             if (response.status === 201) {
@@ -46,8 +48,10 @@ const LoginSignup = () => {
     const handleSignUpInput = (username, email, password) => {
         axios.post('http://127.0.0.1:5000/signup', {
             "username": username, "email": email,"password": password
-          })
-          .then(response => {
+          },
+          {
+            withCredentials: true
+          }).then(response => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
             if (response.status === 201) {
