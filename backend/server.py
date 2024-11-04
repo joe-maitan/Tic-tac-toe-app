@@ -112,6 +112,7 @@ def create_user():
             session['username'] = username
             session['is_authenticated'] = True
             
+            # return redirect(url_for('http://localhost:5173/lobby'))
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
         except Exception as e:
             app.logger.error(f"create_user() - Error inserting user into database - {e}")
@@ -155,6 +156,7 @@ def login():
         
         app.logger.info("login_user() - User logged in successfully")
 
+        # return redirect(url_for('http://localhost:5173/lobby'))
         return jsonify({"message": "User logged in successfully"}), 201
     except Exception as e:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
@@ -176,6 +178,8 @@ def logout():
 @socketio.on('connect')
 def handle_connection():
     print(f"server.py - handle_connection() - event hit")
+    print(f"handle_connection() - session username {session.get('username')}:")
+    print(f"handle_connection() - session is_authenticated {session.get('is_authenticated')}:")
     # print(f"server.py - handle_connection() - request.sid = {request.sid}")
 
     if session.get('is_authenticated') == True:
@@ -202,7 +206,8 @@ def handle_disconnection():
 @login_required
 @socketio.on('user_list_update')
 def update_user_list():
-    return active_users
+    print(f"update_user_list() - user_list_update event hit")
+    pass
 
 
 # TODO: Figure out the socket stuff behind invite, creating the room for two players, and make move
