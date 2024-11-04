@@ -5,6 +5,7 @@ import { useState } from 'react'
 import './App.css'
 import LoginSignup from "./Components/LoginSignup/LoginSignup";
 import Lobby from "./Components/Lobby/Lobby";
+import GamePlay from "./Components/GamePlay/GamePlay";
 import { Toaster } from 'react-hot-toast';
 
 const App = () => {
@@ -14,6 +15,7 @@ const App = () => {
       <Routes>
       <Route path='/' element={<LoginSignup />} />
       <Route path='/lobby' element={<Lobby />} />
+      <Route path='/gameplay' element={<GamePlay />} />
       </Routes>
       
       <Toaster 
