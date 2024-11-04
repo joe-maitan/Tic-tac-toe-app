@@ -195,13 +195,6 @@ def handle_disconnection():
 def update_user_list():
     pass
 
-# @login_required
-# @socketio.on('heartbeat')
-# def send_heartbeat():
-#     app.logger.info("A user has sent a heartbeat")
-#     emit('heartbeat', {"data": "Hello, World!"})
-#     pass
-
 
 # TODO: Figure out the socket stuff behind invite, creating the room for two players, and make move
 # @login_required
