@@ -42,6 +42,9 @@ class User():
     def get_id(self):
         return self._id  # returns the username of the user
     
+    def get_is_authenticated(self):
+        return self._is_authenticated
+    
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -53,6 +56,14 @@ def load_user(user_id):
 
     return None
 
+
+def validate_user(user):
+    print(f"username={user.get_id()}")
+    print(f"is user authenticated? {user.is_authenticated}")
+
+def create_user_session(user):
+    session['username'] = user.get_id()
+    session['is_authenticated'] = user.get_is_authenticated()
 
 @app.route("/")
 def hello_world():
@@ -108,10 +119,10 @@ def create_user():
             
             user = load_user(username)
             login_user(user)
-            
-            session['username'] = username
-            session['is_authenticated'] = True
-            
+
+            validate_user(user)
+            create_user_session(user)
+        
             # return redirect(url_for('http://localhost:5173/lobby'))
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
         except Exception as e:
@@ -151,8 +162,8 @@ def login():
         user = load_user(searched_username["username"])
         login_user(user)
 
-        session['username'] = username
-        session['is_authenticated'] = True
+        validate_user(user)
+        create_user_session(user)
         
         app.logger.info("login_user() - User logged in successfully")
 
@@ -174,12 +185,11 @@ def logout():
     # TODO: After logout, take them back to the login page
 
 
-@login_required
 @socketio.on('connect')
 def handle_connection():
     print(f"server.py - handle_connection() - event hit")
-    print(f"handle_connection() - session username {session.get('username')}:")
-    print(f"handle_connection() - session is_authenticated {session.get('is_authenticated')}:")
+    print(f"handle_connection() - session username {session.get('username')}")
+    print(f"handle_connection() - session is_authenticated {session.get('is_authenticated')}")
     # print(f"server.py - handle_connection() - request.sid = {request.sid}")
 
     if session.get('is_authenticated') == True:
