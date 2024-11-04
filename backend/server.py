@@ -1,4 +1,4 @@
-from flask import Flask, request, session, jsonify, render_template
+from flask import Flask, request, session, jsonify, render_template, redirect, url_for
 from flask_cors import CORS
 from flask_login import login_required, login_user, current_user, logout_user
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
@@ -41,7 +41,6 @@ class User():
 
     def get_id(self):
         return self._id
-
 
 
 @login_manager.user_loader
@@ -156,7 +155,7 @@ def login():
         return {"error": "Invalid JSON"}, 400
 
 
-@login_required  # an action that requires the user to be logged in
+@login_required
 @app.route('/logout', methods=["GET"])
 def logout():
     app.logger.info("/logout route was hit, logging out a user")
@@ -167,13 +166,19 @@ def logout():
     # TODO: After logout, take them back to the login page
 
 
+# @app.route('/users', methods=["GET"])
+# def get_active_users():
+#     app.logger.info("/users route was hit, getting all active users")
+#     return jsonify({"data": active_users}), 200
+
+
 @login_required
 @socketio.on('connect')
 def handle_connection():
     print("server.py - handle_connection() - user has connected to the server VIA sockets")
     app.logger.info("A user has connected to the server")
     # emit('connect', {"data": current_user.username + " has connected"})
-    active_users.append(current_user)
+    active_users_sockets.append(current_user)
     print(f"Active users: {active_users}")
     print(f"Active users sockets: {active_users_sockets}")  
     pass
@@ -186,9 +191,15 @@ def handle_disconnection():
     # emit('disconnect', {"data": current_user['username'] + " has disconnected"})
     # user = get_user()
     # active_users.remove(current_user)
-    logout_user(current_user)
-    pass
+    logout_user()
+    return redirect(url_for('login'))
 
+@login_required
+@socketio.on('user_list_update')
+def update_user_list():
+    app.logger.info("Updating the user list")
+    emit('user_list_update', {"data": active_users})
+    pass
 
 # @login_required
 # @socketio.on('heartbeat')
