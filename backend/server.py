@@ -14,15 +14,15 @@ HTTP_NOT_FOUND = 404
 HTTP_INTERNAL_SERVER_ERROR = 500
 
 active_users = []
-active_users_sockets = []
 
 class User():
 
     def __init__(self, is_authenticated, user_id):
-        self._id = user_id
+        self._id = user_id  # this is the username of the user. Which can be used to identify them in the DB and here
         self._is_authenticated = is_authenticated
         self._is_active = True
         self._is_anonymous = False
+    
 
     @property
     def is_authenticated(self):
@@ -40,16 +40,17 @@ class User():
 
 
     def get_id(self):
-        return self._id
-
+        return self._id  # returns the username of the user
+    
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db['users'].find_one({"_id": user_id})
+    user_data = db['users'].find_one({"username": user_id})
 
+    if user_data is not None:
+        return User(is_authenticated=True, user_id=user_data["username"])
 
-def get_user(username):
-    return db['users'].find_one({"username": username})
+    return None
 
 
 @app.route("/")
@@ -103,7 +104,7 @@ def create_user():
         try:
             app.logger.info("create_user() - User created and added to database successfully")
             db['users'].insert_one(newUser)
-            user = User(True, newUser['username'])
+            user = load_user(username)
             login_user(user)
 
             # Set session as authenticated
@@ -145,7 +146,8 @@ def login():
         if searched_username.get("password") != password:
             return {"error": "Invalid password"}, 400
         
-        user = User(True, searched_username["username"])
+        # user = User(True, searched_username["username"])
+        user = load_user(searched_username["username"])
         login_user(user)
 
         app.logger.info("login_user() - User logged in successfully")
@@ -166,22 +168,16 @@ def logout():
     # TODO: After logout, take them back to the login page
 
 
-# @app.route('/users', methods=["GET"])
-# def get_active_users():
-#     app.logger.info("/users route was hit, getting all active users")
-#     return jsonify({"data": active_users}), 200
-
-
 @login_required
 @socketio.on('connect')
 def handle_connection():
-    print("server.py - handle_connection() - user has connected to the server VIA sockets")
-    app.logger.info("A user has connected to the server")
-    # emit('connect', {"data": current_user.username + " has connected"})
-    active_users_sockets.append(current_user)
-    print(f"Active users: {active_users}")
-    print(f"Active users sockets: {active_users_sockets}")  
-    pass
+    print(f"server.py - handle_connection() - event hit")
+    if current_user.is_authenticated:
+        username = current_user.get_id()
+        active_users.append(username)
+        emit('welcome', {"data": username + " has connected"})
+    
+    print(f"server.py - handle_connection() - {username} has connected to the server VIA sockets")
 
 
 @login_required
@@ -197,8 +193,6 @@ def handle_disconnection():
 @login_required
 @socketio.on('user_list_update')
 def update_user_list():
-    app.logger.info("Updating the user list")
-    emit('user_list_update', {"data": active_users})
     pass
 
 # @login_required
