@@ -15,6 +15,8 @@ HTTP_INTERNAL_SERVER_ERROR = 500
 
 active_users = {}  # dictionary of active users {"username": "socket_id"}
 
+clientSession = {}  # dictionary to store the clients session
+
 class User():
 
     def __init__(self, is_authenticated, user_id):
@@ -57,11 +59,9 @@ def load_user(user_id):
     return None
 
 
-def validate_user(user):
+def create_user_session(user):
     print(f"username={user.get_id()}")
     print(f"is user authenticated? {user.is_authenticated}")
-
-def create_user_session(user):
     session['username'] = user.get_id()
     session['is_authenticated'] = user.get_is_authenticated()
 
@@ -119,8 +119,6 @@ def create_user():
             
             user = load_user(username)
             login_user(user)
-
-            validate_user(user)
             create_user_session(user)
         
             # return redirect(url_for('http://localhost:5173/lobby'))
@@ -161,8 +159,6 @@ def login():
         
         user = load_user(searched_username["username"])
         login_user(user)
-
-        validate_user(user)
         create_user_session(user)
         
         app.logger.info("login_user() - User logged in successfully")
@@ -192,7 +188,7 @@ def handle_connection():
     print(f"handle_connection() - session is_authenticated {session.get('is_authenticated')}")
     # print(f"server.py - handle_connection() - request.sid = {request.sid}")
 
-    if session.get('is_authenticated') == True:
+    if session.get('is_authenticated'):
         print(f"handle_connection() - current session is {session.get('is_authenticated')}:")
         active_users[session.get('username')] = request.sid  # pairs the current user to their socket id
 
