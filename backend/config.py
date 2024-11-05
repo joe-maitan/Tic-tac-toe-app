@@ -1,18 +1,11 @@
-import pymongo
-import os
 from pymongo import MongoClient
-
 from flask import Flask
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_login import LoginManager
-# from flask_socketio import SocketIO
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!' #os.u_random(100)
-# app.config['SESSION_COOKIE_HTTPONLY'] = True
-# app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
-# app.config['SESSION_PERMANENT'] = False  # Non-permanent session
 
 socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173", manage_session=True, logger=True) # the only accepted origin is our front end server
 CORS(app, origins='*', supports_credentials=True)

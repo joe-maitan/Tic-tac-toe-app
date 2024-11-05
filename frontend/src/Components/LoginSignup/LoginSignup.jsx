@@ -43,7 +43,7 @@ const LoginSignup = () => {
               console.error('Error message:', error.message);
             }
           });        
-    }
+    } // End handleLoginInput
 
     const handleSignUpInput = (username, email, password) => {
         axios.post('http://127.0.0.1:5000/signup', 
@@ -72,7 +72,7 @@ const LoginSignup = () => {
               console.error('Error message:', error.message);
             }
           });  
-    }
+    } // End handleSignUpInput
 
   return (
     <div className="container">
@@ -100,7 +100,7 @@ const LoginSignup = () => {
     {action==="Login"?<div className={action==="Login"}></div>:<div className={action==="Sign Up"}></div>}
     {action==="Login"?<button className="button" onClick={()=>{handleLoginInput(username, password)}}>Login</button>:<button className="button" onClick={()=>{handleSignUpInput(username, email, password)}}>Sign Up</button>}
     </div>
-  );
-};
+  ); // End return statement
+}; // End LoginSignup component 
 
 export default LoginSignup;

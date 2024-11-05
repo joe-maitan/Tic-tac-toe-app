@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { toast } from 'react-hot-toast';
 import './Lobby.css';
+import UsersList from './UsersList';
 
 const Lobby = () => {
     const [activeUsers, setActiveUsers] = useState([]); // Initialize state for the list of users
@@ -38,9 +39,7 @@ const Lobby = () => {
         <div>
             <h1 className="header">Welcome to the Lobby!</h1>
             <ul>
-                {activeUsers.map((user) => (
-                    <li key={user.id}>{user.username} <button>Invite</button></li>
-                ))}
+                <UsersList users={activeUsers} />
             </ul>
         </div>
     );

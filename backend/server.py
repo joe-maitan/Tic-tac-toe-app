@@ -1,55 +1,19 @@
 from flask import Flask, request, session, jsonify, render_template, redirect, url_for
 from flask_cors import CORS
 from flask_login import login_required, login_user, current_user, logout_user
-from flask_socketio import SocketIO, send, emit, join_room, leave_room
+from flask_socketio import send, emit, join_room, leave_room
 from config import socketio, app, login_manager, db
+
+from User import *
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
-# Constant HTTP status codes
-HTTP_OK = 200
-HTTP_CREATED = 201
-HTTP_BAD_REQUEST = 400
-HTTP_NOT_FOUND = 404
-HTTP_INTERNAL_SERVER_ERROR = 500
-
 active_users = {}  # dictionary of active users {"username": "socket_id"}
 
-clientSession = {}  # dictionary to store the clients session
-
-class User():
-
-    def __init__(self, is_authenticated, user_id):
-        self._id = user_id  # this is the username of the user. Which can be used to identify them in the DB and here
-        self._is_authenticated = is_authenticated
-        self._is_active = True
-        self._is_anonymous = False
-    
-
-    @property
-    def is_authenticated(self):
-        return self._is_authenticated
-    
-
-    @property
-    def is_active(self):
-        return self._is_active
-    
-
-    @property
-    def is_anonymous(self):
-        return self._is_anonymous
-
-
-    def get_id(self):
-        return self._id  # returns the username of the user
-    
-    def get_is_authenticated(self):
-        return self._is_authenticated
-    
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id: str) -> User:
+    # return User.get(user_id)
     user_data = db['users'].find_one({"username": user_id})
 
     if user_data:
@@ -58,12 +22,6 @@ def load_user(user_id):
 
     return None
 
-
-def create_user_session(user):
-    print(f"username = {user.get_id()}")
-    print(f"is user authenticated? = {user.is_authenticated}")
-    session['username'] = user.get_id()
-    session['is_authenticated'] = user.get_is_authenticated()
 
 @app.route("/")
 def hello_world():
@@ -114,14 +72,11 @@ def create_user():
         }
 
         try:
-            app.logger.info("create_user() - User created and added to database successfully")
             db['users'].insert_one(newUser)
-            
-            user = load_user(username)
+            user = load_user(db['users'].find_one({"username": username})["username"])
             login_user(user, remember=True)
-            create_user_session(user)
-        
-            # return redirect(url_for('http://localhost:5173/lobby'))
+
+            app.logger.info("create_user() - User created and added to database successfully")
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
         except Exception as e:
             app.logger.error(f"create_user() - Error inserting user into database - {e}")
@@ -137,6 +92,7 @@ def login():
 
     try:
         data = request.get_json()
+        # print(f"{data}")
         username = data.get("username")
         password = data.get("password")
 
@@ -159,58 +115,58 @@ def login():
         
         user = load_user(searched_username["username"])
         login_user(user, remember=True)
-        create_user_session(user)
-        
+        print(f"Current user after logig_user in login() - {current_user.get_id()}")
         app.logger.info("login_user() - User logged in successfully")
-
-        # return redirect(url_for('http://localhost:5173/lobby'))
         return jsonify({"message": "User logged in successfully"}), 201
     except Exception as e:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
 
 
-@login_required
 @app.route('/logout', methods=["GET"])
+@login_required
 def logout():
     app.logger.info("/logout route was hit, logging out a user")
-    # how to get the username/id of the user that sent this request
-    # logout_user()
+    logout_user()  # logs out the current user on the page
     pass
 
-    # TODO: After logout, take them back to the login page
+
+@app.route('/profile', methods=["GET"])
+@login_required
+def profile():
+    if current_user.is_authenticated:
+        user_id = current_user.get_id()
+        return jsonify({"user_id": user_id, "is_authenticated": current_user.is_authenticated}), 200
+    else:
+        return jsonify({"error": "User not authenticated"}), 401
 
 
 @socketio.on('connect')
+@login_required
 def handle_connection():
     print(f"server.py - handle_connection() - event hit")
+    print(f"Current user in handle_connect: {current_user.get_id()}")
     print(f"handle_connection() - session username {session.get('username')}")
     print(f"handle_connection() - session is_authenticated {session.get('is_authenticated')}")
-    # print(f"server.py - handle_connection() - request.sid = {request.sid}")
+    print(f"server.py - handle_connection() - request.sid = {request.sid}")
 
     if session.get('is_authenticated'):
-        print(f"handle_connection() - current session is {session.get('is_authenticated')}:")
+        print(f"handle_connection() - current session is {session.get('is_authenticated')}")
         active_users[session.get('username')] = request.sid  # pairs the current user to their socket id
 
     # active_users[username] = request.sid  # pairs the current user to their socket id
-    # emit("user_list_update", {"users": list(active_users.keys())}, broadcast=True)
+    emit("user_list_update", {"users": list(active_users.keys())}, broadcast=True)
     
 
-
-@login_required
 @socketio.on('disconnect')
+@login_required
 def handle_disconnection():
     app.logger.info("A user has disconnected from the server")
-    # emit('disconnect', {"data": current_user['username'] + " has disconnected"})
-    # user = get_user()
-    # active_users.remove(current_user)
-    session.clear()
-    logout_user()
-    return redirect(url_for('login'))
+    pass
 
 
-@login_required
 @socketio.on('user_list_update')
+@login_required
 def update_user_list():
     print(f"update_user_list() - user_list_update event hit")
     pass

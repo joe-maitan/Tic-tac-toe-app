@@ -136,3 +136,17 @@ def test_login_invalid_password(client):
     response = client.post('/login', json=test_login_information)
     assert response.status_code == 400
     assert response.json == {"error": "Invalid password"}
+
+
+def test_profile(client):
+    test_login_information = {
+        "username": "jjmaitan",
+        "password": "joePassword"
+    }
+    client.post('/login', json=test_login_information)
+    response = client.get('/profile')
+
+    print(response)
+
+    assert response.status_code == 200
+    assert response.json == {"user_id": "jjmaitan", "is_authenticated": True}
