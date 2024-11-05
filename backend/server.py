@@ -60,8 +60,8 @@ def load_user(user_id):
 
 
 def create_user_session(user):
-    print(f"username={user.get_id()}")
-    print(f"is user authenticated? {user.is_authenticated}")
+    print(f"username = {user.get_id()}")
+    print(f"is user authenticated? = {user.is_authenticated}")
     session['username'] = user.get_id()
     session['is_authenticated'] = user.get_is_authenticated()
 
@@ -118,7 +118,7 @@ def create_user():
             db['users'].insert_one(newUser)
             
             user = load_user(username)
-            login_user(user)
+            login_user(user, remember=True)
             create_user_session(user)
         
             # return redirect(url_for('http://localhost:5173/lobby'))
@@ -158,7 +158,7 @@ def login():
         
         
         user = load_user(searched_username["username"])
-        login_user(user)
+        login_user(user, remember=True)
         create_user_session(user)
         
         app.logger.info("login_user() - User logged in successfully")

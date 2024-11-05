@@ -8,36 +8,29 @@ const Lobby = () => {
     const socketRef = useRef(null); // Ref to persist the socket instance across renders
 
     useEffect(() => {
-        // Initialize socket connection only once, when the component is first mounted
-        if (!socketRef.current) {
-            socketRef.current = io('http://localhost:5000'); // Connect the socket to the backend server
-            toast('Socket created', { duration: 2000 });
-            console.log("Socket created");
+        // Create a new socket connection
+        socketRef.current = io('http://localhost:5000');
 
-            socketRef.current.on('connect', () => {
-                console.log('Connected to server');
-                
-                socketRef.current.emit('new_user_connected', {
-                    username: sessionStorage.getItem('username') 
-                });
+        // Listen for the 'activeUsers' event and update the state
+        // socketRef.current.on('activeUsers', (users) => {
+        //     setActiveUsers(users);
+        // });
 
-                toast("Welcome to the lobby! If you see someone you'd like to play with, click 'Invite' to start a game.", {
-                    duration: 60000,
-                });
-            });
+        // Listen for the 'userJoined' event and show a toast notification
+        socketRef.current.on('connect', (username) => {
+            toast.success(`${username} joined the lobby!`);
+        });
 
-            // socketRef.current.on('user_list_update', (data) => {
-            //     console.log('Active users:', data.users);
-            //     setActiveUsers(data.users);
-            // });
-        } // End if statement
+        // Listen for the 'userLeft' event and show a toast notification
+        socketRef.current.on('disconnect', (username) => {
+            toast.error(`${username} left the lobby!`);
+        });
 
-        // Cleanup the socket connection when the component is unmounted
+        // Cleanup the socket connection when the component unmounts
         return () => {
             if (socketRef.current) {
-                socketRef.current.disconnect();
-                socketRef.current = null; // Set socket ref to null after disconnecting
-            } // End if statement
+            socketRef.current.disconnect();
+            }
         };
     }, []); // Only run once on initial mount
 

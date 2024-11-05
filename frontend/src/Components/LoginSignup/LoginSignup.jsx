@@ -18,15 +18,15 @@ const LoginSignup = () => {
     const navigate = useNavigate();
 
     const handleLoginInput = (username, password) => {
-        console.log(username, password);
-        axios.post('http://127.0.0.1:5000/login', {
-            "username": username, "password": password
-          },
+        axios.post('http://127.0.0.1:5000/login', 
           {
-            withCredentials: true
-          }).then(response => {
+          "username": username,
+          "password": password
+          }, {withCredentials: true})
+          .then(response => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
+            console.log('With credentials', {withCredentials: true});
             if (response.status === 201) {
               toast.success("Logged in!")
               navigate('/lobby');
@@ -46,12 +46,13 @@ const LoginSignup = () => {
     }
 
     const handleSignUpInput = (username, email, password) => {
-        axios.post('http://127.0.0.1:5000/signup', {
-            "username": username, "email": email,"password": password
-          },
+        axios.post('http://127.0.0.1:5000/signup', 
           {
-            withCredentials: true
-          }).then(response => {
+            "username": username,
+            "email": email,
+            "password": password
+          }, {withCredentials: true}
+        ).then(response => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
             if (response.status === 201) {
