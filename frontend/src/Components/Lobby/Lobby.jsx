@@ -1,34 +1,46 @@
-import React, { useEffect } from 'react';
-import io from 'socket.io-client';
+import React, { useEffect, useState, useRef } from 'react';
+import { io } from 'socket.io-client';
+import { toast } from 'react-hot-toast';
 import './Lobby.css';
+import UsersList from './UsersList';
 
 const Lobby = () => {
-    // Initialize socket connection
-    const socket = io('http://localhost:5000'); // Needs to be a socket connection to the backend server
+    const [activeUsers, setActiveUsers] = useState([]); // Initialize state for the list of users
+    const socketRef = useRef(null); // Ref to persist the socket instance across renders
 
     useEffect(() => {
-        socket.on('connect', () => {
-            console.log('Connected to server');
+        // Create a new socket connection
+        socketRef.current = io('http://localhost:5000');
 
-            // Emit event to notify server of the new connection
-            socket.emit('new_user_connected', { userId: 'USER_ID' }); // Replace with actual user ID?
+        // Listen for the 'activeUsers' event and update the state
+        // socketRef.current.on('activeUsers', (users) => {
+        //     setActiveUsers(users);
+        // });
+
+        // Listen for the 'userJoined' event and show a toast notification
+        socketRef.current.on('connect', (username) => {
+            toast.success(`${username} joined the lobby!`);
         });
 
-        // Listen for server updates to the user list
-        socket.on('user_list_update', (data) => {
-            console.log('Active users:', data.users);  // Update the lobby display as needed, e.g., with state
-           
+        // Listen for the 'userLeft' event and show a toast notification
+        socketRef.current.on('disconnect', (username) => {
+            toast.error(`${username} left the lobby!`);
         });
 
+        // Cleanup the socket connection when the component unmounts
         return () => {
-            socket.disconnect();
+            if (socketRef.current) {
+            socketRef.current.disconnect();
+            }
         };
-    }, [socket]); // UseEffect dependency ensures socket instance is only created once
+    }, []); // Only run once on initial mount
 
     return (
         <div>
             <h1 className="header">Welcome to the Lobby!</h1>
-            
+            <ul>
+                <UsersList users={activeUsers} />
+            </ul>
         </div>
     );
 };

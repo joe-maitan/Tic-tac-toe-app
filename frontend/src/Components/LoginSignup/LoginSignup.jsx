@@ -18,13 +18,15 @@ const LoginSignup = () => {
     const navigate = useNavigate();
 
     const handleLoginInput = (username, password) => {
-        console.log(username, password);
-        axios.post('http://127.0.0.1:5000/login', {
-            "username": username, "password": password
-          })
+        axios.post('http://127.0.0.1:5000/login', 
+          {
+          "username": username,
+          "password": password
+          }, {withCredentials: true})
           .then(response => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
+            console.log('With credentials', {withCredentials: true});
             if (response.status === 201) {
               toast.success("Logged in!")
               navigate('/lobby');
@@ -41,13 +43,16 @@ const LoginSignup = () => {
               console.error('Error message:', error.message);
             }
           });        
-    }
+    } // End handleLoginInput
 
     const handleSignUpInput = (username, email, password) => {
-        axios.post('http://127.0.0.1:5000/signup', {
-            "username": username, "email": email,"password": password
-          })
-          .then(response => {
+        axios.post('http://127.0.0.1:5000/signup', 
+          {
+            "username": username,
+            "email": email,
+            "password": password
+          }, {withCredentials: true}
+        ).then(response => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
             if (response.status === 201) {
@@ -67,7 +72,7 @@ const LoginSignup = () => {
               console.error('Error message:', error.message);
             }
           });  
-    }
+    } // End handleSignUpInput
 
   return (
     <div className="container">
@@ -95,7 +100,7 @@ const LoginSignup = () => {
     {action==="Login"?<div className={action==="Login"}></div>:<div className={action==="Sign Up"}></div>}
     {action==="Login"?<button className="button" onClick={()=>{handleLoginInput(username, password)}}>Login</button>:<button className="button" onClick={()=>{handleSignUpInput(username, email, password)}}>Sign Up</button>}
     </div>
-  );
-};
+  ); // End return statement
+}; // End LoginSignup component 
 
 export default LoginSignup;
