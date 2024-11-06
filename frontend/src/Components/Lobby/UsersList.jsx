@@ -11,7 +11,7 @@ const UsersList = ({ users }) => {
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
-              <td>{user.username}</td>
+              <td>{user['username']}</td>
               <td>
                 <button>Invite</button>
               </td>

@@ -1,0 +1,6 @@
+[console_scripts]
+pmr=pytest_mock_resources.cli:main
+
+[pytest11]
+pytest_mock_resources=pytest_mock_resources
+

@@ -9,6 +9,8 @@ import password_pic from '../Images/password.png'
 import axios from "axios";
 import { toast } from 'react-hot-toast';
 
+export var global_username = "initial";
+
 const LoginSignup = () => {
     console.log('LoginSignup component rendered');
     const [action, setAction] = useState('Login');
@@ -18,7 +20,8 @@ const LoginSignup = () => {
     const navigate = useNavigate();
 
     const handleLoginInput = (username, password) => {
-        axios.post('http://127.0.0.1:5000/login', 
+      global_username = username;
+        axios.post('http://0.0.0.0:5001/login', 
           {
           "username": username,
           "password": password
@@ -46,7 +49,8 @@ const LoginSignup = () => {
     } // End handleLoginInput
 
     const handleSignUpInput = (username, email, password) => {
-        axios.post('http://127.0.0.1:5000/signup', 
+      global_username = username;
+        axios.post('http://0.0.0.0:5001/signup', 
           {
             "username": username,
             "email": email,
