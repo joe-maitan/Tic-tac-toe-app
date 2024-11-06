@@ -21,7 +21,7 @@ const LoginSignup = () => {
 
     const handleLoginInput = (username, password) => {
       global_username = username;
-        axios.post('http://0.0.0.0:5001/login', 
+        axios.post('http://127.0.0.1:5000/login', 
           {
           "username": username,
           "password": password
@@ -50,7 +50,7 @@ const LoginSignup = () => {
 
     const handleSignUpInput = (username, email, password) => {
       global_username = username;
-        axios.post('http://0.0.0.0:5001/signup', 
+        axios.post('http://127.0.0.1:5000/signup', 
           {
             "username": username,
             "email": email,

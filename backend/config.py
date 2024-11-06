@@ -1,5 +1,5 @@
-import eventlet
-eventlet.monkey_patch()
+# import eventlet
+# eventlet.monkey_patch()
 from pymongo import MongoClient
 from flask import Flask
 from flask_socketio import SocketIO
@@ -9,8 +9,8 @@ from flask_login import LoginManager
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!' #os.u_random(100)
 
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173", manage_session=True, logger=True) # the only accepted origin is our front end server
-CORS(app, origins="http://localhost:5173", supports_credentials=True)
+socketio = SocketIO(app, cors_allowed_origins="*", manage_session=True, logger=True) # the only accepted origin is our front end server
+CORS(app, origins="*", supports_credentials=True)
 
 app.logger.info("congfig.py - Flask app created")
 app.logger.info("congfig.py - Establishing connection to database")

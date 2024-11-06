@@ -10,7 +10,7 @@ const username = global_username;
 const Lobby = () => {
     const [activeUsers, setActiveUsers] = useState('');
     const username = global_username;
-    const socket = io('http://0.0.0.0:5001');
+    const socket = io('http://127.0.0.1:5000');
 
     useEffect(() => {
         socket.on('connect', function() {
@@ -25,6 +25,7 @@ const Lobby = () => {
         });
     
         socket.on('user_list_update', function(users) {
+            console.log("here")
             setActiveUsers(activeUsers => [...activeUsers, users['users']['username']]);
         });
 

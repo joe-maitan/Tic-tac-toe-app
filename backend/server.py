@@ -185,4 +185,4 @@ def update_user_list():
 
 if __name__ == "__main__":
     # app.run(debug=True)  # Run all of different routes and our API
-    socketio.run(app, host="0.0.0.0", port=5001, debug=True)  # Run all of different routes and our API
+    socketio.run(app, debug=True)  # Run all of different routes and our API
