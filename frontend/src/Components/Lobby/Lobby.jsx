@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
-import './Lobby.css';
-import UsersList from './UsersList';
 import axios from "axios";
+
+import './Lobby.css';
 
 const Lobby = () => {
     const [activeUsers, setActiveUsers] = useState([]);
@@ -17,14 +17,14 @@ const Lobby = () => {
     //         }
     //     }).catch(error => {
     //         toast.error("Error registering user.");
-    //         if (error.response) {
+    //        
     //             console.error('Error response data:', error.response.data);
     //             console.error('Error status:', error.response.status);
-    //         } else if (error.request) {
+    //         
     //             console.error('Error request:', error.request);
-    //         } else {
+    //         
     //             console.error('Error message:', error.message);
-    //         }
+    //         
     //     });
     // } // End confirmUserRegistration func
 
@@ -32,21 +32,17 @@ const Lobby = () => {
         axios.get('http://127.0.0.1/active_users').then(response => {
             console.log(response.data);
             if (response.status === 200) {
-                console.log(response.data);
                 setActiveUsers(response.data);
             } else {
                 toast.error("Error getting active users.");
             }
         }).catch(error => {
             toast.error("Error getting active users.");
-            if (error.response) {
-                console.error('Error response data:', error.response.data);
-                console.error('Error status:', error.response.status);
-            } else if (error.request) {
-                console.error('Error request:', error.request);
-            } else {
-                console.error('Error message:', error.message);
-            }
+            
+            console.error('Error response data:', error.response.data);
+            console.error('Error status:', error.response.status);
+            console.error('Error request:', error.request);
+            console.error('Error message:', error.message);
         });
     }
     
@@ -58,6 +54,24 @@ const Lobby = () => {
                 <h1 className="header">Welcome to the Lobby!</h1>
             </div>
             
+            <div>
+                <h1>Other Users</h1>
+                <table>
+                    <thead>
+                    <td>Invite someone to play!</td>
+                    </thead>
+                    <tbody>
+                    {activeUsers.map((user) => (
+                        <tr>
+                        <td>{user}</td>
+                        <td>
+                            <button>Invite</button>
+                        </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+                </div>
         </>
     );
 };
