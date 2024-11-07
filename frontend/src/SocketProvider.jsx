@@ -1,29 +1,23 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+import React, { createContext, useContext, useEffect } from 'react';
+import io from 'socket.io-client';
 
-// Create the Socket Context
 const SocketContext = createContext();
 
-// Define the Provider Component
+export const useSocket = () => useContext(SocketContext);
+
 export const SocketProvider = ({ children }) => {
-    const [socket, setSocket] = useState(null);
+    const socket = io('http://127.0.0.1:5000', { query: { user_id: 'current_user_id' } });
 
     useEffect(() => {
-        const newSocket = io('http://localhost:5000');
-        setSocket(newSocket);
-
+        // Cleanup on unmount
         return () => {
-            if (newSocket) newSocket.disconnect();
+            socket.disconnect();
         };
-    }, []);
+    }, [socket]);
 
     return (
-        <SocketContext.Provider value={{ socket }}>
+        <SocketContext.Provider value={socket}>
             {children}
         </SocketContext.Provider>
     );
 };
-
-// Custom Hook for using socket
-export const useSocket = () => { useContext(SocketContext); };
-

@@ -65,8 +65,8 @@ const Lobby = () => {
             </div>
     
             <div>
-                <h1>Other Users</h1>
-                <table>
+                <h2 className="header">Other Users</h2>
+                <table className="userTable">
                     <thead>
                         <tr>
                             <th>Invite someone to play!</th>
@@ -75,6 +75,7 @@ const Lobby = () => {
                     <tbody>
                         {activeUsers.map((user, index) => (
                             <tr key={index}>
+                                <td><img src=""></img></td>
                                 <td>{user}</td>
                                 <td>
                                     <button onClick={() => inviteUser(user)}>Invite</button>

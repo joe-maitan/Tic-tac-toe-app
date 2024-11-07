@@ -8,7 +8,7 @@ from User import *
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
-# active_users = {}  # dictionary of active users {user object: "socket_id"}
+active_users = {}  # dictionary of active users {user object: "socket_id"}
 active_users = []  # list of active user objects
 
 
@@ -144,8 +144,18 @@ def profile():
         return jsonify({"error": "User not authenticated"}), 401
 
 
-# @app.route('/register', methods=["GET"])
-# @login_required
+@app.route('/active_users', methods=["GET"])
+def update_user_list():
+    if not active_users:  # Check if active_users is populated
+        print("Error: No active users found.")
+        return jsonify({"error": "No active users"}), 500
+
+    print(f"update_user_list() - user_list_update event hit")
+    print(f"Active Users: {[user.get_id() for user in active_users]}")  # Debugging line
+
+    return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
+    
+
 # # socketio.on('register_user')  # this is the same as connecting
 # def handle_register_user():
 #     print(f"server.py - handle_register_user() - event hit")
@@ -163,17 +173,20 @@ def profile():
 #         return jsonify({"error": "User not found"}), 404
 
 
-@app.route('/active_users', methods=["GET"])
-def update_user_list():
-    if not active_users:  # Check if active_users is populated
-        print("Error: No active users found.")
-        return jsonify({"error": "No active users"}), 500
+@socketio.on('connect')
+def handle_connect():
+    user_id = request.args.get('user_id')
+    active_users[user_id] = request.sid  # Map user_id to socket ID
+    print(f"{user_id} connected.")
 
-    print(f"update_user_list() - user_list_update event hit")
-    print(f"Active Users: {[user.get_id() for user in active_users]}")  # Debugging line
 
-    return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
-    
+@socketio.on('disconnect')
+def handle_disconnect():
+    user_id = next((user for user, sid in active_users.items() if sid == request.sid), None)
+    if user_id:
+        del active_users[user_id]
+        print(f"{user_id} disconnected.")
+
 
 
 # @login_required

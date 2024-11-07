@@ -152,20 +152,6 @@ def test_profile(client):
     assert response.json == {"user_id": "jjmaitan", "is_authenticated": True}
 
 
-def test_register(client):
-    test_login_information = {
-        "username": "jjmaitan",
-        "password": "joePassword"
-    }
-    client.post('/login', json=test_login_information)
-    response = client.get('/register')
-
-    print(response)
-
-    assert response.status_code == 200
-    assert response.json == {"message": "User jjmaitan registered successfully"}
-
-
 def test_get_active_users(client):
     joe_login_information = {
         "username": "jjmaitan",
