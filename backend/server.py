@@ -151,7 +151,7 @@ def user_join(username):
     print(f"server.py - handle_connection() - event hit")
     print(f"Current user in handle_connect: {username}")
     print(f"{current_user.get_id()}")
-    active_users["username"] = username
+    active_users["username"] = username  # TODO: Figure out how to store active users with their username as the key, and socket id as the value
     print(f"ACTIVE USERS: {active_users}")
     emit("user_list_update", {"users": active_users}, broadcast=True)
     
