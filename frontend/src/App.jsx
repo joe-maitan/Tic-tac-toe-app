@@ -7,21 +7,19 @@ import LoginSignup from "./Components/LoginSignup/LoginSignup";
 import Lobby from "./Components/Lobby/Lobby";
 import GamePlay from "./Components/GamePlay/GamePlay";
 import { Toaster } from 'react-hot-toast';
+import { SocketProvider } from "./SocketProvider";
 
 const App = () => {
-  return(
+  return (
     <>
-      
-      <Routes>
-      <Route path='/' element={<LoginSignup />} />
-      <Route path='/lobby' element={<Lobby />} />
-      <Route path='/gameplay' element={<GamePlay />} />
-      </Routes>
-      
-      <Toaster 
-        position="bottom-right"
-        reverseOrder={false}
-      />
+      <SocketProvider>
+        <Routes>
+          <Route path='/' element={<LoginSignup />} />
+          <Route path='/lobby' element={<Lobby />} />
+          <Route path='/gameplay' element={<GamePlay />} />
+        </Routes>
+      </SocketProvider>
+      <Toaster position="bottom-right" reverseOrder={false}/>
     </>
     
   )

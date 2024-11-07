@@ -1,11 +1,10 @@
-import ReactDOM from "react-dom/client";
-
 import { useNavigate } from "react-router-dom";
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { axios } from "axios";
 import { useSocket } from "../../SocketProvider";
 
+import ReactDOM from "react-dom/client";
+import axios from "axios";
 
 import user_pic from '../Images/user.png'
 import email_pic from '../Images/email.png'
@@ -36,8 +35,13 @@ const LoginSignup = () => {
             console.log('With credentials', {withCredentials: true});
             if (response.status === 201) {
               toast.success("Logged in!")
-              socket.emit('register_user', {"username": username});
-              navigate('/lobby');
+              if (socket) {
+                // socket.emit('register_user', {"username": username});
+                navigate('/lobby');
+              } else {
+                console.error('Socket not connected.');
+              }
+              
             }
           })
           .catch(error => {
@@ -67,7 +71,7 @@ const LoginSignup = () => {
             console.log('Response status:', response.status);
             if (response.status === 201) {
                 toast.success("Account created successfully!");
-                socket.emit('register_user', {username: username});
+                // socket.emit('register_user', {username: username});
                 navigate('/lobby');
             } 
           })
