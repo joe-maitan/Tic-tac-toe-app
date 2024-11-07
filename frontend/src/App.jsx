@@ -12,11 +12,13 @@ import { SocketProvider } from "./SocketProvider";
 const App = () => {
   return (
     <>
+      <SocketProvider>
       <Routes>
         <Route path='/' element={<LoginSignup />} />
         <Route path='/lobby' element={<Lobby />} />
         <Route path='/gameplay' element={<GamePlay />} />
       </Routes>
+      </SocketProvider>
       <Toaster position="bottom-right" reverseOrder={false}/>
     </>
   )

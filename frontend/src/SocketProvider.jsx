@@ -6,10 +6,18 @@ const SocketContext = createContext();
 export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
-    const socket = io('http://127.0.0.1:5000', { query: { user_id: 'current_user_id' } });
+    const socket = io('http://127.0.0.1:5000');
 
     useEffect(() => {
-        // Cleanup on unmount
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        }); 
+        
         return () => {
             socket.disconnect();
         };

@@ -188,6 +188,29 @@ def handle_disconnect():
         print(f"{user_id} disconnected.")
 
 
+@socketio.on('send_invite')
+def handle_send_invite(data):
+    inviter = data.get('inviter')
+    invitee = data.get('invitee')
+    if invitee in active_users:
+        # Emit an event to the invitee to notify them of the invitation
+        emit('receive_invite', {'inviter': inviter}, room=active_users[invitee])
+        print(f"Invite sent from {inviter} to {invitee}")
+    else:
+        emit('invite_error', {'error': f"{invitee} is not online"}, room=active_users[inviter])
+
+
+@socketio.on('respond_invite')
+def handle_respond_invite(data):
+    inviter = data.get('inviter')
+    invitee = data.get('invitee')
+    response = data.get('response')  # 'accepted' or 'declined'
+    if inviter in active_users:
+        # Notify the inviter of the invitee's response
+        emit('invite_response', {'invitee': invitee, 'response': response}, room=active_users[inviter])
+        print(f"{invitee} has {response} the invite from {inviter}")
+
+
 
 # @login_required
 # @socketio.on('invite')

@@ -1,32 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { toast } from 'react-hot-toast';
 import axios from "axios";
+import { toast } from 'react-hot-toast';
+import { useSocket } from '../../SocketProvider';
 
 import './Lobby.css';
 
 const Lobby = () => {
     const [activeUsers, setActiveUsers] = useState([]);
-
-    // const confirmUserRegistration = () => {
-    //     axios.post('http://127.0.0.1:5000/register').then(response => {
-    //         if (response.status === 201) {
-    //             toast.success("User registered!");
-    //             getActiveUsers();
-    //         } else {
-    //             toast.error("User not registered.");
-    //         }
-    //     }).catch(error => {
-    //         toast.error("Error registering user.");
-    //        
-    //             console.error('Error response data:', error.response.data);
-    //             console.error('Error status:', error.response.status);
-    //         
-    //             console.error('Error request:', error.request);
-    //         
-    //             console.error('Error message:', error.message);
-    //         
-    //     });
-    // } // End confirmUserRegistration func
+    const socket = useSocket();
 
     const getActiveUsers = () => {
         axios.get('http://127.0.0.1:5000/active_users').then(response => {
@@ -43,20 +24,30 @@ const Lobby = () => {
         });
     } // End getActiveUsers func
 
-    const inviteUser = (user) => {
-        const inviter = ''; // try to use this to be the current user
-        axios.post('http://127.0.0.1:5000/invite', { inviter, invitee })
-        .then(response => {
-            console.log(`Invite sent from ${inviter} to ${invitee}`);
-            toast.success("Invite sent!");
-        })
-        .catch(error => {
-            toast.error("Failed to send invite.");
-            console.error('Error:', error);
-        });
+    useEffect(() => { getActiveUsers(); }, []); // runs for each client
+
+    const inviteUser = (invitee) => {
+        socket.emit('invite', { invitee: user });
     } // End inviteUser func
     
-    useEffect(() => { getActiveUsers(); }, []); // runs for each client
+    useEffect(() => {
+        socket.on('receive_invite', (data) => {
+            const inviter = data.inviter;
+            const acceptInvite = window.confirm(`You have an invite from ${inviter}. Accept?`);
+            const response = acceptInvite ? 'accepted' : 'declined';
+            socket.emit('respond_invite', { inviter, invitee: 'current_user_id', response });
+        });
+
+        socket.on('invite_response', (data) => {
+            const { invitee, response } = data;
+            alert(`${invitee} has ${response} your invite.`);
+        });
+
+        return () => {
+            socket.off('receive_invite');
+            socket.off('invite_response');
+        };
+    }, [socket]);
 
     return (
         <>
