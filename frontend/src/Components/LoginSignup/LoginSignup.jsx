@@ -1,24 +1,27 @@
-//import ReactDOM from "react-dom/client";
+import ReactDOM from "react-dom/client";
 import { useNavigate } from "react-router-dom";
 import { useState } from 'react'
 import './LoginSignup.css'
-//import Lobby from "../Lobby/Lobby";
 import user_pic from '../Images/user.png'
 import email_pic from '../Images/email.png'
 import password_pic from '../Images/password.png'
 import axios from "axios";
 import { toast } from 'react-hot-toast';
 
+import { useSocket } from "../../SocketProvider";
+
 const LoginSignup = () => {
-    console.log('LoginSignup component rendered');
+    const socket = useSocket(); // imported from SocketProvider.jsx
     const [action, setAction] = useState('Login');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
+    let current_user_username = '';
+
     const handleLoginInput = (username, password) => {
-      global_username = username;
+        current_user_username = username;
         axios.post('http://127.0.0.1:5000/login', 
           {
           "username": username,
@@ -30,6 +33,7 @@ const LoginSignup = () => {
             console.log('With credentials', {withCredentials: true});
             if (response.status === 201) {
               toast.success("Logged in!")
+              socket.emit('register_user', {"username": username});
               navigate('/lobby');
             }
           })
@@ -47,7 +51,7 @@ const LoginSignup = () => {
     } // End handleLoginInput
 
     const handleSignUpInput = (username, email, password) => {
-      global_username = username;
+        current_user_username = username;
 
         axios.post('http://127.0.0.1:5000/signup', 
           {
@@ -60,6 +64,7 @@ const LoginSignup = () => {
             console.log('Response status:', response.status);
             if (response.status === 201) {
                 toast.success("Account created successfully!");
+                socket.emit('register_user', {username: username});
                 navigate('/lobby');
             } 
           })

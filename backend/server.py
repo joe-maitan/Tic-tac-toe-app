@@ -8,7 +8,7 @@ from User import *
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
-active_users = {}  # dictionary of active users {"username": "socket_id"}
+active_users = {}  # dictionary of active users {user object: "socket_id"}
 
 
 @login_manager.user_loader
@@ -115,9 +115,9 @@ def login():
         
         user = load_user(searched_username["username"])
         login_user(user, remember=True)
-        print(f"Current user after logig_user in login() - {current_user.get_id()}")
+        print(f"Current user after login_user in login() - {current_user.get_id()}")
         app.logger.info("login_user() - User logged in successfully")
-        return jsonify({"message": "User logged in successfully"}), 201
+        return jsonify({"message": f"{user.get_id()} logged in successfully"}), 201
     except Exception as e:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
@@ -141,33 +141,20 @@ def profile():
         return jsonify({"error": "User not authenticated"}), 401
 
 
-@socketio.on('connect')
-@login_required
-def handle_connection():
-    print(f"server.py - handle_connection() - event hit")
-    print(f"Current user in handle_connect: {current_user.get_id()}")
-    print(f"handle_connection() - session username {session.get('username')}")
-    print(f"handle_connection() - session is_authenticated {session.get('is_authenticated')}")
-    print(f"server.py - handle_connection() - request.sid = {request.sid}")
+@socketio.on("register_user")
+def handle_register_user(data):
+    print(f"server.py - handle_register_user() - event hit")
+    print(f"Current user in handle_register_user(): {current_user.get_id()}")
+    new_user = load_user(data["username"])
 
-    if session.get('is_authenticated'):
-        print(f"handle_connection() - current session is {session.get('is_authenticated')}")
-        active_users[session.get('username')] = request.sid  # pairs the current user to their socket id
+    if new_user:
+        print(f"handle_register_user() - new user {new_user.get_id()} loaded successfully")
+        socket_id = request.sid 
+        active_users[new_user] = socket_id  # Store the user object with their socket ID
+        emit("registration_success", {"username": new_user.get_id(), "socket_id": socket_id})
+    else:
+        print(f"handle_register_user() - FUCK - new user not loaded successfully")
 
-
-@socketio.on('user_join')
-def user_join(username):
-    print(f"server.py - handle_connection() - event hit")
-    print(f"Current user in handle_connect: {username}")
-    print(f"{current_user.get_id()}")
-    active_users["username"] = username  # TODO: Figure out how to store active users with their username as the key, and socket id as the value
-    print(f"ACTIVE USERS: {active_users}")
-    
-    # TODO: Only send one broadcast/emit after a user joins
-    emit("user_list_update", {"users": active_users}, broadcast=True)
-    # active_users[username] = request.sid  # pairs the current user to their socket id
-    emit("user_list_update", {"users": list(active_users.keys())}, broadcast=True)
-    
 
 @socketio.on('disconnect')
 @login_required
@@ -180,6 +167,7 @@ def handle_disconnection():
 @login_required
 def update_user_list():
     print(f"update_user_list() - user_list_update event hit")
+    print(active_users)
     pass
 
 
