@@ -1,14 +1,17 @@
 import ReactDOM from "react-dom/client";
+
 import { useNavigate } from "react-router-dom";
-import { useState } from 'react'
-import './LoginSignup.css'
+import { useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { axios } from "axios";
+import { useSocket } from "../../SocketProvider";
+
+
 import user_pic from '../Images/user.png'
 import email_pic from '../Images/email.png'
 import password_pic from '../Images/password.png'
-import axios from "axios";
-import { toast } from 'react-hot-toast';
 
-import { useSocket } from "../../SocketProvider";
+import './LoginSignup.css'
 
 const LoginSignup = () => {
     const socket = useSocket(); // imported from SocketProvider.jsx

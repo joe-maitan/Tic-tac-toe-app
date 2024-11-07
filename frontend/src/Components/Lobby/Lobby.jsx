@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { io } from 'socket.io-client';
+
 import { toast } from 'react-hot-toast';
 import './Lobby.css';
 import UsersList from './UsersList';
