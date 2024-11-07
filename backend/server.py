@@ -8,7 +8,7 @@ from User import *
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
-active_users = {}  # dictionary of active users {user object: "socket_id"}
+active_user_sockets = {}  # dictionary of active users {user object: "socket_id"}
 active_users = []  # list of active user objects
 
 
@@ -175,16 +175,16 @@ def update_user_list():
 
 @socketio.on('connect')
 def handle_connect():
-    user_id = request.args.get('user_id')
-    active_users[user_id] = request.sid  # Map user_id to socket ID
+    user_id = current_user.get_id()
+    active_user_sockets[user_id] = request.sid  # Map user_id to socket ID
     print(f"{user_id} connected.")
 
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    user_id = next((user for user, sid in active_users.items() if sid == request.sid), None)
+    user_id = next((user for user, sid in active_user_sockets.items() if sid == request.sid), None)
     if user_id:
-        del active_users[user_id]
+        del active_user_sockets[user_id]
         print(f"{user_id} disconnected.")
 
 
@@ -195,10 +195,10 @@ def handle_send_invite(data):
     invitee = data.get('invitee')
     if invitee in active_users:
         # Emit an event to the invitee to notify them of the invitation
-        emit('receive_invite', {'inviter': inviter}, room=active_users[invitee])
+        emit('receive_invite', {'inviter': inviter}, room=active_user_sockets[invitee])
         print(f"Invite sent from {inviter} to {invitee}")
     else:
-        emit('invite_error', {'error': f"{invitee} is not online"}, room=active_users[inviter])
+        emit('invite_error', {'error': f"{invitee} is not online"}, room=active_user_sockets[inviter])
 
 
 @socketio.on('respond_invite')
@@ -208,23 +208,8 @@ def handle_respond_invite(data):
     response = data.get('response')  # 'accepted' or 'declined'
     if inviter in active_users:
         # Notify the inviter of the invitee's response
-        emit('invite_response', {'invitee': invitee, 'response': response}, room=active_users[inviter])
+        emit('invite_response', {'invitee': invitee, 'response': response}, room=active_user_sockets[inviter])
         print(f"{invitee} has {response} the invite from {inviter}")
-
-
-
-# @login_required
-# @socketio.on('invite')
-# def invite_user():
-#     app.logger.info("/invite_user route was hit, inviting a user to play a game")
-#     pass
-
-
-# @login_required
-# @socketio.on('gamemove')
-# def game_move(game_board, postion):
-#     app.logger.info("/game_move route was hit, making a move in the game")
-#     pass
 
 
 if __name__ == "__main__":

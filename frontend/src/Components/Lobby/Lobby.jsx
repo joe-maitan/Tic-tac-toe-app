@@ -30,6 +30,11 @@ const Lobby = () => {
     }, []);
 
     const inviteUser = (invitee) => {
+        toast( "Sending invite...",
+            {
+                duration: 6000,
+            }
+        );
         if (!socket) {
             toast.error("Socket not connected.");
             return;
