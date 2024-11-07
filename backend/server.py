@@ -147,11 +147,11 @@ def profile():
 @app.route('/active_users', methods=["GET"])
 def update_user_list():
     if not active_users:  # Check if active_users is populated
-        print("Error: No active users found.")
+        app.logger.error("Error: No active users found.")
         return jsonify({"error": "No active users"}), 500
 
-    print(f"update_user_list() - user_list_update event hit")
-    print(f"Active Users: {[user.get_id() for user in active_users]}")  # Debugging line
+    app.logger.info("/active_users route was hit, updating the list of active users")
+    # print(f"Active Users: {[user.get_id() for user in active_users]}")  # Debugging line
 
     return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
     
@@ -190,6 +190,7 @@ def handle_disconnect():
 
 @socketio.on('send_invite')
 def handle_send_invite(data):
+    print(f"server.py - handle_send_invite() - event hit")
     inviter = data.get('inviter')
     invitee = data.get('invitee')
     if invitee in active_users:

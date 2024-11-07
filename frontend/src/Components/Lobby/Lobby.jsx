@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { toast } from 'react-hot-toast';
 import { useSocket } from '../../SocketProvider';
@@ -10,27 +10,36 @@ const Lobby = () => {
     const socket = useSocket();
 
     const getActiveUsers = () => {
-        axios.get('http://127.0.0.1:5000/active_users').then(response => {
-            console.log(response.data);
-            if (response.status === 200) {
-                setActiveUsers(response.data.active_users);
-            } 
-        }).catch(error => {
-            toast.error("Error getting active users.");
-            console.error('Error response data:', error.response.data);
-            console.error('Error status:', error.response.status);
-            console.error('Error request:', error.request);
-            console.error('Error message:', error.message);
-        });
-    } // End getActiveUsers func
+        axios.get('http://127.0.0.1:5000/active_users')
+            .then(response => {
+                if (response.status === 200) {
+                    setActiveUsers(response.data.active_users);
+                }
+            })
+            .catch(error => {
+                toast.error("Error getting active users.");
+                console.error('Error response data:', error.response?.data);
+                console.error('Error status:', error.response?.status);
+                console.error('Error request:', error.request);
+                console.error('Error message:', error.message);
+            });
+    };
 
-    useEffect(() => { getActiveUsers(); }, []); // runs for each client
+    useEffect(() => { 
+        getActiveUsers(); 
+    }, []);
 
     const inviteUser = (invitee) => {
-        socket.emit('invite', { invitee: user });
-    } // End inviteUser func
+        if (!socket) {
+            toast.error("Socket not connected.");
+            return;
+        }
+        socket.emit('send_invite', { invitee });
+    };
     
     useEffect(() => {
+        if (!socket) return;
+
         socket.on('receive_invite', (data) => {
             const inviter = data.inviter;
             const acceptInvite = window.confirm(`You have an invite from ${inviter}. Accept?`);
@@ -44,8 +53,10 @@ const Lobby = () => {
         });
 
         return () => {
-            socket.off('receive_invite');
-            socket.off('invite_response');
+            if (socket) {
+                socket.off('receive_invite');
+                socket.off('invite_response');
+            }
         };
     }, [socket]);
 
@@ -66,7 +77,6 @@ const Lobby = () => {
                     <tbody>
                         {activeUsers.map((user, index) => (
                             <tr key={index}>
-                                <td><img src=""></img></td>
                                 <td>{user}</td>
                                 <td>
                                     <button onClick={() => inviteUser(user)}>Invite</button>
