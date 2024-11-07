@@ -1,6 +1,5 @@
 from flask import Flask, request, session, jsonify, render_template, redirect, url_for
 from flask_cors import CORS
-from flask_socketio import SocketIO
 from flask_login import login_required, login_user, current_user, logout_user
 from flask_socketio import send, emit, join_room, leave_room
 from config import socketio, app, login_manager, db
@@ -93,6 +92,7 @@ def login():
 
     try:
         data = request.get_json()
+        # print(f"{data}")
         username = data.get("username")
         password = data.get("password")
 
@@ -115,7 +115,7 @@ def login():
         
         user = load_user(searched_username["username"])
         login_user(user, remember=True)
-        print(f"Current user after login_user in login() - {current_user.get_id()}")
+        print(f"Current user after logig_user in login() - {current_user.get_id()}")
         app.logger.info("login_user() - User logged in successfully")
         return jsonify({"message": "User logged in successfully"}), 201
     except Exception as e:
@@ -142,8 +142,17 @@ def profile():
 
 
 @socketio.on('connect')
+@login_required
 def handle_connection():
-    print("Connected!")
+    print(f"server.py - handle_connection() - event hit")
+    print(f"Current user in handle_connect: {current_user.get_id()}")
+    print(f"handle_connection() - session username {session.get('username')}")
+    print(f"handle_connection() - session is_authenticated {session.get('is_authenticated')}")
+    print(f"server.py - handle_connection() - request.sid = {request.sid}")
+
+    if session.get('is_authenticated'):
+        print(f"handle_connection() - current session is {session.get('is_authenticated')}")
+        active_users[session.get('username')] = request.sid  # pairs the current user to their socket id
 
 
 @socketio.on('user_join')
@@ -153,16 +162,22 @@ def user_join(username):
     print(f"{current_user.get_id()}")
     active_users["username"] = username  # TODO: Figure out how to store active users with their username as the key, and socket id as the value
     print(f"ACTIVE USERS: {active_users}")
+    
+    # TODO: Only send one broadcast/emit after a user joins
     emit("user_list_update", {"users": active_users}, broadcast=True)
+    # active_users[username] = request.sid  # pairs the current user to their socket id
+    emit("user_list_update", {"users": list(active_users.keys())}, broadcast=True)
     
 
 @socketio.on('disconnect')
+@login_required
 def handle_disconnection():
     app.logger.info("A user has disconnected from the server")
     pass
 
 
-@socketio.on('user_list_updates')
+@socketio.on('user_list_update')
+@login_required
 def update_user_list():
     print(f"update_user_list() - user_list_update event hit")
     pass
