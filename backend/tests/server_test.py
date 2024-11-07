@@ -93,7 +93,7 @@ def test_login(client):
 
     response = client.post('/login', json=test_login_information)
     assert response.status_code == 201
-    assert response.json == {"message": "User logged in successfully"}
+    assert response.json == {"message": "jjmaitan logged in successfully"}
 
 
 def test_login_missing_data_password(client):
@@ -150,3 +150,39 @@ def test_profile(client):
 
     assert response.status_code == 200
     assert response.json == {"user_id": "jjmaitan", "is_authenticated": True}
+
+
+def test_register(client):
+    test_login_information = {
+        "username": "jjmaitan",
+        "password": "joePassword"
+    }
+    client.post('/login', json=test_login_information)
+    response = client.get('/register')
+
+    print(response)
+
+    assert response.status_code == 200
+    assert response.json == {"message": "User jjmaitan registered successfully"}
+
+
+def test_get_active_users(client):
+    joe_login_information = {
+        "username": "jjmaitan",
+        "password": "joePassword"
+    }
+
+    response = client.post('/login', json=joe_login_information)
+    assert response.status_code == 201
+
+    erin_login_information = {
+        "username": "erin",
+        "password": "1234"
+    }
+
+    response = client.post('/login', json=erin_login_information)
+    assert response.status_code == 201
+
+    response = client.get('/active_users')
+    assert response.status_code == 200
+    assert response.json == {"active_users": ["jjmaitan", "erin"]}

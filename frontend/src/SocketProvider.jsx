@@ -9,11 +9,9 @@ export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        // Initialize socket only once when the component mounts
-        const newSocket = io('http://localhost:5000', { withCredentials: true });
+        const newSocket = io('http://localhost:5000');
         setSocket(newSocket);
 
-        // Clean up the socket on component unmount
         return () => {
             if (newSocket) newSocket.disconnect();
         };
@@ -27,11 +25,5 @@ export const SocketProvider = ({ children }) => {
 };
 
 // Custom Hook for using socket
-export const useSocket = () => {
-    const socket = useContext(SocketContext);
-    if (!socket) {
-        throw new Error("useSocket must be used within a SocketProvider");
-    }
-    return socket;
-};
+export const useSocket = () => { useContext(SocketContext); };
 

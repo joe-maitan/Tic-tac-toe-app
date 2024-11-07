@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { useSocket } from "../../SocketProvider";
 
 import ReactDOM from "react-dom/client";
 import axios from "axios";
@@ -13,7 +12,7 @@ import password_pic from '../Images/password.png'
 import './LoginSignup.css'
 
 const LoginSignup = () => {
-    const socket = useSocket(); // imported from SocketProvider.jsx
+    // const socket = useSocket(); // imported from SocketProvider.jsx
     const [action, setAction] = useState('Login');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -21,27 +20,23 @@ const LoginSignup = () => {
     const navigate = useNavigate();
 
     let current_user_username = '';
+    // const clientSocket = useSocket(); //io('http://localhost:5000'); // { withCredentials: true }
 
     const handleLoginInput = (username, password) => {
         current_user_username = username;
         axios.post('http://127.0.0.1:5000/login', 
           {
-          "username": username,
-          "password": password
+          "username": username.toString(),
+          "password": password.toString()
           }, {withCredentials: true})
           .then(response => {
             console.log('Response data:', response.data);
             console.log('Response status:', response.status);
             console.log('With credentials', {withCredentials: true});
             if (response.status === 201) {
-              toast.success("Logged in!")
-              if (socket) {
-                // socket.emit('register_user', {"username": username});
-                navigate('/lobby');
-              } else {
-                console.error('Socket not connected.');
-              }
-              
+              toast.success("Logged in!");
+              // clientSocket.emit('register_user', {username: username});
+              navigate('/lobby');
             }
           })
           .catch(error => {
@@ -71,7 +66,7 @@ const LoginSignup = () => {
             console.log('Response status:', response.status);
             if (response.status === 201) {
                 toast.success("Account created successfully!");
-                // socket.emit('register_user', {username: username});
+                // clientSocket.emit('register_user', {username: username});
                 navigate('/lobby');
             } 
           })

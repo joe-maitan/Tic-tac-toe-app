@@ -8,7 +8,8 @@ from User import *
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
-active_users = {}  # dictionary of active users {user object: "socket_id"}
+# active_users = {}  # dictionary of active users {user object: "socket_id"}
+active_users = []  # list of active user objects
 
 
 @login_manager.user_loader
@@ -115,6 +116,7 @@ def login():
         
         user = load_user(searched_username["username"])
         login_user(user, remember=True)
+        active_users.append(user)
         print(f"Current user after login_user in login() - {current_user.get_id()}")
         app.logger.info("login_user() - User logged in successfully")
         return jsonify({"message": f"{user.get_id()} logged in successfully"}), 201
@@ -127,6 +129,7 @@ def login():
 @login_required
 def logout():
     app.logger.info("/logout route was hit, logging out a user")
+    active_users.remove(current_user)
     logout_user()  # logs out the current user on the page
     pass
 
@@ -141,37 +144,33 @@ def profile():
         return jsonify({"error": "User not authenticated"}), 401
 
 
-@socketio.on("register_user")
-def handle_register_user(data):
-    print(f"server.py - handle_register_user() - event hit")
-    print(f"Current user in handle_register_user(): {current_user.get_id()}")
-    new_user = load_user(data["username"])
+# @app.route('/register', methods=["GET"])
+# @login_required
+# # socketio.on('register_user')  # this is the same as connecting
+# def handle_register_user():
+#     print(f"server.py - handle_register_user() - event hit")
+#     print(f"Current user in handle_register_user(): {current_user.get_id()}")
+#     #new_user = load_user(data["username"])
+#     new_user = current_user 
 
-    if new_user:
-        print(f"handle_register_user() - new user {new_user.get_id()} loaded successfully")
-        socket_id = request.sid 
-        active_users[new_user] = socket_id  # Store the user object with their socket ID
-        emit("registration_success", {"username": new_user.get_id(), "socket_id": socket_id})
-    else:
-        print(f"handle_register_user() - FUCK - new user not loaded successfully")
+#     if new_user:
+#         print(f"handle_register_user() - new user {new_user.get_id()} loaded successfully")
+#         # active_users[new_user] = socket_id  # Store the user object with their socket ID
+#         active_users.append(new_user)
+#         print(active_users)
+#         return jsonify({"message": f"User {new_user.get_id()} registered successfully"}), 200
+#     else:
+#         return jsonify({"error": "User not found"}), 404
 
 
-@socketio.on('disconnect')
 @login_required
-def handle_disconnection():
-    app.logger.info("A user has disconnected from the server")
-    pass
-
-
-@socketio.on('user_list_update')
-@login_required
+@app.route('/active_users', methods=["GET"])
 def update_user_list():
     print(f"update_user_list() - user_list_update event hit")
-    print(active_users)
-    pass
+    return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
+    
 
 
-# TODO: Figure out the socket stuff behind invite, creating the room for two players, and make move
 # @login_required
 # @socketio.on('invite')
 # def invite_user():
