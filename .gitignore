@@ -1,5 +1,6 @@
 # Ignore Python virtual environment directory
 .venv/
+venv/
 
 # Ignore Python cache and test cache directories
 __pycache__/

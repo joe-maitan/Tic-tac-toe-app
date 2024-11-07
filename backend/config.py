@@ -1,3 +1,5 @@
+# import eventlet
+# eventlet.monkey_patch()
 from pymongo import MongoClient
 from flask import Flask
 from flask_socketio import SocketIO

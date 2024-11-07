@@ -5,8 +5,9 @@ import './Lobby.css';
 import UsersList from './UsersList';
 
 const Lobby = () => {
-    const [activeUsers, setActiveUsers] = useState([]); // Initialize state for the list of users
-    const socketRef = useRef(null); // Ref to persist the socket instance across renders
+    const [activeUsers, setActiveUsers] = useState('');
+    const username = global_username;
+    const socket = io('http://127.0.0.1:5000');
 
     useEffect(() => {
         // Create a new socket connection
@@ -26,13 +27,19 @@ const Lobby = () => {
         socketRef.current.on('disconnect', (username) => {
             toast.error(`${username} left the lobby!`);
         });
+    
+        socket.on('user_list_update', function(users) {
+            console.log("here")
+            setActiveUsers(activeUsers => [...activeUsers, users['users']['username']]);
+        });
 
-        // Cleanup the socket connection when the component unmounts
-        return () => {
-            if (socketRef.current) {
-            socketRef.current.disconnect();
-            }
-        };
+
+//         // Cleanup the socket connection when the component unmounts
+//         return () => {
+//             if (socketRef.current) {
+//             socketRef.current.disconnect();
+//             }
+//         };
     }, []); // Only run once on initial mount
 
     return (

@@ -18,6 +18,7 @@ const LoginSignup = () => {
     const navigate = useNavigate();
 
     const handleLoginInput = (username, password) => {
+      global_username = username;
         axios.post('http://127.0.0.1:5000/login', 
           {
           "username": username,
@@ -46,6 +47,8 @@ const LoginSignup = () => {
     } // End handleLoginInput
 
     const handleSignUpInput = (username, email, password) => {
+      global_username = username;
+
         axios.post('http://127.0.0.1:5000/signup', 
           {
             "username": username,

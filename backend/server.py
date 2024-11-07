@@ -154,6 +154,17 @@ def handle_connection():
         print(f"handle_connection() - current session is {session.get('is_authenticated')}")
         active_users[session.get('username')] = request.sid  # pairs the current user to their socket id
 
+
+@socketio.on('user_join')
+def user_join(username):
+    print(f"server.py - handle_connection() - event hit")
+    print(f"Current user in handle_connect: {username}")
+    print(f"{current_user.get_id()}")
+    active_users["username"] = username  # TODO: Figure out how to store active users with their username as the key, and socket id as the value
+    print(f"ACTIVE USERS: {active_users}")
+    
+    # TODO: Only send one broadcast/emit after a user joins
+    emit("user_list_update", {"users": active_users}, broadcast=True)
     # active_users[username] = request.sid  # pairs the current user to their socket id
     emit("user_list_update", {"users": list(active_users.keys())}, broadcast=True)
     
