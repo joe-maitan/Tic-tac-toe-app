@@ -19,11 +19,9 @@ const LoginSignup = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    let current_user_username = '';
     // const clientSocket = useSocket(); //io('http://localhost:5000'); // { withCredentials: true }
 
     const handleLoginInput = (username, password) => {
-        current_user_username = username;
         axios.post('http://127.0.0.1:5000/login', 
           {
           "username": username.toString(),
@@ -35,7 +33,12 @@ const LoginSignup = () => {
             console.log('With credentials', {withCredentials: true});
             if (response.status === 201) {
               toast.success("Logged in!");
-              // clientSocket.emit('register_user', {username: username});
+              
+              const currentUser = {
+                userID: username,
+                symbol: "X" // or "O"
+              };
+
               navigate('/lobby');
             }
           })
@@ -66,7 +69,12 @@ const LoginSignup = () => {
             console.log('Response status:', response.status);
             if (response.status === 201) {
                 toast.success("Account created successfully!");
-                // clientSocket.emit('register_user', {username: username});
+
+                const currentUser = {
+                  userID: username,
+                  symbol: "X" // or "O"
+                };
+                
                 navigate('/lobby');
             } 
           })

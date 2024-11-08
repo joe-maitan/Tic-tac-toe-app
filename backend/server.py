@@ -173,7 +173,7 @@ def update_user_list():
 #         return jsonify({"error": "User not found"}), 404
 
 
-@socketio.on('connect')
+@socketio.on('connect_to_backend')
 def handle_connect():
     user_id = current_user.get_id()
     active_user_sockets[user_id] = request.sid  # Map user_id to socket ID
@@ -191,6 +191,7 @@ def handle_disconnect():
 @socketio.on('send_invite')
 def handle_send_invite(data):
     print(f"server.py - handle_send_invite() - event hit")
+    print(f"Current user in handle_send_invite(): {current_user.get_id()}")
     inviter = data.get('inviter')
     invitee = data.get('invitee')
     if invitee in active_users:
