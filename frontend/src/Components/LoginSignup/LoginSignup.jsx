@@ -39,6 +39,10 @@ const LoginSignup = () => {
                 symbol: "X" // or "O"
               };
 
+              // to ensure that a user session is maintained
+              sessionStorage.setItem("userID", currentUser.userID);
+              sessionStorage.setItem("symbol", currentUser.symbol);
+
               navigate('/lobby');
             }
           })
@@ -74,7 +78,10 @@ const LoginSignup = () => {
                   userID: username,
                   symbol: "X" // or "O"
                 };
-                
+
+                sessionStorage.setItem("userID", currentUser.userID);
+                sessionStorage.setItem("symbol", currentUser.symbol);
+
                 navigate('/lobby');
             } 
           })
