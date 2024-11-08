@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
 import { toast } from 'react-hot-toast';
-import { useSocket } from '../../SocketProvider';
+import { SocketContext } from '../../SocketProvider';
 
 import './Lobby.css';
 
 const Lobby = ({ currentUser }) => {
     const [activeUsers, setActiveUsers] = useState([]);
-    const socket = useSocket();
+    const socket = useContext(SocketContext);
 
     const getActiveUsers = () => {
         axios.get('http://127.0.0.1:5000/active_users')
@@ -25,9 +25,7 @@ const Lobby = ({ currentUser }) => {
             });
     };
 
-    useEffect(() => { 
-        getActiveUsers(); 
-    }, []);
+    useEffect(() => { getActiveUsers(); }, []); // Update the list of active users with every render of the page
 
     const inviteUser = (invitee) => {
         toast( "Sending invite...",
@@ -35,16 +33,14 @@ const Lobby = ({ currentUser }) => {
                 duration: 6000,
             }
         );
-        if (!socket) {
-            toast.error("Socket not connected.");
-            return;
-        }
-        socket.emit('send_invite', { userID: currentUser.userID, invitee });
+        // if (!socket) {
+        //     toast.error("Socket not connected.");
+        //     return;
+        // }
+        socket.emit('send_invite', { inviter: currentUser.userID, invitee });
     };
     
     useEffect(() => {
-        if (!socket) return;
-
         socket.on('receive_invite', (data) => {
             const inviter = data.userID;
             const invitee = data.invitee;

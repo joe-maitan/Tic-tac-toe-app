@@ -3,29 +3,15 @@ import io from 'socket.io-client';
 
 const SocketContext = createContext(null);
 
-export const useSocket = () => useContext(SocketContext);
-
-export const SocketProvider = ({ children, currentUser }) => {
+const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
+        const newSocket = io('http://127.0.0.1:5000');
+        setSocket(newSocket);
 
-        if (currentUser != null && socket == null) {
-            const newSocket = io('http://localhost:5000', { query: { userID: currentUser.userID } });
-            setSocket(newSocket);
-        }
-
-        // socket.emit('connect_to_backend', () => { console.log('Connected to backend server'); });
-
-        // socket.on('disconnect', () => {
-        //     console.log('Disconnected from server');
-        // }); 
-        
-        // return () => {
-        //     socket.disconnect();
-        // };
-
-    }, [currentUser, socket]);
+        return () => newSocket.close();
+    }, []);
 
     return (
         <SocketContext.Provider value={socket}>
@@ -33,3 +19,5 @@ export const SocketProvider = ({ children, currentUser }) => {
         </SocketContext.Provider>
     );
 };
+
+export {SocketContext, SocketProvider};

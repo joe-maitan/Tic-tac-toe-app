@@ -117,7 +117,7 @@ def login():
         user = load_user(searched_username["username"])
         login_user(user, remember=True)
         active_users.append(user)
-        print(f"Current user after login_user in login() - {current_user.get_id()}")
+        # print(f"Current user after login_user in login() - {current_user.get_id()}")
         app.logger.info("login_user() - User logged in successfully")
         return jsonify({"message": f"{user.get_id()} logged in successfully"}), 201
     except Exception as e:
@@ -156,23 +156,6 @@ def update_user_list():
     return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
     
 
-# # socketio.on('register_user')  # this is the same as connecting
-# def handle_register_user():
-#     print(f"server.py - handle_register_user() - event hit")
-#     print(f"Current user in handle_register_user(): {current_user.get_id()}")
-#     #new_user = load_user(data["username"])
-#     new_user = current_user 
-
-#     if new_user:
-#         print(f"handle_register_user() - new user {new_user.get_id()} loaded successfully")
-#         # active_users[new_user] = socket_id  # Store the user object with their socket ID
-#         active_users.append(new_user)
-#         print(active_users)
-#         return jsonify({"message": f"User {new_user.get_id()} registered successfully"}), 200
-#     else:
-#         return jsonify({"error": "User not found"}), 404
-
-
 @socketio.on('connect_to_backend')
 def handle_connect():
     user_id = current_user.get_id()
@@ -190,27 +173,23 @@ def handle_disconnect():
 
 @socketio.on('send_invite')
 def handle_send_invite(data):
+    print(f"{data}")
     print(f"server.py - handle_send_invite() - event hit")
-    print(f"Current user in handle_send_invite(): {current_user.get_id()}")
     inviter = data.get('inviter')
     invitee = data.get('invitee')
-    if invitee in active_users:
-        # Emit an event to the invitee to notify them of the invitation
-        emit('receive_invite', {'inviter': inviter}, room=active_user_sockets[invitee])
-        print(f"Invite sent from {inviter} to {invitee}")
-    else:
-        emit('invite_error', {'error': f"{invitee} is not online"}, room=active_user_sockets[inviter])
+    
+    # validate invitee and inviter are active users
+    if invitee in active_users and inviter in active_users:
+        print(f"{inviter} has invited {invitee}")
+        socketio.emit('invite_recieved', )
 
 
 @socketio.on('respond_invite')
 def handle_respond_invite(data):
     inviter = data.get('inviter')
     invitee = data.get('invitee')
-    response = data.get('response')  # 'accepted' or 'declined'
-    if inviter in active_users:
-        # Notify the inviter of the invitee's response
-        emit('invite_response', {'invitee': invitee, 'response': response}, room=active_user_sockets[inviter])
-        print(f"{invitee} has {response} the invite from {inviter}")
+
+    pass
 
 
 if __name__ == "__main__":

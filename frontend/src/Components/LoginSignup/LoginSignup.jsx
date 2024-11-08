@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 
-import ReactDOM from "react-dom/client";
+import { SocketContext } from '../../SocketProvider';
 import axios from "axios";
 
 import user_pic from '../Images/user.png'
@@ -17,6 +17,7 @@ const LoginSignup = ({ setCurrentUser }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const socket = useContext(SocketContext);
 
     const handleLoginInput = (username, password) => {
         axios.post('http://127.0.0.1:5000/login', 
@@ -92,6 +93,11 @@ const LoginSignup = ({ setCurrentUser }) => {
             }
           });  
     } // End handleSignUpInput
+
+    const handleRegisterUser = () => {
+
+
+    } // End handleRegisterUser
 
   return (
     <div className="container">
