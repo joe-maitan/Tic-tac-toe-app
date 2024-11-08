@@ -21,9 +21,10 @@ export const SocketProvider = ({ children, currentUser }) => {
         //     console.log('Disconnected from server');
         // }); 
         
-        return () => {
-            newSocket.disconnect();
-        };
+        // return () => {
+        //     socket.disconnect();
+        // };
+
     }, [currentUser, socket]);
 
     return (
