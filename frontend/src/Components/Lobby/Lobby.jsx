@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
-import { toast } from 'react-hot-toast';
+import { ToastContainer, toast } from 'react-hot-toast';
 import { SocketContext } from '../../SocketProvider';
 
 import './Lobby.css';
@@ -49,13 +49,17 @@ const Lobby = ({ currentUser }) => {
     const InviteToast = ({ invite, onAccept, onDecline }) => {
         const handleAccept = () => {
           onAccept(invite);
+          const response = "accept";
           toast.dismiss(); // Close the toast
         };
       
         const handleDecline = () => {
           onDecline(invite);
+          const response = "decline";
           toast.dismiss(); // Close the toast
         };
+
+        socket.emit('invite_response', { invitee: currentUser.userID, inviter: invite.sender, response: response});
       
         return (
           <div>
@@ -72,26 +76,13 @@ const Lobby = ({ currentUser }) => {
         handleRegisterUser(); // register the currentUser with this socketID every time they enter the lobby
         
         socket.on('invite_recieved', (data) => {
-            const inviter = data.viter;
-            // const invitee = data.invitee;
-            const acceptInvite = window.confirm(`You have an invite from ${inviter}. Accept?`);
-            const response = acceptInvite ? 'accepted' : 'declined';
-            socket.emit('invite_response', { invitee: currentUser.userID, inviter, response });
+            console.log("Inside of invite_recieved", data);
+            toast(<InviteToast invite={data} onAccept={handleAccept} onDecline={handleDecline} />);
         });
 
-        socket.on('invite_accept', (data) => {
-            console.log("Inside of invite_accept", data);
-            // const inviter = data.inviter;
-            // const invitee = data.invitee;
-            // toast.success(`${invitee} has accepted your invite!`);
-            // window.location.href = `/game/${inviter}/${invitee}`;
-        });
-
-        socket.on('invite_decline', (data) => {
-            console.log("Inside of invite_decline", data);
-            // const inviter = data.inviter;
-            // const invitee = data.invitee;
-            // toast.error(`${invitee} has declined your invite.`);
+        socket.on('invite_response', (data) => {
+            console.log("Inside of invite_response", data);
+            // handle the accept/decline response
         });
 
         return () => {
