@@ -192,7 +192,7 @@ def handle_send_invite(data):
 @socketio.on('invite_response')
 def handle_respond_invite(data):
     # send the response from the invitee back to the inviter
-    
+    print(f"server.py - handle_response_invite() - event hit")
 
     pass
 

@@ -72,8 +72,8 @@ const LoginSignup = ({ setCurrentUser }) => {
                   symbol: "X" // or "O"
                 };
 
-                sessionStorage.setItem("userID", currentUser.userID);
-                sessionStorage.setItem("symbol", currentUser.symbol);
+                sessionStorage.setItem("currrentUser", JSON.stringify(currentUser));
+                
                 setCurrentUser(currentUser);
                 navigate('/lobby');
             } 

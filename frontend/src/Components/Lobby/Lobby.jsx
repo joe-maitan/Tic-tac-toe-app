@@ -26,6 +26,10 @@ const Lobby = ({ currentUser }) => {
     };
 
     const handleRegisterUser = () => {
+        if (currentUser == null) {
+            currentUser = sessionStorage.getItem("currentUser")
+        }
+
         socket.emit('register_user', {userID: currentUser.userID}); // Send a register event to the server
 
         socket.on('successful_registration', (data) => {
@@ -38,13 +42,29 @@ const Lobby = ({ currentUser }) => {
     }; // End handleRegisterUser func
 
     const inviteUser = (invitee) => {
-        toast( "Sending invite...",
-            {
-                duration: 6000,
-            }
-        );
+        toast.success(`Sending invite to ${invitee}...`);
         socket.emit('send_invite', { inviter: currentUser.userID, invitee });
     };
+
+    const InviteToast = ({ invite, onAccept, onDecline }) => {
+        const handleAccept = () => {
+          onAccept(invite);
+          toast.dismiss(); // Close the toast
+        };
+      
+        const handleDecline = () => {
+          onDecline(invite);
+          toast.dismiss(); // Close the toast
+        };
+      
+        return (
+          <div>
+            <p>You have received an invite from {invite.sender}</p>
+            <button onClick={handleAccept}>Accept</button>
+            <button onClick={handleDecline}>Decline</button>
+          </div>
+        );
+      };
 
     useEffect(() => { getActiveUsers(); }, []); // Update the list of active users with every render of the page
 
@@ -52,11 +72,11 @@ const Lobby = ({ currentUser }) => {
         handleRegisterUser(); // register the currentUser with this socketID every time they enter the lobby
         
         socket.on('invite_recieved', (data) => {
-            const inviter = data.userID;
-            const invitee = data.invitee;
+            const inviter = data.viter;
+            // const invitee = data.invitee;
             const acceptInvite = window.confirm(`You have an invite from ${inviter}. Accept?`);
             const response = acceptInvite ? 'accepted' : 'declined';
-            socket.emit('invite_response', { invitee, inviter, response });
+            socket.emit('invite_response', { invitee: currentUser.userID, inviter, response });
         });
 
         socket.on('invite_accept', (data) => {
