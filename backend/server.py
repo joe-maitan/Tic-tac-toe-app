@@ -156,19 +156,21 @@ def update_user_list():
     return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
     
 
-@socketio.on('connect_to_backend')
-def handle_connect():
-    user_id = current_user.get_id()
-    active_user_sockets[user_id] = request.sid  # Map user_id to socket ID
-    print(f"{user_id} connected.")
+@socketio.on('register_user')
+def handle_registration(data):
+    print(f"handle_connection - event register_user hit - {data}")
+    username = data.get('userID')
+
+    if username in active_user_sockets and username in active_users:
+        if active_user_sockets[username] != request.sid:
+            active_user_sockets[username] = request.sid
+        # else do not change the current record
+    print(f"{username} connected.")
 
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    user_id = next((user for user, sid in active_user_sockets.items() if sid == request.sid), None)
-    if user_id:
-        del active_user_sockets[user_id]
-        print(f"{user_id} disconnected.")
+    pass
 
 
 @socketio.on('send_invite')
@@ -181,13 +183,16 @@ def handle_send_invite(data):
     # validate invitee and inviter are active users
     if invitee in active_users and inviter in active_users:
         print(f"{inviter} has invited {invitee}")
-        socketio.emit('invite_recieved', )
+        invitee_socket_id = active_user_sockets[invitee]
+        socketio.emit('invite_recieved', 
+                      {"inviter": inviter}, 
+                      to=invitee_socket_id)
 
 
-@socketio.on('respond_invite')
+@socketio.on('invite_response')
 def handle_respond_invite(data):
-    inviter = data.get('inviter')
-    invitee = data.get('invitee')
+    # send the response from the invitee back to the inviter
+    
 
     pass
 

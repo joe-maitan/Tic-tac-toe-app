@@ -25,7 +25,17 @@ const Lobby = ({ currentUser }) => {
             });
     };
 
-    useEffect(() => { getActiveUsers(); }, []); // Update the list of active users with every render of the page
+    const handleRegisterUser = () => {
+        socket.emit('register_user', {userID: currentUser.userID}); // Send a register event to the server
+
+        socket.on('successful_registration', (data) => {
+            if (data.success) {
+                toast.success("Successfully registered with the server.");
+            } else {
+                toast.error("Failed to register with the server.");
+            }
+        }); // End socket on successful_registration event
+    }; // End handleRegisterUser func
 
     const inviteUser = (invitee) => {
         toast( "Sending invite...",
@@ -33,26 +43,36 @@ const Lobby = ({ currentUser }) => {
                 duration: 6000,
             }
         );
-        // if (!socket) {
-        //     toast.error("Socket not connected.");
-        //     return;
-        // }
         socket.emit('send_invite', { inviter: currentUser.userID, invitee });
     };
-    
+
+    useEffect(() => { getActiveUsers(); }, []); // Update the list of active users with every render of the page
+
     useEffect(() => {
-        socket.on('receive_invite', (data) => {
+        handleRegisterUser(); // register the currentUser with this socketID every time they enter the lobby
+        
+        socket.on('invite_recieved', (data) => {
             const inviter = data.userID;
             const invitee = data.invitee;
             const acceptInvite = window.confirm(`You have an invite from ${inviter}. Accept?`);
             const response = acceptInvite ? 'accepted' : 'declined';
-            socket.emit('invite_response', { inviter, invitee, response });
+            socket.emit('invite_response', { invitee, inviter, response });
         });
 
-        // socket.on('invite_response', (data) => {
-        //     // const { invitee, response } = data;
-        //     // alert(`${invitee} has ${response} your invite.`);
-        // });
+        socket.on('invite_accept', (data) => {
+            console.log("Inside of invite_accept", data);
+            // const inviter = data.inviter;
+            // const invitee = data.invitee;
+            // toast.success(`${invitee} has accepted your invite!`);
+            // window.location.href = `/game/${inviter}/${invitee}`;
+        });
+
+        socket.on('invite_decline', (data) => {
+            console.log("Inside of invite_decline", data);
+            // const inviter = data.inviter;
+            // const invitee = data.invitee;
+            // toast.error(`${invitee} has declined your invite.`);
+        });
 
         return () => {
             if (socket) {

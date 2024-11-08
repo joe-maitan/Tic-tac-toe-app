@@ -55,8 +55,6 @@ const LoginSignup = ({ setCurrentUser }) => {
     } // End handleLoginInput
 
     const handleSignUpInput = (username, email, password) => {
-        current_user_username = username;
-
         axios.post('http://127.0.0.1:5000/signup', 
           {
             "username": username,
@@ -93,11 +91,6 @@ const LoginSignup = ({ setCurrentUser }) => {
             }
           });  
     } // End handleSignUpInput
-
-    const handleRegisterUser = () => {
-
-
-    } // End handleRegisterUser
 
   return (
     <div className="container">
