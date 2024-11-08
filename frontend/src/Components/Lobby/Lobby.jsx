@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { toast } from 'react-hot-toast';
 import { useSocket } from '../../SocketProvider';
-import { currentUser } from '../LoginSignup';
+import { currentUser } from '../LoginSignup/LoginSignup';
 
 import './Lobby.css';
 
-const Lobby = () => {
+const Lobby = ({ currentUser }) => {
     const [activeUsers, setActiveUsers] = useState([]);
     const socket = useSocket();
 
@@ -40,23 +40,24 @@ const Lobby = () => {
             toast.error("Socket not connected.");
             return;
         }
-        socket.emit('send_invite', { invitee });
+        socket.emit('send_invite', { userID: currentUser.userID, invitee });
     };
     
     useEffect(() => {
         if (!socket) return;
 
         socket.on('receive_invite', (data) => {
-            const inviter = data.inviter;
+            const inviter = data.userID;
+            const invitee = data.invitee;
             const acceptInvite = window.confirm(`You have an invite from ${inviter}. Accept?`);
             const response = acceptInvite ? 'accepted' : 'declined';
             socket.emit('respond_invite', { inviter, invitee: 'current_user_id', response });
         });
 
-        socket.on('invite_response', (data) => {
-            const { invitee, response } = data;
-            alert(`${invitee} has ${response} your invite.`);
-        });
+        // socket.on('invite_response', (data) => {
+        //     // const { invitee, response } = data;
+        //     // alert(`${invitee} has ${response} your invite.`);
+        // });
 
         return () => {
             if (socket) {

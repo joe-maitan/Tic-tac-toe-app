@@ -11,26 +11,20 @@ import password_pic from '../Images/password.png'
 
 import './LoginSignup.css'
 
-const LoginSignup = () => {
-    // const socket = useSocket(); // imported from SocketProvider.jsx
+const LoginSignup = ({ setCurrentUser }) => {
     const [action, setAction] = useState('Login');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    // const clientSocket = useSocket(); //io('http://localhost:5000'); // { withCredentials: true }
-
     const handleLoginInput = (username, password) => {
         axios.post('http://127.0.0.1:5000/login', 
           {
-          "username": username.toString(),
-          "password": password.toString()
+          "username": username,
+          "password": password
           }, {withCredentials: true})
           .then(response => {
-            console.log('Response data:', response.data);
-            console.log('Response status:', response.status);
-            console.log('With credentials', {withCredentials: true});
             if (response.status === 201) {
               toast.success("Logged in!");
               
@@ -42,7 +36,7 @@ const LoginSignup = () => {
               // to ensure that a user session is maintained
               sessionStorage.setItem("userID", currentUser.userID);
               sessionStorage.setItem("symbol", currentUser.symbol);
-
+              setCurrentUser(currentUser); // Update the currentUser object
               navigate('/lobby');
             }
           })
@@ -81,7 +75,7 @@ const LoginSignup = () => {
 
                 sessionStorage.setItem("userID", currentUser.userID);
                 sessionStorage.setItem("symbol", currentUser.symbol);
-
+                setCurrentUser(currentUser);
                 navigate('/lobby');
             } 
           })
