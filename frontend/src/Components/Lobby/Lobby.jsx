@@ -46,7 +46,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         socket.emit('send_invite', { inviter: currentUser.userID, invitee });
     };
 
-    const InviteToast = ({ invite, onAccept, onDecline }) => {
+    const handleInvite = ({ invite, onAccept, onDecline }) => {
         const handleAccept = () => {
           onAccept(invite);
           const response = "accept";
