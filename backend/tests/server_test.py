@@ -45,7 +45,7 @@ def test_signup(client, mock_db):
     print(f"response: {response}")
     assert response.status_code == 201
     assert response.json == {"message": "User created successfully"}
-
+    client.get('/logout')
     db['users'].delete_one({"username": "bobbybiceps"})
     
 
@@ -94,6 +94,8 @@ def test_login(client):
     response = client.post('/login', json=test_login_information)
     assert response.status_code == 201
     assert response.json == {"message": "jjmaitan logged in successfully"}
+
+    client.get('/logout')
 
 
 def test_login_missing_data_password(client):
