@@ -12,13 +12,27 @@ active_user_sockets = {}  # dictionary of active users {user object: "socket_id"
 active_users = []  # list of active user objects
 
 
+def addUserToActiveUsers(user: User):
+    if user not in active_users:
+        active_users.append(user)
+    else:
+        print(f"User {user.get_id()} is already in the active users list.")
+
+
+def addUserToActiveUserSockets(user: User, socket_id: str):
+    if user not in active_user_sockets:
+        active_user_sockets[user.get_id()] = socket_id
+    else:
+        print(f"User {user.get_id()} is already in the active user sockets list.")
+
+
 @login_manager.user_loader
 def load_user(user_id: str) -> User:
     # return User.get(user_id)
     user_data = db['users'].find_one({"username": user_id})
 
     if user_data:
-        print(f"load_user() - User {user_data['username']} loaded successfully")
+        # print(f"load_user() - User {user_data['username']} loaded successfully")
         return User(is_authenticated=True, user_id=user_data["username"])
 
     return None
@@ -76,7 +90,7 @@ def create_user():
             db['users'].insert_one(newUser)
             user = load_user(db['users'].find_one({"username": username})["username"])
             login_user(user, remember=True)
-
+            addUserToActiveUsers(user)
             app.logger.info("create_user() - User created and added to database successfully")
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
         except Exception as e:
@@ -116,8 +130,7 @@ def login():
         
         user = load_user(searched_username["username"])
         login_user(user, remember=True)
-        active_users.append(user)
-        # print(f"Current user after login_user in login() - {current_user.get_id()}")
+        addUserToActiveUsers(user)
         app.logger.info("login_user() - User logged in successfully")
         return jsonify({"message": f"{user.get_id()} logged in successfully"}), 201
     except Exception as e:
@@ -159,16 +172,11 @@ def update_user_list():
 @socketio.on('register_user')
 def handle_registration(data):
     print(f"handle_connection - event register_user hit - {data}")
-    username = data.get('userID')
+    # addUserToActiveUsers(load_user(data.get('userID')))
+    addUserToActiveUserSockets(load_user(data.get('userID')), request.sid)
+    print(f"{data.get('userID')} has connected to the server")
 
-    if username in active_user_sockets and load_user(username) in active_users:
-        if active_user_sockets[username] != request.sid:
-            print(f"{username} is already connected. Updating socket id.")
-            active_user_sockets[username] = request.sid
-    else:
-        print(f"{username} connected.")
-
-
+    
 @socketio.on('disconnect')
 def handle_disconnect():
     pass
@@ -179,13 +187,13 @@ def handle_send_invite(data):  # send the invite to the invitee
     print(f"server.py - handle_send_invite() - event hit")
     print(f"{data}")
 
-    inviter = data.get('inviter')
-    invitee = data.get('invitee')
-    # validate invitee and inviter are active users
-    if load_user(inviter) in active_users and load_user(invitee) in active_users:
-        print(f"Inside of if statement: {inviter} has invited {invitee}")
-        invitee_socket_id = active_user_sockets[invitee]
-        socketio.emit('invite_recieved', {"inviter": inviter}, to=invitee_socket_id)
+    inviter = load_user(data.get('inviter'))
+    invitee = load_user(data.get('invitee'))
+    
+    # if inviter in active_users and invitee in active_users:  # validate invitee and inviter are active users
+    print(f"Inside of if statement: {data.get('inviter')} has invited {data.get('invitee')}")
+    invitee_socket_id = active_user_sockets[str(data.get('invitee'))]
+    socketio.emit('invite_recieved', {"inviter": data.get('inviter')}, to=invitee_socket_id)
 
 
 @socketio.on('invite_response')
@@ -197,7 +205,7 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
     inviter = data.get('inviter')
 
     print(f"{invitee} has responded to {inviter}'s invite")
-
+    socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter})
     pass
 
 

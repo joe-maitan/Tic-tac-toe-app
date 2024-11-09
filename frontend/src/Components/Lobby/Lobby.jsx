@@ -85,7 +85,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             // { invitee: currentUser.userID, inviter: data.inviter, response: response}));
         });
 
-        socket.on('invite_response', (data) => {
+        socket.on('handle_invite_response', (data) => {
             console.log("Inside of invite_response", data);
             
             // handle the accept/decline response
