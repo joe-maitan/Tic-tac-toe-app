@@ -161,11 +161,12 @@ def handle_registration(data):
     print(f"handle_connection - event register_user hit - {data}")
     username = data.get('userID')
 
-    if username in active_user_sockets and username in active_users:
+    if username in active_user_sockets and load_user(username) in active_users:
         if active_user_sockets[username] != request.sid:
+            print(f"{username} is already connected. Updating socket id.")
             active_user_sockets[username] = request.sid
-        # else do not change the current record
-    print(f"{username} connected.")
+    else:
+        print(f"{username} connected.")
 
 
 @socketio.on('disconnect')
@@ -174,25 +175,28 @@ def handle_disconnect():
 
 
 @socketio.on('send_invite')
-def handle_send_invite(data):
-    print(f"{data}")
+def handle_send_invite(data):  # send the invite to the invitee
     print(f"server.py - handle_send_invite() - event hit")
+    print(f"{data}")
+
     inviter = data.get('inviter')
     invitee = data.get('invitee')
-    
     # validate invitee and inviter are active users
-    if invitee in active_users and inviter in active_users:
-        print(f"{inviter} has invited {invitee}")
+    if load_user(inviter) in active_users and load_user(invitee) in active_users:
+        print(f"Inside of if statement: {inviter} has invited {invitee}")
         invitee_socket_id = active_user_sockets[invitee]
-        socketio.emit('invite_recieved', 
-                      {"inviter": inviter}, 
-                      to=invitee_socket_id)
+        socketio.emit('invite_recieved', {"inviter": inviter}, to=invitee_socket_id)
 
 
 @socketio.on('invite_response')
-def handle_respond_invite(data):
-    # send the response from the invitee back to the inviter
+def handle_respond_invite(data):   # send the response from the invitee back to the inviter
     print(f"server.py - handle_response_invite() - event hit")
+    print(f"{data}")
+
+    invitee = data.get('invitee')
+    inviter = data.get('inviter')
+
+    print(f"{invitee} has responded to {inviter}'s invite")
 
     pass
 

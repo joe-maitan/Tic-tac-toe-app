@@ -9,6 +9,8 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     const [activeUsers, setActiveUsers] = useState([]);
     const socket = useContext(SocketContext);
 
+    let response = '';
+
     const getActiveUsers = () => {
         axios.get('http://127.0.0.1:5000/active_users')
             .then(response => {
@@ -49,14 +51,14 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     const handleInvite = ({ invite, onAccept, onDecline }) => {
         const handleAccept = () => {
           onAccept(invite);
-          const response = "accept";
           toast.dismiss(); // Close the toast
+          return "accept";
         };
       
         const handleDecline = () => {
           onDecline(invite);
-          const response = "decline";
           toast.dismiss(); // Close the toast
+          return "decline";
         };
 
         socket.emit('invite_response', { invitee: currentUser.userID, inviter: invite.sender, response: response});
