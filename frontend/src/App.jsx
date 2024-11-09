@@ -17,7 +17,7 @@ const App = () => {
       <SocketProvider>
       <Routes>
         <Route path='/' element={<LoginSignup setCurrentUser={setCurrentUser} />} />
-        <Route path='/lobby' element={<Lobby currentUser={currentUser}/>} />
+        <Route path='/lobby' element={<Lobby currentUser={currentUser} setCurrentUser={setCurrentUser}/>} />
         <Route path='/gameplay' element={<GamePlay />} />
       </Routes>
       </SocketProvider>

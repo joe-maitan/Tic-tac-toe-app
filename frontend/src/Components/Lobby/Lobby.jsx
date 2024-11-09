@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
-import { ToastContainer, toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { SocketContext } from '../../SocketProvider';
 
 import './Lobby.css';
 
-const Lobby = ({ currentUser }) => {
+const Lobby = ({ currentUser, setCurrentUser }) => {
     const [activeUsers, setActiveUsers] = useState([]);
     const socket = useContext(SocketContext);
 
@@ -26,7 +26,7 @@ const Lobby = ({ currentUser }) => {
     };
 
     const handleRegisterUser = () => {
-        if (currentUser == null) {
+        if (!currentUser) {
             currentUser = sessionStorage.getItem("currentUser")
         }
 
@@ -77,12 +77,21 @@ const Lobby = ({ currentUser }) => {
         
         socket.on('invite_recieved', (data) => {
             console.log("Inside of invite_recieved", data);
-            toast(<InviteToast invite={data} onAccept={handleAccept} onDecline={handleDecline} />);
+            // display invite prompt to invitee
+            // response = client input (accept/decline)
+            // send response to inviter (socket.emit('invite_response', 
+            // { invitee: currentUser.userID, inviter: data.inviter, response: response}));
         });
 
         socket.on('invite_response', (data) => {
             console.log("Inside of invite_response", data);
             // handle the accept/decline response
+            // if (response === "accept") {
+            //     // navigate to game
+            // } else {
+            //     // toast message that invite was declined
+                    // keep the user in the lobby
+            // }
         });
 
         return () => {
