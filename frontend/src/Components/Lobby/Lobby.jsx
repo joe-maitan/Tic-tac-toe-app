@@ -26,8 +26,8 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     };
 
     const handleRegisterUser = () => {
-        if (!currentUser) {
-            currentUser = sessionStorage.getItem("currentUser")
+        if (!currentUser) { // if the currentUser object is not intialized. grab it from sessionStorage
+            setCurrentUser(sessionStorage.getItem("currentUser"));
         }
 
         socket.emit('register_user', {userID: currentUser.userID}); // Send a register event to the server
@@ -73,11 +73,11 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     useEffect(() => { getActiveUsers(); }, []); // Update the list of active users with every render of the page
 
     useEffect(() => {
-        handleRegisterUser(); // register the currentUser with this socketID every time they enter the lobby
+        handleRegisterUser(); // register the currentUser with this socketID every time they enter the lobby/refresh the page
         
         socket.on('invite_recieved', (data) => {
             console.log("Inside of invite_recieved", data);
-            // display invite prompt to invitee
+            response = handleInvite(data);
             // response = client input (accept/decline)
             // send response to inviter (socket.emit('invite_response', 
             // { invitee: currentUser.userID, inviter: data.inviter, response: response}));
@@ -85,6 +85,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
         socket.on('invite_response', (data) => {
             console.log("Inside of invite_response", data);
+            
             // handle the accept/decline response
             // if (response === "accept") {
             //     // navigate to game
