@@ -65,7 +65,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
       
         return (
           <div>
-            <p>You have received an invite from {invite.sender}</p>
+            <p>You have received an invite from {invite.inviter}</p>
             <button onClick={handleAccept}>Accept</button>
             <button onClick={handleDecline}>Decline</button>
           </div>
