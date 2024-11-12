@@ -8,7 +8,22 @@ from User import *
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
-active_users = {}  # dictionary of active users {"username": "socket_id"}
+active_user_sockets = {}  # dictionary of active users {user object: "socket_id"}
+active_users = []  # list of active user objects
+
+
+def addUserToActiveUsers(user: User):
+    if user not in active_users:
+        active_users.append(user)
+    else:
+        print(f"User {user.get_id()} is already in the active users list.")
+
+
+def addUserToActiveUserSockets(user: User, socket_id: str):
+    if user not in active_user_sockets:
+        active_user_sockets[user.get_id()] = socket_id
+    else:
+        print(f"User {user.get_id()} is already in the active user sockets list.")
 
 
 @login_manager.user_loader
@@ -17,7 +32,7 @@ def load_user(user_id: str) -> User:
     user_data = db['users'].find_one({"username": user_id})
 
     if user_data:
-        print(f"load_user() - User {user_data['username']} loaded successfully")
+        # print(f"load_user() - User {user_data['username']} loaded successfully")
         return User(is_authenticated=True, user_id=user_data["username"])
 
     return None
@@ -75,7 +90,7 @@ def create_user():
             db['users'].insert_one(newUser)
             user = load_user(db['users'].find_one({"username": username})["username"])
             login_user(user, remember=True)
-
+            addUserToActiveUsers(user)
             app.logger.info("create_user() - User created and added to database successfully")
             return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
         except Exception as e:
@@ -115,9 +130,9 @@ def login():
         
         user = load_user(searched_username["username"])
         login_user(user, remember=True)
-        print(f"Current user after logig_user in login() - {current_user.get_id()}")
+        addUserToActiveUsers(user)
         app.logger.info("login_user() - User logged in successfully")
-        return jsonify({"message": "User logged in successfully"}), 201
+        return jsonify({"message": f"{user.get_id()} logged in successfully"}), 201
     except Exception as e:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
@@ -127,6 +142,7 @@ def login():
 @login_required
 def logout():
     app.logger.info("/logout route was hit, logging out a user")
+    active_users.remove(current_user)
     logout_user()  # logs out the current user on the page
     pass
 
@@ -141,61 +157,56 @@ def profile():
         return jsonify({"error": "User not authenticated"}), 401
 
 
-@socketio.on('connect')
-@login_required
-def handle_connection():
-    print(f"server.py - handle_connection() - event hit")
-    print(f"Current user in handle_connect: {current_user.get_id()}")
-    print(f"handle_connection() - session username {session.get('username')}")
-    print(f"handle_connection() - session is_authenticated {session.get('is_authenticated')}")
-    print(f"server.py - handle_connection() - request.sid = {request.sid}")
-
-    if session.get('is_authenticated'):
-        print(f"handle_connection() - current session is {session.get('is_authenticated')}")
-        active_users[session.get('username')] = request.sid  # pairs the current user to their socket id
-
-
-@socketio.on('user_join')
-def user_join(username):
-    print(f"server.py - handle_connection() - event hit")
-    print(f"Current user in handle_connect: {username}")
-    print(f"{current_user.get_id()}")
-    active_users["username"] = username  # TODO: Figure out how to store active users with their username as the key, and socket id as the value
-    print(f"ACTIVE USERS: {active_users}")
-    
-    # TODO: Only send one broadcast/emit after a user joins
-    emit("user_list_update", {"users": active_users}, broadcast=True)
-    # active_users[username] = request.sid  # pairs the current user to their socket id
-    emit("user_list_update", {"users": list(active_users.keys())}, broadcast=True)
-    
-
-@socketio.on('disconnect')
-@login_required
-def handle_disconnection():
-    app.logger.info("A user has disconnected from the server")
-    pass
-
-
-@socketio.on('user_list_update')
-@login_required
+@app.route('/active_users', methods=["GET"])
 def update_user_list():
-    print(f"update_user_list() - user_list_update event hit")
+    if not active_users:  # Check if active_users is populated
+        app.logger.error("Error: No active users found.")
+        return jsonify({"error": "No active users"}), 500
+
+    app.logger.info("/active_users route was hit, updating the list of active users")
+    # print(f"Active Users: {[user.get_id() for user in active_users]}")  # Debugging line
+
+    return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
+    
+
+@socketio.on('register_user')
+def handle_registration(data):
+    print(f"handle_connection - event register_user hit - {data}")
+    # addUserToActiveUsers(load_user(data.get('userID')))
+    addUserToActiveUserSockets(load_user(data.get('userID')), request.sid)
+    print(f"{data.get('userID')} has connected to the server")
+
+    
+@socketio.on('disconnect')
+def handle_disconnect():
     pass
 
 
-# TODO: Figure out the socket stuff behind invite, creating the room for two players, and make move
-# @login_required
-# @socketio.on('invite')
-# def invite_user():
-#     app.logger.info("/invite_user route was hit, inviting a user to play a game")
-#     pass
+@socketio.on('send_invite')
+def handle_send_invite(data):  # send the invite to the invitee
+    print(f"server.py - handle_send_invite() - event hit")
+    print(f"{data}")
+
+    inviter = load_user(data.get('inviter'))
+    invitee = load_user(data.get('invitee'))
+    
+    # if inviter in active_users and invitee in active_users:  # validate invitee and inviter are active users
+    print(f"Inside of if statement: {data.get('inviter')} has invited {data.get('invitee')}")
+    invitee_socket_id = active_user_sockets[str(data.get('invitee'))]
+    socketio.emit('invite_recieved', {"inviter": data.get('inviter')}, to=invitee_socket_id)
 
 
-# @login_required
-# @socketio.on('gamemove')
-# def game_move(game_board, postion):
-#     app.logger.info("/game_move route was hit, making a move in the game")
-#     pass
+@socketio.on('invite_response')
+def handle_respond_invite(data):   # send the response from the invitee back to the inviter
+    print(f"server.py - handle_response_invite() - event hit")
+    print(f"{data}")
+
+    invitee = data.get('invitee')
+    inviter = data.get('inviter')
+
+    print(f"{invitee} has responded to {inviter}'s invite")
+    socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter})
+    pass
 
 
 if __name__ == "__main__":
