@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useHistory } from "react-router-dom";
 import { useState, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 
@@ -16,6 +16,7 @@ const LoginSignup = ({ setCurrentUser }) => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const history = useHistory();
     const navigate = useNavigate();
     const socket = useContext(SocketContext);
 
