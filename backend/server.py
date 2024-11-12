@@ -13,10 +13,11 @@ from User import *
 active_user_sockets = {}  # dictionary of active users {user object: "socket_id"}
 active_users = []  # list of active user objects
 
+
 def updateEnvFile(host: str, port: str) -> None:
-    with open('../.env', 'w') as env_file:
-        env_file.write(f"FLASK_HOST={host}\n")
-        env_file.write(f"FLASK_SERVER_PORT={port}\n")
+    with open('../frontend/.env', 'w') as env_file:
+        env_file.write(f"VITE_FLASK_HOST={host}\n")
+        env_file.write(f"VITE_FLASK_SERVER_PORT={port}\n")
 
 
 def addUserToActiveUsers(user: User) -> None:
