@@ -11,16 +11,8 @@ import { SocketProvider } from "./SocketProvider";
 import { ApiProvider } from "./apiContext";
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState(() => {
-    const userCookie = cookie.get('user');
-    return userCookie ? JSON.parse(userCookie) : null;
-  });
-
-  const handleLogin = (userObject) => {
-    setCurrentUser = userObject;
-    cookie.set('user', JSON.stringify(userObject));
-  }
-
+  const [currentUser, setCurrentUser] = useState(null);
+  
   return (
     <>
       <ApiProvider>
