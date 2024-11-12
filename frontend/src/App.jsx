@@ -24,14 +24,9 @@ export default function App() {
     <>
       <SocketProvider>
         <BrowserRouter>
-          {currentUser && <NavBar />}
-          
-          <Switch>
             <Route path='/login' element={<LoginSignup setCurrentUser={setCurrentUser} />} />
             <Route path='/lobby' element={<Lobby currentUser={currentUser} setCurrentUser={setCurrentUser}/>} />
             <Route path='/gameplay' element={<GamePlay />} />
-          </Switch>
-        
         </BrowserRouter>
       
       </SocketProvider>
