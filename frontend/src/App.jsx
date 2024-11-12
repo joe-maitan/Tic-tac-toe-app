@@ -12,16 +12,11 @@ import { ApiProvider, useApi } from "./apiContext";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
-
-  // const hostAddress = import.meta.env.VITE_FLASK_HOST;
-  // const portNumber = import.meta.env.VITE_FLASK_SERVER_PORT;
-  // const apiBaseUrl = `http://${hostAddress}:${portNumber}/api`;
   
   return (
     <>
     
       <ApiProvider>
-      <p>API Base URL = {useApi()} </p>
         <SocketProvider>
           <Routes>
               <Route path='/' element={<LoginSignup setCurrentUser={setCurrentUser} />} />

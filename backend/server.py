@@ -1,7 +1,6 @@
 import sys
 
-from flask import Flask, request, session, jsonify, render_template, redirect, url_for
-from flask_cors import CORS
+from flask import request, jsonify
 from flask_login import login_required, login_user, current_user, logout_user
 from flask_socketio import send, emit, join_room, leave_room
 from config import socketio, app, login_manager, db
