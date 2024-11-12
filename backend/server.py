@@ -18,14 +18,15 @@ def updateEnvFile(host: str, port: str) -> None:
         env_file.write(f"FLASK_HOST={host}\n")
         env_file.write(f"FLASK_SERVER_PORT={port}\n")
 
-def addUserToActiveUsers(user: User):
+
+def addUserToActiveUsers(user: User) -> None:
     if user not in active_users:
         active_users.append(user)
     else:
         print(f"User {user.get_id()} is already in the active users list.")
 
 
-def addUserToActiveUserSockets(user: User, socket_id: str):
+def addUserToActiveUserSockets(user: User, socket_id: str) -> None:
     if user not in active_user_sockets:
         active_user_sockets[user.get_id()] = socket_id
     else:
@@ -45,13 +46,13 @@ def load_user(user_id: str) -> User:
 
 
 @app.route("/")
-def hello_world():
+def hello_world() -> jsonify:
     app.logger.info("Index route was hit")
     return jsonify({"message": "Hello, World!"}), 200
 
 
 @app.route("/signup", methods=["POST"])
-def create_user():
+def create_user() -> jsonify:
     app.logger.info("/signup route was hit, creating a new user")
 
     try:
@@ -108,7 +109,7 @@ def create_user():
     
 
 @app.route('/login', methods=["POST"])
-def login():
+def login() -> jsonify:
     app.logger.info("/login route was hit, logging in a user")
 
     try:
@@ -146,7 +147,7 @@ def login():
 
 @app.route('/logout', methods=["GET"])
 @login_required
-def logout():
+def logout() -> jsonify:
     app.logger.info("/logout route was hit, logging out a user")
     active_users.remove(current_user)
     logout_user()  # logs out the current user on the page
@@ -155,7 +156,7 @@ def logout():
 
 @app.route('/profile', methods=["GET"])
 @login_required
-def profile():
+def profile() -> jsonify:
     if current_user.is_authenticated:
         user_id = current_user.get_id()
         return jsonify({"user_id": user_id, "is_authenticated": current_user.is_authenticated}), 200
@@ -164,7 +165,7 @@ def profile():
 
 
 @app.route('/active_users', methods=["GET"])
-def update_user_list():
+def update_user_list() -> jsonify:
     if not active_users:  # Check if active_users is populated
         app.logger.error("Error: No active users found.")
         return jsonify({"error": "No active users"}), 500

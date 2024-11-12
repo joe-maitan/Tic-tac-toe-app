@@ -1,9 +1,9 @@
-import { useNavigate, useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 
 import { SocketContext } from '../../SocketProvider';
-import { useApi } from '../ApiContext';
+import { useApi } from '../../apiContext';
 import axios from "axios";
 
 import user_pic from '../Images/user.png'
