@@ -3,13 +3,13 @@ import React , {useState} from 'react';
 import { BrowserRouter, Routes, Route, Router } from "react-router-dom";
 
 import './App.css'
-import LoginSignup from "./Components/LoginSignup/LoginSignup";
-import Lobby from "./Components/Lobby/Lobby";
-import GamePlay from "./Components/GamePlay/GamePlay";
+import LoginSignup from "./components/LoginSignup/LoginSignup";
+import Lobby from "./components/Lobby/Lobby";
+import GamePlay from "./components/GamePlay/GamePlay";
 import { Toaster } from 'react-hot-toast';
 import { SocketProvider } from "./SocketProvider";
 
-const App = () => {
+export default function App() {
   const [currentUser, setCurrentUser] = useState(() => {
     const userCookie = cookie.get('user');
     return userCookie ? JSON.parse(userCookie) : null;
@@ -39,5 +39,3 @@ const App = () => {
     </>
   )
 };
-
-export default App;

@@ -7,7 +7,7 @@ const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        const newSocket = io('http://127.0.0.1:5000');
+        const newSocket = io('http://0.0.0.0:5000');
         setSocket(newSocket);
 
         return () => newSocket.close();
