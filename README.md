@@ -1,13 +1,34 @@
 # Tic-tac-toe-app
 CS457 Term Project
 
-# Module load
-Because this is being developed on the CS machines from CSU we have a module load command to load python 3.10 or greater
+# Python Version and Software
+The Python version used for developing this project was 3.11. If you have a greater version than 3.11 everything will work regardless, do not worry about using 3.11 specifically.
+
+To load python 3.11 on the CSU CS machines run the following command:
 ```
-module load python/bundle-3.10
+module load python/bundle-3.11
 ```
 
-But if you have a version of python downloaded that is greater than python 3.6, do not worry about using specifically 3.9.
+# Sprints
+## Sprint 1 - Implement Client and Server architecture
+- The backend Server runs a flask app that processes requests and socket events.
+- The client is a web browser that can be booted up doing the npm run dev command below.
+- When the client is on the web page they are greated with a sign up/ log in page where they will need to create an account that is stored in our database managed by the backend.
+- Once the client has created an account or logged in, they wait in the lobby waiting to invite other players
+
+## Sprint 2 - Design and Implement Message Protocol
+- The client has two ways of sending messages to the server. The first is through HTTP requests and the second through SocketIO.
+- The HTTP requests manage signing up or logging the user in, logging them out, getting a list of active users.
+- The SocketIO manages the events of inviting another player and making a game move
+
+## Sprint 3 - Multiplayer Functionality
+- Clients can invite eachother through the use of SocketIO. The invite mechanism is handled on the backend and then forwarded to the invitee's socket where a pop up will prompt them to accept or decline the invite.
+- If accepted a new game object is created where it will pick a player to go first, following the rules of tic tac toe, until there is a winner or draw
+
+## Sprint 4 - Gameplay, Gamestate, UI
+
+## Sprint 5 - Error Handling and Testing
+- Backend uses pytest to test the functionality of the server/flask app.
 
 # How to run the app
 1. Clone the repository
@@ -74,11 +95,11 @@ npm install
 9. Run the dev enviornments of each (until we figure out how to deploy)
 * For the backend:
 ```
-C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py
+C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py <port>
 ```
 * For the frontend:
 ```
-C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend npm run dev
+C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend npm run dev -- 
 ```
 
 

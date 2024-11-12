@@ -36,8 +36,8 @@ const LoginSignup = ({ setCurrentUser }) => {
               };
 
               // to ensure that a user session is maintained
-              sessionStorage.setItem("userID", currentUser.userID);
-              sessionStorage.setItem("symbol", currentUser.symbol);
+              // sessionStorage.setItem("userID", currentUser.userID);
+              // sessionStorage.setItem("symbol", currentUser.symbol);
               setCurrentUser(currentUser); // Update the currentUser object
               navigate('/lobby');
             }
@@ -73,8 +73,7 @@ const LoginSignup = ({ setCurrentUser }) => {
                   symbol: "X" // or "O"
                 };
 
-                sessionStorage.setItem("currrentUser", JSON.stringify(currentUser));
-                
+                // sessionStorage.setItem("currrentUser", JSON.stringify(currentUser));
                 setCurrentUser(currentUser);
                 navigate('/lobby');
             } 
