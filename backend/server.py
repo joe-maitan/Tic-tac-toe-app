@@ -13,6 +13,10 @@ from User import *
 active_user_sockets = {}  # dictionary of active users {user object: "socket_id"}
 active_users = []  # list of active user objects
 
+def updateEnvFile(host: str, port: str) -> None:
+    with open('../.env', 'w') as env_file:
+        env_file.write(f"FLASK_HOST={host}\n")
+        env_file.write(f"FLASK_SERVER_PORT={port}\n")
 
 def addUserToActiveUsers(user: User):
     if user not in active_users:
@@ -214,5 +218,7 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
 if __name__ == "__main__":
     ip_address = "0.0.0.0"
     port_number = int(sys.argv[1]) if len(sys.argv) > 1 else 5000  # if no port is specified, default to port 5000
+
+    updateEnvFile(ip_address, port_number)
 
     socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API

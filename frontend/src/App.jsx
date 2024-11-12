@@ -1,13 +1,14 @@
 import ReactDOM from "react-dom/client";
 import React , {useState} from 'react';
-import { BrowserRouter, Routes, Route, Router } from "react-router-dom";
+import { Routes, Route} from "react-router-dom";
 
 import './App.css'
-import LoginSignup from "./components/LoginSignup/LoginSignup";
-import Lobby from "./components/Lobby/Lobby";
-import GamePlay from "./components/GamePlay/GamePlay";
+import LoginSignup from "./Components/LoginSignup/LoginSignup";
+import Lobby from "./Components/Lobby/Lobby";
+import GamePlay from "./Components/GamePlay/GamePlay";
 import { Toaster } from 'react-hot-toast';
 import { SocketProvider } from "./SocketProvider";
+import { ApiProvider } from "./apiContext";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(() => {
@@ -22,14 +23,15 @@ export default function App() {
 
   return (
     <>
-      <SocketProvider>
-        <BrowserRouter>
-            <Route path='/login' element={<LoginSignup setCurrentUser={setCurrentUser} />} />
-            <Route path='/lobby' element={<Lobby currentUser={currentUser} setCurrentUser={setCurrentUser}/>} />
-            <Route path='/gameplay' element={<GamePlay />} />
-        </BrowserRouter>
-      
-      </SocketProvider>
+      <ApiProvider>
+        <SocketProvider>
+          <Routes>
+              <Route path='/login' element={<LoginSignup setCurrentUser={setCurrentUser} />} />
+              <Route path='/lobby' element={<Lobby currentUser={currentUser} setCurrentUser={setCurrentUser}/>} />
+              <Route path='/gameplay' element={<GamePlay />} />
+          </Routes>
+        </SocketProvider>
+      </ApiProvider>
       <Toaster position="bottom-right" reverseOrder={false}/>
     </>
   )
