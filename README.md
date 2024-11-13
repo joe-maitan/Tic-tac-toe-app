@@ -99,7 +99,7 @@ C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py <port>
 ```
 * For the frontend (client):
 ```
-C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend npm run dev -- 
+C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend npm run dev 
 ```
 
 
