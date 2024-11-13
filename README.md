@@ -92,12 +92,12 @@ NOTE: Must have Node.js and NVM installed on machine
 npm install
 ```
 
-9. Run the dev enviornments of each (until we figure out how to deploy)
+9. Running the code!
 * For the backend:
 ```
 C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py <port>
 ```
-* For the frontend:
+* For the frontend (client):
 ```
 C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend npm run dev -- 
 ```
