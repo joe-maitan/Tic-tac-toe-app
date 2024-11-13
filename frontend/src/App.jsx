@@ -1,4 +1,3 @@
-import ReactDOM from "react-dom/client";
 import React , {useState} from 'react';
 import { Routes, Route} from "react-router-dom";
 
@@ -8,7 +7,7 @@ import Lobby from "./Components/Lobby/Lobby";
 import GamePlay from "./Components/GamePlay/GamePlay";
 import { Toaster } from 'react-hot-toast';
 import { SocketProvider } from "./SocketProvider";
-import { ApiProvider, useApi } from "./apiContext";
+import { ApiProvider } from "./apiContext";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);

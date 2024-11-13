@@ -2,10 +2,10 @@ import React, { createContext, useContext } from 'react';
 
 const hostAddress = import.meta.env.VITE_FLASK_HOST;
 const portNumber = import.meta.env.VITE_FLASK_SERVER_PORT;
-const apiBaseUrl = `http://${hostAddress}:${portNumber}`;
+const serverUrl = `http://${hostAddress}:${portNumber}`;
 
-// Create the context with apiBaseUrl as its default value
-const ApiContext = createContext(apiBaseUrl);
+// Create the context with serverUrl as its default value
+const ApiContext = createContext(serverUrl);
 
 export const ApiProvider = ({ children }) => {
   return (
