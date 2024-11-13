@@ -203,9 +203,10 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
 
     invitee = data.get('invitee')
     inviter = data.get('inviter')
+    response = data.get('response')
 
-    print(f"{invitee} has responded to {inviter}'s invite")
-    socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter})
+    print(f"{invitee} has {response} {inviter}'s invite")
+    socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
     pass
 
 

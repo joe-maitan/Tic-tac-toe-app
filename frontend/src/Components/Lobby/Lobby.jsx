@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from 'react-hot-toast';
 import { SocketContext } from '../../SocketProvider';
@@ -8,6 +9,7 @@ import './Lobby.css';
 const Lobby = ({ currentUser, setCurrentUser }) => {
     const [activeUsers, setActiveUsers] = useState([]);
     const socket = useContext(SocketContext);
+    const navigate = useNavigate();
 
     let response = '';
 
@@ -48,54 +50,70 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         socket.emit('send_invite', { inviter: currentUser.userID, invitee });
     };
 
-    const handleInvite = ({ invite, onAccept, onDecline }) => {
+    const handleInvite = async (invite) => {
+        console.log(invite);
+        const response = await new Promise((resolve) => {
+        toast((t) => (
+          <span>
+            Invite received from {invite['inviter']}  
+            <button onClick={() => {
+              resolve(handleAccept());
+              toast.dismiss(t.id);
+            }}
+            style={{ margin: '8px 8px', padding: '4px 8px' }}>
+              Accept
+            </button>
+            <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              resolve(handleDecline());
+            }}
+            style={{ margin: '8px 8px', padding: '4px 8px' }}>
+            Decline
+          </button>
+          </span>
+        ));
+
         const handleAccept = () => {
-          onAccept(invite);
-          toast.dismiss(); // Close the toast
-          return "accept";
+          return "accepted";
         };
       
         const handleDecline = () => {
-          onDecline(invite);
-          toast.dismiss(); // Close the toast
-          return "decline";
+          return "declined";
         };
-
-        socket.emit('invite_response', { invitee: currentUser.userID, inviter: invite.sender, response: response});
-      
+    });
         return (
-          <div>
-            <p>You have received an invite from {invite.inviter}</p>
-            <button onClick={handleAccept}>Accept</button>
-            <button onClick={handleDecline}>Decline</button>
-          </div>
+          response
         );
       };
 
     useEffect(() => { getActiveUsers(); }, []); // Update the list of active users with every render of the page
 
     useEffect(() => {
+      const registerUserAndHandleInvites = async () => {
         handleRegisterUser(); // register the currentUser with this socketID every time they enter the lobby/refresh the page
         
-        socket.on('invite_recieved', (data) => {
+        socket.on('invite_recieved', async(data) => {
             console.log("Inside of invite_recieved", data);
-            response = handleInvite(data);
-            // response = client input (accept/decline)
-            // send response to inviter (socket.emit('invite_response', 
-            // { invitee: currentUser.userID, inviter: data.inviter, response: response}));
+            const response = await handleInvite(data);
+            console.log(response);
+            socket.emit('invite_response', { invitee: currentUser.userID, inviter: data['inviter'], response: response});
         });
 
         socket.on('handle_invite_response', (data) => {
             console.log("Inside of invite_response", data);
             
             // handle the accept/decline response
-            // if (response === "accept") {
-            //     // navigate to game
-            // } else {
-            //     // toast message that invite was declined
-                    // keep the user in the lobby
-            // }
+            if (data["response"] === "accepted") {
+              toast.success(`${data['invitee']} accepted ${data['inviter']}'s game request`);
+              navigate('/gameplay');
+            } else {
+                toast.error(`${data['invitee']} declined ${data['inviter']}'s game request`);
+            }
         });
+      };
+
+      registerUserAndHandleInvites();
 
         return () => {
             if (socket) {
