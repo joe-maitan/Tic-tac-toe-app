@@ -1,4 +1,5 @@
 import sys
+import socket
 
 from flask import request, jsonify
 from flask_login import login_required, login_user, current_user, logout_user
@@ -217,7 +218,7 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
 
 
 if __name__ == "__main__":
-    ip_address = "0.0.0.0"
+    ip_address = socket.gethostbyname(socket.gethostname()) # "0.0.0.0"
     port_number = int(sys.argv[1]) if len(sys.argv) > 1 else 5000  # if no port is specified, default to port 5000
 
     updateEnvFile(ip_address, port_number)
