@@ -3,6 +3,7 @@ import { useState, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 
 import { SocketContext } from '../../SocketProvider';
+import { useApi } from '../../apiContext';
 import axios from "axios";
 
 import user_pic from '../Images/user.png'
@@ -16,11 +17,13 @@ const LoginSignup = ({ setCurrentUser }) => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    
     const navigate = useNavigate();
     const socket = useContext(SocketContext);
+    const apiUrl = useApi();
 
     const handleLoginInput = (username, password) => {
-        axios.post('http://127.0.0.1:5000/login', 
+        axios.post(apiUrl + '/login', 
           {
           "username": username,
           "password": password
@@ -35,8 +38,8 @@ const LoginSignup = ({ setCurrentUser }) => {
               };
 
               // to ensure that a user session is maintained
-              sessionStorage.setItem("userID", currentUser.userID);
-              sessionStorage.setItem("symbol", currentUser.symbol);
+              // sessionStorage.setItem("userID", currentUser.userID);
+              // sessionStorage.setItem("symbol", currentUser.symbol);
               setCurrentUser(currentUser); // Update the currentUser object
               navigate('/lobby');
             }
@@ -55,7 +58,7 @@ const LoginSignup = ({ setCurrentUser }) => {
     } // End handleLoginInput
 
     const handleSignUpInput = (username, email, password) => {
-        axios.post('http://127.0.0.1:5000/signup', 
+        axios.post(apiUrl + '/signup', 
           {
             "username": username,
             "email": email,
@@ -72,8 +75,7 @@ const LoginSignup = ({ setCurrentUser }) => {
                   symbol: "X" // or "O"
                 };
 
-                sessionStorage.setItem("currrentUser", JSON.stringify(currentUser));
-                
+                // sessionStorage.setItem("currrentUser", JSON.stringify(currentUser));
                 setCurrentUser(currentUser);
                 navigate('/lobby');
             } 

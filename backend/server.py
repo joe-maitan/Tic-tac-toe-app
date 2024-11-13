@@ -1,5 +1,7 @@
-from flask import Flask, request, session, jsonify, render_template, redirect, url_for
-from flask_cors import CORS
+import sys
+import socket
+
+from flask import request, jsonify
 from flask_login import login_required, login_user, current_user, logout_user
 from flask_socketio import send, emit, join_room, leave_room
 from config import socketio, app, login_manager, db
@@ -12,14 +14,20 @@ active_user_sockets = {}  # dictionary of active users {user object: "socket_id"
 active_users = []  # list of active user objects
 
 
-def addUserToActiveUsers(user: User):
+def updateEnvFile(host: str, port: str) -> None:
+    with open('../frontend/.env', 'w') as env_file:
+        env_file.write(f"VITE_FLASK_HOST={host}\n")
+        env_file.write(f"VITE_FLASK_SERVER_PORT={port}\n")
+
+
+def addUserToActiveUsers(user: User) -> None:
     if user not in active_users:
         active_users.append(user)
     else:
         print(f"User {user.get_id()} is already in the active users list.")
 
 
-def addUserToActiveUserSockets(user: User, socket_id: str):
+def addUserToActiveUserSockets(user: User, socket_id: str) -> None:
     if user not in active_user_sockets:
         active_user_sockets[user.get_id()] = socket_id
     else:
@@ -39,13 +47,13 @@ def load_user(user_id: str) -> User:
 
 
 @app.route("/")
-def hello_world():
+def hello_world() -> jsonify:
     app.logger.info("Index route was hit")
     return jsonify({"message": "Hello, World!"}), 200
 
 
 @app.route("/signup", methods=["POST"])
-def create_user():
+def create_user() -> jsonify:
     app.logger.info("/signup route was hit, creating a new user")
 
     try:
@@ -102,7 +110,7 @@ def create_user():
     
 
 @app.route('/login', methods=["POST"])
-def login():
+def login() -> jsonify:
     app.logger.info("/login route was hit, logging in a user")
 
     try:
@@ -140,7 +148,7 @@ def login():
 
 @app.route('/logout', methods=["GET"])
 @login_required
-def logout():
+def logout() -> jsonify:
     app.logger.info("/logout route was hit, logging out a user")
     active_users.remove(current_user)
     logout_user()  # logs out the current user on the page
@@ -149,7 +157,7 @@ def logout():
 
 @app.route('/profile', methods=["GET"])
 @login_required
-def profile():
+def profile() -> jsonify:
     if current_user.is_authenticated:
         user_id = current_user.get_id()
         return jsonify({"user_id": user_id, "is_authenticated": current_user.is_authenticated}), 200
@@ -158,7 +166,7 @@ def profile():
 
 
 @app.route('/active_users', methods=["GET"])
-def update_user_list():
+def update_user_list() -> jsonify:
     if not active_users:  # Check if active_users is populated
         app.logger.error("Error: No active users found.")
         return jsonify({"error": "No active users"}), 500
@@ -210,5 +218,9 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
 
 
 if __name__ == "__main__":
-    # app.run(debug=True)  # Run all of different routes and our API
-    socketio.run(app, debug=True)  # Run all of different routes and our API
+    ip_address = socket.gethostbyname(socket.gethostname()) # "0.0.0.0"
+    port_number = int(sys.argv[1]) if len(sys.argv) > 1 else 5000  # if no port is specified, default to port 5000
+
+    updateEnvFile(ip_address, port_number)
+
+    socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
 import { toast } from 'react-hot-toast';
 import { SocketContext } from '../../SocketProvider';
+import { useApi } from '../../apiContext';
 
 import './Lobby.css';
 
@@ -9,10 +10,12 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     const [activeUsers, setActiveUsers] = useState([]);
     const socket = useContext(SocketContext);
 
+    const apiUrl = useApi();
+
     let response = '';
 
     const getActiveUsers = () => {
-        axios.get('http://127.0.0.1:5000/active_users')
+        axios.get(apiUrl + '/active_users')
             .then(response => {
                 if (response.status === 200) {
                     setActiveUsers(response.data.active_users);
