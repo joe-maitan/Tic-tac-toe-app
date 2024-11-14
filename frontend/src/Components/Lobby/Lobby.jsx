@@ -5,6 +5,8 @@ import { toast } from 'react-hot-toast';
 import { SocketContext } from '../../SocketProvider';
 import { useApi } from '../../apiContext';
 
+import cookie from '../utils/cookie';
+
 import './Lobby.css';
 
 const Lobby = ({ currentUser, setCurrentUser }) => {
@@ -33,10 +35,14 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     };
 
     const handleRegisterUser = () => {
-        if (!currentUser) { // if the currentUser object is not intialized. grab it from sessionStorage
-            setCurrentUser(sessionStorage.getItem("currentUser"));
+        if (!currentUser) {
+            console.log("No currentUser found. Checking cookie");
+            console.log("Cookie: " + cookie.get("currentUser"));
+            currentUser = JSON.parse(cookie.get("currentUser"));
+            setCurrentUser(currentUser);
         }
 
+        console.log("Registering user " + currentUser.userID);
         socket.emit('register_user', {userID: currentUser.userID}); // Send a register event to the server
 
         socket.on('successful_registration', (data) => {
