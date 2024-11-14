@@ -16,8 +16,6 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
     const apiUrl = useApi();
 
-    let response = '';
-
     const getActiveUsers = () => {
         axios.get(apiUrl + '/active_users')
             .then(response => {
@@ -103,6 +101,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
     useEffect(() => {
       const registerUserAndHandleInvites = async () => {
+        // TODO: Could move this to the above useEffect
         handleRegisterUser(); // register the currentUser with this socketID every time they enter the lobby/refresh the page
         
         socket.on('invite_recieved', async(data) => {
