@@ -1,5 +1,6 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from 'react'
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState, useContext} from 'react';
+import { SocketContext } from '../../SocketProvider';
 import './GamePlay.css';
 import circle_pic from '../Images/circle.png'
 import x_pic from '../Images/x.png'
@@ -7,9 +8,21 @@ import x_pic from '../Images/x.png'
 let data = ["","","","","","","","",""]
 
 const GamePlay = () => {
-
+    const { gameId } = useParams();
     let [count, setCount] = useState(0);
     let [lock, setLock] = useState(false);
+
+    const socket = useContext(SocketContext);
+
+    useEffect(() => {
+        // Use the gameId for game-specific actions, like joining a socket room
+        socket.emit('join_game', { gameId });
+
+        return () => {
+            // Clean up: Optionally leave the room if needed when component unmounts
+            socket.emit('leave_game', { gameId });
+        };
+    }, [gameId]);
 
     const toggle = (e, num) => {
         if (lock) {

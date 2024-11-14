@@ -116,8 +116,9 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             
             // handle the accept/decline response
             if (data["response"] === "accepted") {
-              toast.success(`${data['invitee']} accepted ${data['inviter']}'s game request`);
-              navigate('/gameplay');
+                toast.success(`${data['invitee']} accepted ${data['inviter']}'s game request`);
+                console.log("Navigating to /gameplay/" + data['gameId']);
+                navigate(`/gameplay/${data['gameId']}`);
             } else {
                 toast.error(`${data['invitee']} declined ${data['inviter']}'s game request`);
             }
