@@ -1,5 +1,6 @@
 import sys
 import socket
+import uuid
 
 from flask import request, jsonify
 from flask_login import login_required, login_user, current_user, logout_user
@@ -32,6 +33,10 @@ def addUserToActiveUserSockets(user: User, socket_id: str) -> None:
         active_user_sockets[user.get_id()] = socket_id
     else:
         print(f"User {user.get_id()} is already in the active user sockets list.")
+
+
+def generateGameID() -> str:
+    return str(uuid.uuid4())
 
 
 @login_manager.user_loader
@@ -215,8 +220,14 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
     response = data.get('response')
 
     print(f"{invitee} has {response} {inviter}'s invite")
-    socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
-    pass
+
+    if (response == "accepted"):
+        game_id = generateGameID()  
+        print(f"Game ID for {inviter} and {invitee}: {game_id}")
+        socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response, "game_id": generateGameID()})
+    else:
+        socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
+    
 
 
 if __name__ == "__main__":
