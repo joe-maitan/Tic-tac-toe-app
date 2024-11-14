@@ -1,7 +1,5 @@
-import { useNavigate } from "react-router-dom";
-import { useParams } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useState } from 'react'
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState, useContext} from 'react';
 import { SocketContext } from '../../SocketProvider';
 import './GamePlay.css';
 import circle_pic from '../Images/circle.png'
