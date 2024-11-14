@@ -9,7 +9,7 @@ const ApiContext = createContext(serverUrl);
 
 export const ApiProvider = ({ children }) => {
   return (
-    <ApiContext.Provider value={apiBaseUrl}>
+    <ApiContext.Provider value={serverUrl}>
       {children}
     </ApiContext.Provider>
   );
