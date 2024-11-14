@@ -5,6 +5,8 @@ import { toast } from 'react-hot-toast';
 import { SocketContext } from '../../SocketProvider';
 import { useApi } from '../../apiContext';
 
+import cookie from '../utils/cookie';
+
 import './Lobby.css';
 
 const Lobby = ({ currentUser, setCurrentUser }) => {
@@ -13,8 +15,6 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     const navigate = useNavigate();
 
     const apiUrl = useApi();
-
-    let response = '';
 
     const getActiveUsers = () => {
         axios.get(apiUrl + '/active_users')
@@ -33,10 +33,17 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     };
 
     const handleRegisterUser = () => {
-        if (!currentUser) { // if the currentUser object is not intialized. grab it from sessionStorage
-            setCurrentUser(sessionStorage.getItem("currentUser"));
+        if (!currentUser) {
+            console.log("No currentUser found. Checking cookie");
+            console.log("Cookie: " + cookie.get("currentUser"));
+            currentUser = JSON.parse(cookie.get("currentUser"));
+            setCurrentUser(currentUser);
+        } else {
+            console.log("currentUser found: " + currentUser.userID);
+            console.log("Cookie: " + cookie.get("currentUser"));
         }
 
+        console.log("Registering user " + currentUser.userID);
         socket.emit('register_user', {userID: currentUser.userID}); // Send a register event to the server
 
         socket.on('successful_registration', (data) => {
@@ -94,6 +101,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
     useEffect(() => {
       const registerUserAndHandleInvites = async () => {
+        // TODO: Could move this to the above useEffect
         handleRegisterUser(); // register the currentUser with this socketID every time they enter the lobby/refresh the page
         
         socket.on('invite_recieved', async(data) => {

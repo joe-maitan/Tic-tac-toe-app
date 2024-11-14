@@ -183,6 +183,7 @@ def handle_registration(data):
     # addUserToActiveUsers(load_user(data.get('userID')))
     addUserToActiveUserSockets(load_user(data.get('userID')), request.sid)
     print(f"{data.get('userID')} has connected to the server")
+    print(f"Active Users: {active_user_sockets}")
 
     
 @socketio.on('disconnect')

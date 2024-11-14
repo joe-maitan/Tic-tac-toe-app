@@ -9,6 +9,7 @@ import axios from "axios";
 import user_pic from '../Images/user.png'
 import email_pic from '../Images/email.png'
 import password_pic from '../Images/password.png'
+import cookie from '../utils/cookie';
 
 import './LoginSignup.css'
 
@@ -37,9 +38,8 @@ const LoginSignup = ({ setCurrentUser }) => {
                 symbol: "X" // or "O"
               };
 
-              // to ensure that a user session is maintained
-              // sessionStorage.setItem("userID", currentUser.userID);
-              // sessionStorage.setItem("symbol", currentUser.symbol);
+              cookie.set("currentUser", JSON.stringify(currentUser));
+              console.log("Cookie after loggign in " + cookie.get("currentUser"));
               setCurrentUser(currentUser); // Update the currentUser object
               navigate('/lobby');
             }
@@ -75,8 +75,9 @@ const LoginSignup = ({ setCurrentUser }) => {
                   symbol: "X" // or "O"
                 };
 
-                // sessionStorage.setItem("currrentUser", JSON.stringify(currentUser));
-                setCurrentUser(currentUser);
+                cookie.set("currentUser", JSON.stringify(currentUser));
+                console.log("Cookie after signing in " + cookie.get("currentUser"));
+                setCurrentUser(currentUser); // Update the currentUser object
                 navigate('/lobby');
             } 
           })
