@@ -6,7 +6,7 @@ The Python version used for developing this project was 3.11. If you have a grea
 
 To load python 3.11 on the CSU CS machines run the following command:
 ```
-module load python/bundle-3.11
+module load python/bundle-3.10
 ```
 
 # Sprints
