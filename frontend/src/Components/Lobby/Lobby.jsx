@@ -40,6 +40,9 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             console.log("Cookie: " + cookie.get("currentUser"));
             currentUser = JSON.parse(cookie.get("currentUser"));
             setCurrentUser(currentUser);
+        } else {
+            console.log("currentUser found: " + currentUser.userID);
+            console.log("Cookie: " + cookie.get("currentUser"));
         }
 
         console.log("Registering user " + currentUser.userID);
