@@ -93,7 +93,7 @@ npm install
 ```
 
 9. Running the code!
-* For the backend:
+* For the backend (server):
 ```
 C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py <port>
 ```
