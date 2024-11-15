@@ -31,7 +31,7 @@ class Game():
             raise Exception("Invalid move")
         else:
             pass
-            self.board[x][y] = player.get_symbol()
+            self.board[x][y] = player
             self.check_winner(player)
 
 
@@ -42,7 +42,7 @@ class Game():
 
     def checkRows(self, player):
         for row in self.board:
-            if all([cell == player.get_symbol() for cell in row]):
+            if all([cell == player for cell in row]):
                 return True
         
         return False
@@ -51,7 +51,7 @@ class Game():
     def checkCols(self, player):
         for i in range(0, 3, 1):
             for j in range(0, 3, 1):
-                if self.board[j][i] != player.get_symbol():
+                if self.board[j][i] != player:
                     break
                 else:
                     return True
@@ -60,13 +60,13 @@ class Game():
     
 
     def checkDiagonals(self, player):
-        if self.board[0][0] == player.get_symbol() and self.board[1][1] == player.get_symbol() and self.board[2][2] == player.get_symbol():
+        if self.board[0][0] == player and self.board[1][1] == player and self.board[2][2] == player:
             return True
-        elif self.board[0][2] == player.get_symbol() and self.board[1][1] == player.get_symbol() and self.board[2][0] == player.get_symbol():
+        elif self.board[0][2] == player and self.board[1][1] == player and self.board[2][0] == player:
             return True
         else:
             return False
             
 
-game = Game()
-game.print_board()
+# game = Game()
+# game.print_board()

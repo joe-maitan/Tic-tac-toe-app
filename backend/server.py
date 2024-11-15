@@ -4,8 +4,9 @@ import uuid
 
 from flask import request, jsonify
 from flask_login import login_required, login_user, current_user, logout_user
-from flask_socketio import send, emit, join_room, leave_room
+from flask_socketio import send, emit, join_room, leave_room, rooms
 from config import socketio, app, login_manager, db
+import game
 
 from User import *
 
@@ -13,7 +14,7 @@ from User import *
 
 active_user_sockets = {}  # dictionary of active users {user object: "socket_id"}
 active_users = []  # list of active user objects
-
+game_board = ["","","","","","","","",""]
 
 def updateEnvFile(host: str, port: str) -> None:
     with open('../frontend/.env', 'w') as env_file:
@@ -222,13 +223,30 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
     print(f"{invitee} has {response} {inviter}'s invite")
 
     if (response == "accepted"):
-        game_id = generateGameID()  
+        game_id = generateGameID()
         print(f"Game ID for {inviter} and {invitee}: {game_id}")
-        socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response, "game_id": generateGameID()})
+        socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response, "game_id": game_id})
     else:
         socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
     
+@socketio.on('join_game')
+def join_a_game(data):
+    game_id = data.get('gameId')
+    print(f"game id: {game_id}")
+    join_room(game_id)
+    print(f"player has joined game room with an id of {game_id}")
+    emit('load_board', {'board': game_board}, broadcast=True)
 
+@socketio.on('make_move')
+def make_a_move(data):
+    print("In make a move on server side")
+    player = data.get('player')
+    game_id = data.get('game_id')
+    index = data.get('index')
+    game_board[index] = player
+    print(game_board)
+    print(f"move_made in {game_id}")
+    emit('move_made', { 'index': index, 'player': player }, broadcast=True)
 
 if __name__ == "__main__":
     ip_address = socket.gethostbyname(socket.gethostname()) # "0.0.0.0"
