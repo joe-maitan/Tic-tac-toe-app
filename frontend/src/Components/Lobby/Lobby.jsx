@@ -37,17 +37,18 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     };
 
     const handleLogout = () => {
+        console.log("Logging out user " + currentUser.userID);  
         axios.post(apiUrl + '/logout', {"user_id": currentUser.userID})
         .then(response => {
             if (response.status === 200) {
                 toast.success("Logged out!");
+                cookie.delete("currentUser", JSON.stringify(currentUser));
                 setCurrentUser(null);
-                cookie.delete("currentUser");
                 navigate('/');
             }
 
-            console.log(cookie);
-            console.log(currentUser);
+            console.log("Cookie after logging out: " + cookie);
+            console.log("CurrentUser object after logging out: " + currentUser);
         }).catch(error => {
             toast.error("Error logging out. " + error.message)
             if (error.response) {
@@ -64,7 +65,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     const handleRegisterUser = () => {
         if (!currentUser) {
             console.log("No currentUser found. Checking cookie");
-            console.log("Cookie: " + cookie.get("currentUser"));
+            console.log("Information from grabbed cookie: " + cookie.get("currentUser"));
             currentUser = JSON.parse(cookie.get("currentUser"));
             setCurrentUser(currentUser);
         } else {
@@ -170,12 +171,9 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
                 <div className="menu-icon" onClick={toggleMenu}>
                     &#9776;
                 </div>
-                {menuOpen && (
-                    <ul className="menu">
-                    <li><a href="/profile">Profile</a></li>
+                {menuOpen && (<ul className="menu">
                     <li><button onClick={handleLogout}>Logout</button></li>
-                    </ul>
-                )}
+                </ul>)}
             </nav>
             <div>
                 <h1 className="header">Welcome to the Lobby!</h1>
