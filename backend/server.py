@@ -152,13 +152,27 @@ def login() -> jsonify:
         return {"error": "Invalid JSON"}, 400
 
 
-@app.route('/logout', methods=["GET"])
-@login_required
+@app.route('/logout', methods=["POST"])
 def logout() -> jsonify:
     app.logger.info("/logout route was hit, logging out a user")
-    active_users.remove(current_user)
-    logout_user()  # logs out the current user on the page
-    pass
+    
+    try:        
+        data = request.get_json()
+
+        username = data.get("user_id")
+        user = load_user(username)
+
+        if user in active_users:
+            active_users.remove(user)
+        
+        if user in active_user_sockets:
+            active_user_sockets.pop(user.get_id())
+
+        return jsonify({"message": f"{user.get_id()} logged out successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"logout_user() - Error parsing JSON {e}")
+        return {"error": "Invalid JSON"}, 400
+       
 
 
 @app.route('/profile', methods=["GET"])

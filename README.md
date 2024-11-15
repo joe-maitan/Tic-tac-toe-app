@@ -86,20 +86,14 @@ pip install -r requirements.txt
 cd ../frontend
 ```
 
-8. Install the dependencies for the frontend:
-NOTE: Must have Node.js and NVM installed on machine
-```
-npm install
-```
-
-9. Running the code!
+8. Running the code!
 * For the backend (server):
 ```
 C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py <port>
 ```
 * For the frontend (client):
 ```
-C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend npm run dev 
+C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend python3 client.py
 ```
 
 
