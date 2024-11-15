@@ -14,7 +14,7 @@ from User import *
 
 active_user_sockets = {}  # dictionary of active users {user object: "socket_id"}
 active_users = []  # list of active user objects
-game_board = ["","","","","","","","",""]
+new_game = game.Game()
 
 def updateEnvFile(host: str, port: str) -> None:
     with open('../frontend/.env', 'w') as env_file:
@@ -235,18 +235,22 @@ def join_a_game(data):
     print(f"game id: {game_id}")
     join_room(game_id)
     print(f"player has joined game room with an id of {game_id}")
-    emit('load_board', {'board': game_board}, broadcast=True)
+    emit('load_board', {'board': new_game.board}, broadcast=True)
 
 @socketio.on('make_move')
 def make_a_move(data):
-    print("In make a move on server side")
     player = data.get('player')
     game_id = data.get('game_id')
     index = data.get('index')
-    game_board[index] = player
-    print(game_board)
+    game_state = new_game.make_move(player, index)
+    if game_state == 'True':
+        emit('move_made', { 'index': index, 'player': player, 'won': 'True' }, broadcast=True)
+    elif game_state == 'Draw':
+        emit('move_made', { 'index': index, 'player': player, 'won': 'Draw' }, broadcast=True)
+    else:
+        emit('move_made', { 'index': index, 'player': player, 'won': 'False' }, broadcast=True)
+    print(new_game.board)
     print(f"move_made in {game_id}")
-    emit('move_made', { 'index': index, 'player': player }, broadcast=True)
 
 if __name__ == "__main__":
     ip_address = socket.gethostbyname(socket.gethostname()) # "0.0.0.0"

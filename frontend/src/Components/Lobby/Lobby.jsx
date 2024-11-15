@@ -65,7 +65,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         const response = await new Promise((resolve) => {
         toast((t) => (
           <span>
-            Invite received from {invite['inviter']}  
+            Invite received from {invite['inviter']}<br />  
             <button onClick={() => {
               resolve(handleAccept());
               toast.dismiss(t.id);

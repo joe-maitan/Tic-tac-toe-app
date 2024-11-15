@@ -29,13 +29,28 @@ const GamePlay = () => {
             toast.success("Move was made!");
             const index = data['index'];
             const player = data['player'];
+            const won = data['won'];
             setBoard((prevBoard) => {
                 const newBoard = [...prevBoard];
                 newBoard[index] = player;
                 return newBoard;
             });
+            console.log(board)
             if (count == 0)
                 setCount((prevCount) => prevCount + 1);
+            if (won === 'True') {
+                toast.success(`'${player}' WON THE GAME\n\nPlay Again?`, {
+                    icon: '👏',
+                    position: "top-center"
+                });
+                setLock(true)
+            }
+            if (won === 'Draw'){
+                toast.success(`There was a draw!\n\nPlay Again?`, {
+                    position: "top-center"
+                });
+                setLock(true)
+            }
         });
 
         return () => {
@@ -44,7 +59,7 @@ const GamePlay = () => {
             socket.off('load_board');
             socket.off('move_made');
         };
-    }, [gameId]);
+    }, []);
 
     const toggle = (index) => {
         console.log('Board button pressed');
