@@ -10,10 +10,14 @@ import cookie from '../utils/cookie';
 import './Lobby.css';
 
 const Lobby = ({ currentUser, setCurrentUser }) => {
+    const [menuOpen, setMenuOpen] = useState(false);
+    // const [dropdownOpen, setDropdownOpen] = useState(false);
     const [activeUsers, setActiveUsers] = useState([]);
-    const socket = useContext(SocketContext);
     const navigate = useNavigate();
 
+    const toggleMenu = () => setMenuOpen(!menuOpen);
+    
+    const socket = useContext(SocketContext);
     const apiUrl = useApi();
 
     const getActiveUsers = () => {
@@ -30,6 +34,31 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
                 console.error('Error request:', error.request);
                 console.error('Error message:', error.message);
             });
+    };
+
+    const handleLogout = () => {
+        axios.post(apiUrl + '/logout', {"user_id": currentUser.userID})
+        .then(response => {
+            if (response.status === 200) {
+                toast.success("Logged out!");
+                setCurrentUser(null);
+                cookie.delete("currentUser");
+                navigate('/');
+            }
+
+            console.log(cookie);
+            console.log(currentUser);
+        }).catch(error => {
+            toast.error("Error logging out. " + error.message)
+            if (error.response) {
+              console.error('Error response data:', error.response.data);
+              console.error('Error status:', error.response.status);
+            } else if (error.request) {
+              console.error('Error request:', error.request);
+            } else {
+              console.error('Error message:', error.message);
+            }
+        });
     };
 
     const handleRegisterUser = () => {
@@ -137,6 +166,17 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
     return (
         <>
+            <nav className="navbar">
+                <div className="menu-icon" onClick={toggleMenu}>
+                    &#9776;
+                </div>
+                {menuOpen && (
+                    <ul className="menu">
+                    <li><a href="/profile">Profile</a></li>
+                    <li><button onClick={handleLogout}>Logout</button></li>
+                    </ul>
+                )}
+            </nav>
             <div>
                 <h1 className="header">Welcome to the Lobby!</h1>
             </div>
@@ -161,6 +201,8 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
                     </tbody>
                 </table>
             </div>
+
+            
         </>
     );
 };
