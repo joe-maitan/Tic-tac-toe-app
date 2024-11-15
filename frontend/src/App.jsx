@@ -20,7 +20,7 @@ export default function App() {
           <Routes>
               <Route path='/' element={<LoginSignup setCurrentUser={setCurrentUser} />} />
               <Route path='/lobby' element={<Lobby currentUser={currentUser} setCurrentUser={setCurrentUser}/>} />
-              <Route path="/gameplay/:gameId" element={<GamePlay />} />
+              <Route path='/gameplay/:gameId' element={<GamePlay />} />
           </Routes>
         </SocketProvider>
       </ApiProvider>

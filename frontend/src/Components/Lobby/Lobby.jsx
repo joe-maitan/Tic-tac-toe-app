@@ -94,7 +94,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         const response = await new Promise((resolve) => {
         toast((t) => (
           <span>
-            Invite received from {invite['inviter']}  
+            Invite received from {invite['inviter']}<br />  
             <button onClick={() => {
               resolve(handleAccept());
               toast.dismiss(t.id);
@@ -146,8 +146,8 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             // handle the accept/decline response
             if (data["response"] === "accepted") {
                 toast.success(`${data['invitee']} accepted ${data['inviter']}'s game request`);
-                console.log("Navigating to /gameplay/" + data['gameId']);
-                navigate(`/gameplay/${data['gameId']}`);
+                console.log("Navigating to /gameplay/" + data["game_id"]);
+                navigate(`/gameplay/${data['game_id']}`);
             } else {
                 toast.error(`${data['invitee']} declined ${data['inviter']}'s game request`);
             }

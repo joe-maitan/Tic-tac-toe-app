@@ -22,8 +22,9 @@
 }
 
 .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 590px;
     height: 590px;
-    width: 554px;
-    display: flex;
     margin: auto;
 }
