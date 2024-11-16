@@ -12,15 +12,14 @@ class Game():
 
 
     def make_move(self, player, position):
+        if self.board[position] != "":
+            return "Invalid move"
         return self.update_board(position, player)
 
 
     def update_board(self, position, player):
-        if self.board[position] != "":
-            raise Exception("Invalid move")
-        else:
-            self.board[position] = player
-            return self.check_winner(player)
+        self.board[position] = player
+        return self.check_winner(player)
 
 
     def check_winner(self, player):
