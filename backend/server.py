@@ -14,8 +14,7 @@ from User import *
 
 active_user_sockets = {}  # dictionary of active users {user object: "socket_id"}
 active_users = []  # list of active user objects
-new_game = game.Game()
-users_in_game = []
+games = {}
 
 def updateEnvFile(host: str, port: str) -> None:
     with open('../frontend/.env', 'w') as env_file:
@@ -248,38 +247,36 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
 def join_a_game(data):
     game_id = data.get('gameId')
     user = data.get('user')
-    users_in_game.append(user)
-    if len(users_in_game) == 2:
-        users_in_game[0]['symbol'] = "X"
-        users_in_game[1]['symbol'] = "O"
+    if game_id not in games:
+        games[game_id] = game.Game()
     print(f"game id: {game_id}")
     join_room(game_id)
     print(f"player has joined game room with an id of {game_id}")
     print(f"after change: {user}")
-    emit('load_board', {'board': new_game.board, 'user' : user}, broadcast=True)
+    emit('load_board', {'board': games[game_id].board, 'user' : user}, to=game_id)
 
 @socketio.on('make_move')
 def make_a_move(data):
     player = data.get('player')
+    next_player = data.get('next_player')
     print(f"player: {player}")
     game_id = data.get('game_id')
     index = data.get('index')
-    if player == users_in_game[1]['symbol']:
-        next_player = users_in_game[0]
+    game_state = games[game_id].make_move(player, index)
+    if game_state == 'True':
+        emit('move_made', { 'index': index, 'player': player, 'won': 'True', 'next_player': next_player }, to=game_id)
+    elif game_state == 'Draw':
+        emit('move_made', { 'index': index, 'player': player, 'won': 'Draw', 'next_player': next_player }, to=game_id)
     else:
-        next_player = users_in_game[1]
-    if player is not None:
-        game_state = new_game.make_move(player, index)
-        if game_state == 'True':
-            emit('move_made', { 'index': index, 'player': player, 'won': 'True', 'next_player': next_player }, broadcast=True)
-        elif game_state == 'Draw':
-            emit('move_made', { 'index': index, 'player': player, 'won': 'Draw', 'next_player': next_player }, broadcast=True)
-        else:
-            emit('move_made', { 'index': index, 'player': player, 'won': 'False', 'next_player': next_player }, broadcast=True)
-        print(new_game.board)
-        print(f"move_made in {game_id}")
+        emit('move_made', { 'index': index, 'player': player, 'won': 'False', 'next_player': next_player }, to=game_id)
+    print(games[game_id].board)
+    print(f"move_made in {game_id}")
     print(f"next player: {next_player}")
-    emit('move_made', { 'index': index, 'player': player, 'won': 'False', 'next_player': next_player }, broadcast=True)
+
+@socketio.on('new_game')
+def play_again(data):
+    game_id = data['game_id']
+    games[game_id] = game.Game()
 
 if __name__ == "__main__":
     ip_address = socket.gethostbyname(socket.gethostname()) # "0.0.0.0"
