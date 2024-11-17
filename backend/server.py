@@ -36,6 +36,21 @@ def addUserToActiveUserSockets(user: User, socket_id: str) -> None:
         print(f"User {user.get_id()} is already in the active user sockets list.")
 
 
+def logout_user(user: User) -> None:
+    
+    print(f"logout_user() - Current active users list {active_users}")
+    if user in active_users:
+        print(f"logout_user() - {user} is being removed from active_users list")
+        active_users.remove(user)
+        print(f"logout_user() - After removal of the user active users list {active_users}")
+        print(f"logout_user() - {user.get_id()} removed from active_users list")
+
+    print(f"logout_user() - Current active user sockets list {active_user_sockets}")
+    if user in active_user_sockets:
+        print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
+        active_user_sockets.pop(user.get_id())
+
+
 def generateGameID() -> str:
     return str(uuid.uuid4())
 
@@ -154,20 +169,17 @@ def login() -> jsonify:
 
 @app.route('/logout', methods=["POST"])
 def logout() -> jsonify:
+    print(f"logout route hit")
     app.logger.info("/logout route was hit, logging out a user")
     
-    try:        
+    try: 
+        print(f"Inside of try block in logout route")       
         data = request.get_json()
-
-        username = data.get("user_id")
-        user = load_user(username)
-
-        if user in active_users:
-            active_users.remove(user)
-        
-        if user in active_user_sockets:
-            active_user_sockets.pop(user.get_id())
-
+        user = load_user(data.get('user_id'))
+        print(f"User ID: {user.get_id()}")
+        logout_user(user)
+        # TODO: emit a message to everyone in the server/lobby that this client has left
+        app.logger.info(f"logout_user() - {user.get_id()} logged out successfully")
         return jsonify({"message": f"{user.get_id()} logged out successfully"}), 200
     except Exception as e:
         app.logger.error(f"logout_user() - Error parsing JSON {e}")
@@ -207,7 +219,15 @@ def handle_registration(data):
 
     
 @socketio.on('disconnect')
-def handle_disconnect():
+def handle_disconnect(data):
+    # game_id = data['game_id']
+    # quitter = data['quitter']
+    # player = data['player']
+
+    # player_socket_id = active_user_sockets[load_user(str(player))]
+
+    # socketio.emit('opponent_left', {"message": f"{quitter} has left the game. You won!"}, to=player_socket_id)
+    # leave_room(game_id)
     pass
 
 
@@ -243,6 +263,7 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
     else:
         socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
     
+
 
 @socketio.on('create_game')
 def create_a_game(data):
@@ -280,6 +301,7 @@ def join_a_game(data):
     join_room(game_id)
     print(f"{username} has joined game room with an id of {game_id}")
     emit('load_board', {'board': games[game_id].get_game_board(), 'user' : username}, to=game_id)
+
 
 
 @socketio.on('make_move')
