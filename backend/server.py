@@ -294,11 +294,11 @@ def make_a_move(data):
         game_state = games[game_id].make_move(player_name, index)
 
         if game_state == 'True':
-            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'True' }, to=game_id)
+            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'True', 'player_symbol': games[game_id].get_player_symbol(player_name) }, to=game_id)
         elif game_state == 'Draw':
-            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'Draw' }, to=game_id)
+            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'Draw', 'player_symbol': games[game_id].get_player_symbol(player_name)}, to=game_id)
         else:
-            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'False'}, to=game_id)
+            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'False', 'player_symbol': games[game_id].get_player_symbol(player_name)}, to=game_id)
 
         games[game_id].switch_turn()
     else:
