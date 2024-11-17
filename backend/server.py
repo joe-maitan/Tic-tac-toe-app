@@ -313,7 +313,11 @@ def play_again(data):
 
 if __name__ == "__main__":
     ip_address = socket.gethostbyname(socket.gethostname()) # "0.0.0.0"
-    port_number = int(sys.argv[1]) if len(sys.argv) > 1 else 5000  # if no port is specified, default to port 5000
+
+    if "-p" in sys.argv:
+        port_number = int(sys.argv[sys.argv.index("-p") + 1])
+    else:
+        port_number = 5000
 
     updateEnvFile(ip_address, port_number)
 
