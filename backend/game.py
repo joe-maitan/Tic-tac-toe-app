@@ -41,6 +41,9 @@ class Game():
     def print_board(self):
         print(self.board)
 
+
+    def get_game_board(self):
+        return self.board
     
     def get_current_turn(self):
         return self.current_turn
@@ -53,6 +56,13 @@ class Game():
             self.current_turn = self.player1['socketID']
 
 
+    def get_player_symbol(self, player):
+        if player == self.player1['username']:
+            return self.player1['symbol']
+        else:
+            return self.player2['symbol']
+
+
     def make_move(self, player, position):
         if self.board[position] != "":
             return "Invalid move"
@@ -61,8 +71,8 @@ class Game():
 
 
     def update_board(self, position, player):
-        self.board[position] = player
-        return self.check_winner(player)
+        self.board[position] = self.get_player_symbol(player)
+        return self.check_winner(self.get_player_symbol(player))
 
 
     def check_winner(self, player):

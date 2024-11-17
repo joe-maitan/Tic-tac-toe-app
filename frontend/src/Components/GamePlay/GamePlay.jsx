@@ -66,7 +66,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
 
     useEffect(() => {
         // Use the gameId for game-specific actions, like joining a socket room
-        socket.emit('join_game', { 'gameId': gameId, 'user': currentUser });
+        socket.emit('join_game', { 'gameId': gameId, 'user': currentUser.userID });
 
         socket.on('load_board', (data) => {
             const board = data['board'];
@@ -78,8 +78,8 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
         socket.on('move_made', async(data) =>{
             const index = data['index'];
             const player = data['player'];
-            const won = data['won'];
-            const next_player = data['next_player'];
+            const won = data['game_state'];
+            // const next_player = data['next_player'];
             
             if (currentUser['symbol'] ==  next_player) {
                 setLock(false);
@@ -91,6 +91,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
                 newBoard[index] = player;
                 return newBoard;
             });
+
             console.log(board)
             if (count == 0)
                 setCount((prevCount) => prevCount + 1);
@@ -131,7 +132,8 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
                 newBoard[index] = player;
                 return newBoard;
             });
-            socket.emit('make_move', { 'game_id': gameId, 'index': index, 'player': player, 'next_player': next_player});
+            socket.emit('make_move', {'game_id': gameId, 'index': index, 'player': currentUser.userID})
+            // socket.emit('make_move', { 'game_id': gameId, 'index': index, 'player': player, 'next_player': next_player});
         //}
         //setLock(true);
     }

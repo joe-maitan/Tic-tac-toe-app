@@ -12,7 +12,7 @@ from User import *
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
-active_user_sockets = {}  # dictionary of active users {user object: "socket_id"}
+active_user_sockets = {}  # dictionary of active users {user_id: "socket_id"}
 active_users = []  # list of active user objects
 games = {}
 
@@ -46,7 +46,7 @@ def load_user(user_id: str) -> User:
     user_data = db['users'].find_one({"username": user_id})
 
     if user_data:
-        # print(f"load_user() - User {user_data['username']} loaded successfully")
+        print(f"load_user() - User {user_data['username']} loaded successfully")
         return User(is_authenticated=True, user_id=user_data["username"])
 
     return None
@@ -251,8 +251,8 @@ def create_a_game(data):
 
     game_id = data.get('game_id')
     
-    player1_socketID = active_user_sockets[load_user(data.get('player1'))]
-    player2_socketID = active_user_sockets[load_user(data.get('player2'))]
+    player1_socketID = active_user_sockets[data.get('player1')]
+    player2_socketID = active_user_sockets[data.get('player2')]
 
     player1 = {
         "username": data.get('player1'),
@@ -265,7 +265,9 @@ def create_a_game(data):
     } 
 
     if game_id not in games:
+        print(f"Inside of if statement")
         games[game_id] = game.Game(game_id, player1, player2)
+        # print(f"{games[game_id].board}")
 
     socketio.emit("game_created", {"game_id": game_id}, to=player1_socketID)
     socketio.emit("game_created", {"game_id": game_id}, to=player2_socketID)
@@ -277,26 +279,47 @@ def join_a_game(data):
     username = data.get('user')
     join_room(game_id)
     print(f"{username} has joined game room with an id of {game_id}")
-    emit('load_board', {'board': games[game_id].board, 'user' : username}, to=game_id)
+    emit('load_board', {'board': games[game_id].get_game_board(), 'user' : username}, to=game_id)
 
 
 @socketio.on('make_move')
 def make_a_move(data):
-    player = data.get('player')
-    next_player = data.get('next_player')
-    print(f"player: {player}")
     game_id = data.get('game_id')
-    index = data.get('index')
-    game_state = games[game_id].make_move(player, index)
-    if game_state == 'True':
-        emit('move_made', { 'index': index, 'player': player, 'won': 'True', 'next_player': next_player }, to=game_id)
-    elif game_state == 'Draw':
-        emit('move_made', { 'index': index, 'player': player, 'won': 'Draw', 'next_player': next_player }, to=game_id)
+
+    player_socket_id = active_user_sockets[data.get('player')]
+    if games[game_id].get_current_turn() == player_socket_id:
+        index = data.get('index')
+        player_name = data.get('player')
+        print(f"{player_name} is making a move")
+        game_state = games[game_id].make_move(player_name, index)
+
+        if game_state == 'True':
+            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'True' }, to=game_id)
+        elif game_state == 'Draw':
+            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'Draw' }, to=game_id)
+        else:
+            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'False'}, to=game_id)
+
+        games[game_id].switch_turn()
     else:
-        emit('move_made', { 'index': index, 'player': player, 'won': 'False', 'next_player': next_player }, to=game_id)
-    print(games[game_id].board)
-    print(f"move_made in {game_id}")
-    print(f"next player: {next_player}")
+        print(f"It is not {data.get('player')}'s turn")
+        
+    
+    # player = data.get('player')
+    # next_player = data.get('next_player')
+    # print(f"player: {player}")
+    # game_id = data.get('game_id')
+    # index = data.get('index')
+    # game_state = games[game_id].make_move(player, index)
+    # if game_state == 'True':
+    #     emit('move_made', { 'index': index, 'player': player, 'won': 'True', 'next_player': next_player }, to=game_id)
+    # elif game_state == 'Draw':
+    #     emit('move_made', { 'index': index, 'player': player, 'won': 'Draw', 'next_player': next_player }, to=game_id)
+    # else:
+    #     emit('move_made', { 'index': index, 'player': player, 'won': 'False', 'next_player': next_player }, to=game_id)
+    # print(games[game_id].board)
+    # print(f"move_made in {game_id}")
+    # print(f"next player: {next_player}")
 
 
 @socketio.on('new_game')
