@@ -24,7 +24,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
         const response = await new Promise((resolve) => {
             var text = "";
         if (won === "True"){
-            text = `'${player}' won the game!!`;
+            text = `${player} won the game!!`;
         }
         else {
             text = "There was a draw!";
@@ -77,12 +77,13 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
 
         socket.on('move_made', async(data) =>{
             const index = data['index'];
-            const player = data['player_symbol'];
+            const player_symbol = data['player_symbol'];
+            const player = data['player'];
             const won = data['game_state'];
             
             setBoard((prevBoard) => {
                 const newBoard = [...prevBoard];
-                newBoard[index] = player;
+                newBoard[index] = player_symbol;
                 return newBoard;
             });
 

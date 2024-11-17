@@ -45,6 +45,9 @@ class Game():
     def get_game_board(self):
         return self.board
     
+    def reset_game_board(self):
+        self.board = ["","","","","","","","",""]
+    
     def get_current_turn(self):
         return self.current_turn
     

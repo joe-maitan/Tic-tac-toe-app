@@ -86,6 +86,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
     const inviteUser = (invitee) => {
         toast.success(`Sending invite to ${invitee}...`);
+        //TODO: figure out broadcast to specific user (invitee socket ID)
         socket.emit('send_invite', { inviter: currentUser.userID, invitee });
     };
 
