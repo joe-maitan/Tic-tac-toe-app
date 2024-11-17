@@ -147,8 +147,14 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             if (data["response"] === "accepted") {
                 toast.success(`${data['invitee']} accepted ${data['inviter']}'s game request`);
                 console.log("Navigating to /gameplay/" + data["game_id"]);
-                // emit join game here?
-                navigate(`/gameplay/${data['game_id']}`);
+
+                players = {
+                    player1: data['inviter'],
+                    player2: data['invitee']
+                }
+
+                socket.emit('create_game', {game_id: data['game_id'], players: players});
+                //navigate(`/gameplay/${data['game_id']}`);
             } else {
                 toast.error(`${data['invitee']} declined ${data['inviter']}'s game request`);
             }

@@ -244,14 +244,21 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
         socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
     
 
+@socketio.on('create_game')
+def create_a_game(data):
+    print(f"{data}")
+    game_id = data.get('gameId')
+    print(f"players: {data.get('players')}")
+    pass
+
 @socketio.on('join_game')
 def join_a_game(data):
     game_id = data.get('gameId')
-    user = data.get('user')
+    username = data.get('user')
 
     if game_id not in games:
         games[game_id] = game.Game()
-        
+
     print(f"game id: {game_id}")
     join_room(game_id)
     print(f"player has joined game room with an id of {game_id}")
