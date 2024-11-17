@@ -34,8 +34,7 @@ const LoginSignup = ({ setCurrentUser }) => {
               toast.success("Logged in!");
               
               const currentUser = {
-                userID: username,
-                symbol: "X" // or "O"
+                userID: username
               };
 
               cookie.set("currentUser", JSON.stringify(currentUser));
@@ -71,8 +70,7 @@ const LoginSignup = ({ setCurrentUser }) => {
                 toast.success("Account created successfully!");
 
                 const currentUser = {
-                  userID: username,
-                  symbol: "X" // or "O"
+                  userID: username
                 };
 
                 cookie.set("currentUser", JSON.stringify(currentUser));

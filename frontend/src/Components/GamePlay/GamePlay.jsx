@@ -20,6 +20,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
     const playAgain = async (game_state) => {
         const won = game_state['won'];
         const player = game_state['player'];
+
         const response = await new Promise((resolve) => {
             var text = "";
         if (won === "True"){
@@ -65,7 +66,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
 
     useEffect(() => {
         // Use the gameId for game-specific actions, like joining a socket room
-        socket.emit('join_game', { 'gameId': gameId, 'user': currentUser });
+        socket.emit('join_game', { 'gameId': gameId, 'user': currentUser.userID });
 
         socket.on('load_board', (data) => {
             const board = data['board'];
@@ -76,18 +77,15 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
 
         socket.on('move_made', async(data) =>{
             const index = data['index'];
-            const player = data['player'];
-            const won = data['won'];
-            const next_player = data['next_player'];
-            // if (currentUser['symbol'] ==  next_player) {
-            //     setLock(false);
-            //     setCurrentUser(next_player);
-            // }
+            const player = data['player_symbol'];
+            const won = data['game_state'];
+            
             setBoard((prevBoard) => {
                 const newBoard = [...prevBoard];
                 newBoard[index] = player;
                 return newBoard;
             });
+
             console.log(board)
             if (count == 0)
                 setCount((prevCount) => prevCount + 1);
@@ -99,8 +97,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
                     setLock(false);
                     setCount(0);
                     socket.emit('new_game', {'game_id' : gameId});
-                }
-                else{
+                } else {
                     navigate('/lobby');
                 }
             }
@@ -108,9 +105,9 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
 
         return () => {
             // Clean up: Optionally leave the room if needed when component unmounts
-            socket.emit('leave_game', { gameId });
-            socket.off('load_board');
-            socket.off('move_made');
+            // socket.emit('leave_game', { gameId });
+            // socket.off('load_board');
+            // socket.off('move_made');
         };
     }, [gameId]);
 
@@ -119,19 +116,8 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
             return;
         }
         console.log('Board button pressed');
-        let player;
-        player = count % 2 == 0 ? "X" : "O";
-        var next_player = player === "X" ? "O" : "X";
-        //if (currentUser['symbol'] !== next_player) {
-            setBoard(prevBoard => {
-                const newBoard = [...prevBoard];
-                newBoard[index] = player;
-                return newBoard;
-            });
-            socket.emit('make_move', { 'game_id': gameId, 'index': index, 'player': player, 'next_player': next_player});
-        //}
-        //setLock(true);
-    }
+        socket.emit('make_move', {'game_id': gameId, 'index': index, 'player': currentUser.userID})
+    } // End toggle func
 
     return(
         <div className="CONTAINER">
