@@ -303,23 +303,6 @@ def make_a_move(data):
         games[game_id].switch_turn()
     else:
         print(f"It is not {data.get('player')}'s turn")
-        
-    
-    # player = data.get('player')
-    # next_player = data.get('next_player')
-    # print(f"player: {player}")
-    # game_id = data.get('game_id')
-    # index = data.get('index')
-    # game_state = games[game_id].make_move(player, index)
-    # if game_state == 'True':
-    #     emit('move_made', { 'index': index, 'player': player, 'won': 'True', 'next_player': next_player }, to=game_id)
-    # elif game_state == 'Draw':
-    #     emit('move_made', { 'index': index, 'player': player, 'won': 'Draw', 'next_player': next_player }, to=game_id)
-    # else:
-    #     emit('move_made', { 'index': index, 'player': player, 'won': 'False', 'next_player': next_player }, to=game_id)
-    # print(games[game_id].board)
-    # print(f"move_made in {game_id}")
-    # print(f"next player: {next_player}")
 
 
 @socketio.on('new_game')
