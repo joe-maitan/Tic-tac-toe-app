@@ -243,6 +243,7 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
     else:
         socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
     
+
 @socketio.on('join_game')
 def join_a_game(data):
     game_id = data.get('gameId')
@@ -254,6 +255,7 @@ def join_a_game(data):
     print(f"player has joined game room with an id of {game_id}")
     print(f"after change: {user}")
     emit('load_board', {'board': games[game_id].board, 'user' : user}, to=game_id)
+
 
 @socketio.on('make_move')
 def make_a_move(data):
@@ -273,10 +275,12 @@ def make_a_move(data):
     print(f"move_made in {game_id}")
     print(f"next player: {next_player}")
 
+
 @socketio.on('new_game')
 def play_again(data):
     game_id = data['game_id']
     games[game_id] = game.Game()
+
 
 if __name__ == "__main__":
     ip_address = socket.gethostbyname(socket.gethostname()) # "0.0.0.0"

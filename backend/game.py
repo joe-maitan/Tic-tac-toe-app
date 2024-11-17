@@ -7,6 +7,7 @@ class Game():
     def __init__(self):
         self.board = ["","","","","","","","",""]
 
+
     def print_board(self):
         print(self.board)
 
