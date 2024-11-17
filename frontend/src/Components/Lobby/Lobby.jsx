@@ -42,6 +42,9 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         .then(response => {
             if (response.status === 200) {
                 toast.success("Logged out!");
+                console.log("Index of user logging out: " + activeUsers.indexOf(currentUser.userID));
+                delete activeUsers[activeUsers.indexOf(currentUser.userID)];
+                console.log("Active users after handleLogout: " + activeUsers);
                 cookie.delete("currentUser", JSON.stringify(currentUser));
                 setCurrentUser(null);
                 navigate('/');
@@ -155,6 +158,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         });
       };
 
+      window.addEventListener('beforeunload', handleLogout);
       registerUserAndHandleInvites();
 
         return () => {
@@ -162,6 +166,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
                 socket.off('receive_invite');
                 socket.off('invite_response');
             }
+            window.removeEventListener('beforeunload', handleLogout);
         };
     }, [socket]);
 

@@ -37,10 +37,15 @@ def addUserToActiveUserSockets(user: User, socket_id: str) -> None:
 
 
 def logout_user(user: User) -> None:
+    
+    print(f"logout_user() - Current active users list {active_users}")
     if user in active_users:
-        print(f"logout_user() - {user.get_id()} removed from active_users list")
+        print(f"logout_user() - {user} is being removed from active_users list")
         active_users.remove(user)
+        print(f"logout_user() - After removal of the user active users list {active_users}")
+        print(f"logout_user() - {user.get_id()} removed from active_users list")
 
+    print(f"logout_user() - Current active user sockets list {active_user_sockets}")
     if user in active_user_sockets:
         print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
         active_user_sockets.pop(user.get_id())
@@ -164,11 +169,14 @@ def login() -> jsonify:
 
 @app.route('/logout', methods=["POST"])
 def logout() -> jsonify:
+    print(f"logout route hit")
     app.logger.info("/logout route was hit, logging out a user")
     
-    try:        
+    try: 
+        print(f"Inside of try block in logout route")       
         data = request.get_json()
         user = load_user(data.get('user_id'))
+        print(f"User ID: {user.get_id()}")
         logout_user(user)
         # TODO: emit a message to everyone in the server/lobby that this client has left
         app.logger.info(f"logout_user() - {user.get_id()} logged out successfully")
@@ -212,14 +220,15 @@ def handle_registration(data):
     
 @socketio.on('disconnect')
 def handle_disconnect(data):
-    game_id = data['game_id']
-    quitter = data['quitter']
-    player = data['player']
+    # game_id = data['game_id']
+    # quitter = data['quitter']
+    # player = data['player']
 
-    player_socket_id = active_user_sockets[load_user(str(player))]
+    # player_socket_id = active_user_sockets[load_user(str(player))]
 
-    socketio.emit('opponent_left', {"message": f"{quitter} has left the game. You won!"}, to=player_socket_id)
-    leave_room(game_id)
+    # socketio.emit('opponent_left', {"message": f"{quitter} has left the game. You won!"}, to=player_socket_id)
+    # leave_room(game_id)
+    pass
 
 
 @socketio.on('send_invite')
