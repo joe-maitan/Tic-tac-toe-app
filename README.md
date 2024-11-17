@@ -9,6 +9,8 @@ To load python 3.11 on the CSU CS machines run the following command:
 module load python/bundle-3.10
 ```
 
+We developed this using Google Chrome, finding it was the most friendly web browser for our login and signup forms.
+
 # Sprints
 ## Sprint 1 - Implement Client and Server architecture
 - The backend Server runs a flask app that processes requests and socket events.
