@@ -26,8 +26,21 @@ module load python/bundle-3.10
 - If accepted a new game object is created where it will pick a player to go first, following the rules of tic tac toe, until there is a winner or draw
 
 ## Sprint 4 - Gameplay, Gamestate, UI
-- Inviter is the first person who can make a move and is always 'X'
-
+1. Game State Management
+   - Inviter is the first person who can make a move and is always 'X'
+   - Server manages game state and whos turn it is. Keeping track of the current player and board state
+2. Input Handling:
+  - Client can click with a mouse but if it is not their turn, nothing will be placed until the player whose turn it is
+    places their symbol.
+  - Validate the placement of the symbol by checking if the index is not taken and is in bounds.
+3. Winning Conditions:
+  - The game can end either in a draw or one player winning. On both conditions a unqiue message is played.
+  - Players can opt to play with the same person again, reseting the game board but keeping track of their current symbols.
+4. Game Over Handling
+   - If a player declines playing again after the match concludes, they are redirected to the lobby. But they can
+     opt to play with the same person again.
+5. User Interface
+   - Use of WebServer UI and images for the Tic Tac Toe symbols.
 ## Sprint 5 - Error Handling and Testing
 - Backend uses pytest to test the functionality of the server/flask app.
 
