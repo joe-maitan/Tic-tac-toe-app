@@ -151,12 +151,17 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             if (data["response"] === "accepted") {
                 toast.success(`${data['invitee']} accepted ${data['inviter']}'s game request`);
                 console.log("Navigating to /gameplay/" + data["game_id"]);
-                navigate(`/gameplay/${data['game_id']}`);
+                socket.emit('create_game', {game_id: data['game_id'], player1: data['inviter'], player2: data['invitee']});
             } else {
                 toast.error(`${data['invitee']} declined ${data['inviter']}'s game request`);
             }
         });
-      };
+
+        socket.on('game_created', (data) => {
+            console.log("Game created: ", data);
+            navigate('/gameplay/' + data['game_id']);
+        });
+    };
 
       window.addEventListener('beforeunload', handleLogout);
       registerUserAndHandleInvites();

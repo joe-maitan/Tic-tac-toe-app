@@ -12,9 +12,9 @@ from User import *
 
 #from werkzeug.security import generate_password_hash, check_password_hash
 
-active_user_sockets = {}  # dictionary of active users {user object: "socket_id"}
+active_user_sockets = {}  # dictionary of active users {user_id: "socket_id"}
 active_users = []  # list of active user objects
-new_game = game.Game()
+games = {}
 
 def updateEnvFile(host: str, port: str) -> None:
     with open('../frontend/.env', 'w') as env_file:
@@ -61,7 +61,7 @@ def load_user(user_id: str) -> User:
     user_data = db['users'].find_one({"username": user_id})
 
     if user_data:
-        # print(f"load_user() - User {user_data['username']} loaded successfully")
+        print(f"load_user() - User {user_data['username']} loaded successfully")
         return User(is_authenticated=True, user_id=user_data["username"])
 
     return None
@@ -264,33 +264,82 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
         socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
     
 
+
+@socketio.on('create_game')
+def create_a_game(data):
+    print(f"server.py - create_a_game() - event hit")
+    print(f"{data}")
+
+    game_id = data.get('game_id')
+    
+    player1_socketID = active_user_sockets[data.get('player1')]
+    player2_socketID = active_user_sockets[data.get('player2')]
+
+    player1 = {
+        "username": data.get('player1'),
+        "socketID": player1_socketID
+    } 
+
+    player2 = {
+        "username": data.get('player2'),
+        "socketID": player2_socketID
+    } 
+
+    if game_id not in games:
+        print(f"Inside of if statement")
+        games[game_id] = game.Game(game_id, player1, player2)
+        # print(f"{games[game_id].board}")
+
+    socketio.emit("game_created", {"game_id": game_id}, to=player1_socketID)
+    socketio.emit("game_created", {"game_id": game_id}, to=player2_socketID)
+
+
 @socketio.on('join_game')
 def join_a_game(data):
     game_id = data.get('gameId')
-    print(f"game id: {game_id}")
+    username = data.get('user')
     join_room(game_id)
-    print(f"player has joined game room with an id of {game_id}")
-    emit('load_board', {'board': new_game.board}, broadcast=True)
+    print(f"{username} has joined game room with an id of {game_id}")
+    emit('load_board', {'board': games[game_id].get_game_board(), 'user' : username}, to=game_id)
+
 
 
 @socketio.on('make_move')
 def make_a_move(data):
-    player = data.get('player')
     game_id = data.get('game_id')
-    index = data.get('index')
-    game_state = new_game.make_move(player, index)
-    if game_state == 'True':
-        emit('move_made', { 'index': index, 'player': player, 'won': 'True' }, broadcast=True)
-    elif game_state == 'Draw':
-        emit('move_made', { 'index': index, 'player': player, 'won': 'Draw' }, broadcast=True)
+
+    player_socket_id = active_user_sockets[data.get('player')]
+    if games[game_id].get_current_turn() == player_socket_id:
+        index = data.get('index')
+        player_name = data.get('player')
+        print(f"{player_name} is making a move")
+        game_state = games[game_id].make_move(player_name, index)
+
+        if game_state == 'True':
+            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'True', 'player_symbol': games[game_id].get_player_symbol(player_name) }, to=game_id)
+        elif game_state == 'Draw':
+            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'Draw', 'player_symbol': games[game_id].get_player_symbol(player_name)}, to=game_id)
+        else:
+            emit('move_made', { 'index': index, 'player': player_name, 'game_state': 'False', 'player_symbol': games[game_id].get_player_symbol(player_name)}, to=game_id)
+
+        games[game_id].switch_turn()
     else:
-        emit('move_made', { 'index': index, 'player': player, 'won': 'False' }, broadcast=True)
-    print(new_game.board)
-    print(f"move_made in {game_id}")
+        print(f"It is not {data.get('player')}'s turn")
+
+
+@socketio.on('new_game')
+def play_again(data):
+    game_id = data['game_id']
+    games[game_id] = game.Game()
+
 
 if __name__ == "__main__":
     ip_address = socket.gethostbyname(socket.gethostname()) # "0.0.0.0"
-    port_number = int(sys.argv[1]) if len(sys.argv) > 1 else 5000  # if no port is specified, default to port 5000
+
+    if "-p" in sys.argv:
+        port_number = int(sys.argv[sys.argv.index("-p") + 1])
+    else:
+        port_number = 5000
 
     updateEnvFile(ip_address, port_number)
 
