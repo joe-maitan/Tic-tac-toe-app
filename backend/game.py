@@ -1,23 +1,56 @@
 
 
 class Game():
-
-    # Track game state
-    game_state = {
-        'currentTurn': None,  # e.g., socket ID of the player whose turn it is
-        'players': []         # List of player socket IDs
+    game_id = None
+    
+    # for tracking game state
+    player1 = {
+        'username': None,
+        'socketID': None,
+        'symbol': None
     }
+
+    player2 = {
+        'username': None,
+        'socketID': None,
+        'symbol': None
+    }
+
+    current_turn = None  # socket ID of the player whose turn it is
 
     board = None
 
-    def __init__(self):
+    def __init__(self, game_id, player1, player2):
+        self.game_id = game_id
+        
+        # player1 is always the inviter or 'X'
+        self.player1['username'] = player1['username']
+        self.player1['socketID'] = player1['socketID']
+        self.player1['symbol'] = "X"
+
+        # player2 is always the invitee or 'O'
+        self.player2['username'] = player2['username']
+        self.player2['socketID'] = player2['socketID']
+        self.player2['symbol'] = "O"
+
+        self.current_turn = player1['socketID']
+
         self.board = ["","","","","","","","",""]
-        self.game_state['currentTurn'] = None 
-        self.game_state['players'] = []
 
 
     def print_board(self):
         print(self.board)
+
+    
+    def get_current_turn(self):
+        return self.current_turn
+    
+
+    def switch_turn(self):
+        if self.current_turn == self.player1['socketID']:
+            self.current_turn = self.player2['socketID']
+        else:
+            self.current_turn = self.player1['socketID']
 
 
     def make_move(self, player, position):

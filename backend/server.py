@@ -246,24 +246,38 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
 
 @socketio.on('create_game')
 def create_a_game(data):
+    print(f"server.py - create_a_game() - event hit")
     print(f"{data}")
-    game_id = data.get('gameId')
-    print(f"players: {data.get('players')}")
-    pass
+
+    game_id = data.get('game_id')
+    
+    player1_socketID = active_user_sockets[load_user(data.get('player1'))]
+    player2_socketID = active_user_sockets[load_user(data.get('player2'))]
+
+    player1 = {
+        "username": data.get('player1'),
+        "socketID": player1_socketID
+    } 
+
+    player2 = {
+        "username": data.get('player2'),
+        "socketID": player2_socketID
+    } 
+
+    if game_id not in games:
+        games[game_id] = game.Game(game_id, player1, player2)
+
+    socketio.emit("game_created", {"game_id": game_id}, to=player1_socketID)
+    socketio.emit("game_created", {"game_id": game_id}, to=player2_socketID)
+
 
 @socketio.on('join_game')
 def join_a_game(data):
     game_id = data.get('gameId')
     username = data.get('user')
-
-    if game_id not in games:
-        games[game_id] = game.Game()
-
-    print(f"game id: {game_id}")
     join_room(game_id)
-    print(f"player has joined game room with an id of {game_id}")
-    print(f"after change: {user}")
-    emit('load_board', {'board': games[game_id].board, 'user' : user}, to=game_id)
+    print(f"{username} has joined game room with an id of {game_id}")
+    emit('load_board', {'board': games[game_id].board, 'user' : username}, to=game_id)
 
 
 @socketio.on('make_move')
