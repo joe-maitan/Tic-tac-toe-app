@@ -105,11 +105,15 @@ cd ../frontend
 8. Running the code!
 * For the backend (server):
 ```
-C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py <port>
+C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py -p <port>
+```
+If you do not specify a port number it will default to 5000.
+```
+C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py
 ```
 * For the frontend (client):
 ```
-C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend python3 client.py
+C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend python3 client.py -i <hostaddress> -p <port>
 ```
 
 
