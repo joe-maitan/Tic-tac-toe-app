@@ -330,7 +330,7 @@ def make_a_move(data):
 @socketio.on('new_game')
 def play_again(data):
     game_id = data['game_id']
-    games[game_id] = game.Game()
+    games[game_id].reset_game_board()
 
 
 if __name__ == "__main__":
