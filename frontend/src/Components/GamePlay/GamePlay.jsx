@@ -20,6 +20,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
     const playAgain = async (game_state) => {
         const won = game_state['won'];
         const player = game_state['player'];
+
         const response = await new Promise((resolve) => {
             var text = "";
         if (won === "True"){
@@ -79,10 +80,12 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
             const player = data['player'];
             const won = data['won'];
             const next_player = data['next_player'];
-            // if (currentUser['symbol'] ==  next_player) {
-            //     setLock(false);
-            //     setCurrentUser(next_player);
-            // }
+            
+            if (currentUser['symbol'] ==  next_player) {
+                setLock(false);
+                // setCurrentUser(next_player);
+            }
+
             setBoard((prevBoard) => {
                 const newBoard = [...prevBoard];
                 newBoard[index] = player;

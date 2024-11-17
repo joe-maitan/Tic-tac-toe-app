@@ -1,11 +1,19 @@
 
 
 class Game():
-    board = None
 
+    # Track game state
+    game_state = {
+        'currentTurn': None,  # e.g., socket ID of the player whose turn it is
+        'players': []         # List of player socket IDs
+    }
+
+    board = None
 
     def __init__(self):
         self.board = ["","","","","","","","",""]
+        self.game_state['currentTurn'] = None 
+        self.game_state['players'] = []
 
 
     def print_board(self):
@@ -15,6 +23,7 @@ class Game():
     def make_move(self, player, position):
         if self.board[position] != "":
             return "Invalid move"
+        
         return self.update_board(position, player)
 
 
