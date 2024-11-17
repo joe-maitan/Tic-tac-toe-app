@@ -26,6 +26,7 @@ module load python/bundle-3.10
 - If accepted a new game object is created where it will pick a player to go first, following the rules of tic tac toe, until there is a winner or draw
 
 ## Sprint 4 - Gameplay, Gamestate, UI
+- Inviter is the first person who can make a move and is always 'X'
 
 ## Sprint 5 - Error Handling and Testing
 - Backend uses pytest to test the functionality of the server/flask app.
