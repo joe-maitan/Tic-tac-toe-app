@@ -115,5 +115,6 @@ C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py
 ```
 C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend python3 client.py -i <hostaddress> -p <port>
 ```
+When the npm run dev is finished, you can click on the 'Network' option to be visibile to other hosts.
 
 
