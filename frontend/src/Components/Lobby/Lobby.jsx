@@ -11,7 +11,6 @@ import './Lobby.css';
 
 const Lobby = ({ currentUser, setCurrentUser }) => {
     const [menuOpen, setMenuOpen] = useState(false);
-    // const [dropdownOpen, setDropdownOpen] = useState(false);
     const [activeUsers, setActiveUsers] = useState([]);
     const navigate = useNavigate();
 
@@ -90,7 +89,6 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
     const inviteUser = (invitee) => {
         toast.success(`Sending invite to ${invitee}...`);
-        //TODO: figure out broadcast to specific user (invitee socket ID)
         socket.emit('send_invite', { inviter: currentUser.userID, invitee });
     };
 
@@ -135,9 +133,17 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
     useEffect(() => {
       const registerUserAndHandleInvites = async () => {
-        // TODO: Could move this to the above useEffect
-        handleRegisterUser(); // register the currentUser with this socketID every time they enter the lobby/refresh the page
         
+        handleRegisterUser();
+        
+        socket.on('user_joined', async(newUser) => {
+            console.log(`User joined: ${newUser}`);
+            setActiveUsers((prevUsers) => {
+                const uniqueUsers = new Set([...prevUsers, newUser]);
+                return Array.from(uniqueUsers);
+            });
+        });
+
         socket.on('invite_recieved', async(data) => {
             console.log("Inside of invite_recieved", data);
             const response = await handleInvite(data);
@@ -168,10 +174,11 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
       registerUserAndHandleInvites();
 
         return () => {
-            if (socket) {
-                socket.off('receive_invite');
-                socket.off('invite_response');
-            }
+            socket.off('user_joined');
+            socket.off('invite_recieved');
+            socket.off('handle_invite_response');
+            socket.off('successful_registration');
+            socket.off('game_created');
             window.removeEventListener('beforeunload', handleLogout);
         };
     }, [socket]);
