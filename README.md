@@ -83,6 +83,7 @@ We developed this using Google Chrome, finding it was the most friendly web brow
    - Test gamemoves/updating of the board state is also done with pytest on the backend.
 3. Security/Risk Evaluation:
    - This development of the Flask App uses HTTP which lacks the encryption/reliability of HTTPS.
+   - Users login and sign up information is not encrypted, so you can see their information in cleartext in a console log that we used for debugging. Since nothing is encrypted, you can easily see someone's username, email, or password.
    - The cookie is not encrypted in a safe manner which only stores the username of the user but is still information that is out there for whoever.
    - It could be possible to overload the login/signup requests causing the server to crash because we have no mechanism to stop after a certain number of failed tries.
 
