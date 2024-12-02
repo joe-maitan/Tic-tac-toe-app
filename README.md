@@ -13,10 +13,18 @@ We developed this using Google Chrome, finding it was the most friendly web brow
 
 # Sprints
 ## Sprint 1 - Implement Client and Server architecture
-- The backend Server runs a flask app that processes requests and socket events.
-- The client is a web browser that can be booted up doing the npm run dev command below.
-- When the client is on the web page they are greated with a sign up/ log in page where they will need to create an account that is stored in our database managed by the backend.
-- Once the client has created an account or logged in, they wait in the lobby waiting to invite other players
+1. Basic Server Setup:
+   - The backend Server runs a flask app that processes requests and socket events.
+2. Client-Side connection
+   - The client is a web browser that can be booted up by running the client script as shown below.
+   - When the client is on the web page they are greated with a sign up/ log in page where they will need to create an account that is stored in our database managed by the backend.
+   - Once the client has created an account or logged in, they wait in the lobby waiting to invite other players
+3. Simple Message Exchange
+   - Use of HTTP requests for logging in and signing up, logging out, getting the list of active users. And the use of a socket for inviting other users
+4. Error Handling
+5. Testing and Debugging:
+  - Server can handle multiple client connections and distinguish their socket ID's from one another.
+  - Client can exchange messages to the server and they will be processed accordingly.
 
 ## Sprint 2 - Design and Implement Message Protocol
 - The client has two ways of sending messages to the server. The first is through HTTP requests and the second through SocketIO.
@@ -26,6 +34,19 @@ We developed this using Google Chrome, finding it was the most friendly web brow
 ## Sprint 3 - Multiplayer Functionality
 - Clients can invite eachother through the use of SocketIO. The invite mechanism is handled on the backend and then forwarded to the invitee's socket where a pop up will prompt them to accept or decline the invite.
 - If accepted a new game object is created where it will pick a player to go first, following the rules of tic tac toe, until there is a winner or draw
+- 
+1. Game State Synchronization:
+   - The server creates a new game for each of the invitations accepted and groups those players in that game.
+   - Server then handles turn login, updating the board after a turn, and will not allow a player to go if it is not their turn.
+2. Client-Side Game Rendering:
+   - After accepting an invite, they are brough to a unique game page where they will take turns with their opponnenet until a win or draw.
+   - After each turn the board updates on both sides simulatneously through the use of SocketIO
+3. Turn-Based Gameplay
+   - Server handles turns of the players.
+   - Lets a player know if it is not their turn/will not place their symbol on the board until it is their turn.
+4. Player Identification:
+   - Each player has a unqiue username that is kept in a cookie after logging in or signing up.
+   - This is how the server keeps track of whose turn it is.
 
 ## Sprint 4 - Gameplay, Gamestate, UI
 1. Game State Management
@@ -43,8 +64,16 @@ We developed this using Google Chrome, finding it was the most friendly web brow
      opt to play with the same person again.
 5. User Interface
    - Use of WebServer UI and images for the Tic Tac Toe symbols.
+
 ## Sprint 5 - Error Handling and Testing
-- Backend uses pytest to test the functionality of the server/flask app.
+1. Error Handling:
+  - Client and Server have their own unique try-catch blocks. For example, the server processes the requests but will return an error code if the username they tried to register with is already in the database.
+  - The Client will throw an error if the request/response is missing data.
+  - The server/backend uses pytest to test the functionality of the server/flask app.
+2. Integration Testing
+   - Test gamemoves/updating of the board state is also done with pytest on the backend.
+3. Security/Risk Evaluation:
+   - 
 
 # How to run the app
 1. Clone the repository
