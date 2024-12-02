@@ -66,9 +66,9 @@ We developed this using Google Chrome, finding it was the most friendly web brow
 
 ## Sprint 5 - Error Handling and Testing
 1. Error Handling:
-  - Client and Server have their own unique try-catch blocks. For example, the server processes the requests but will return an error code if the username they tried to register with is already in the database.
-  - The Client will throw an error if the request/response is missing data.
-  - The server/backend uses pytest to test the functionality of the server/flask app.
+   - Client and Server have their own unique try-catch blocks. For example, the server processes the requests but will return an error code if the username they tried to register with is already in the database.
+   - The Client will throw an error if the request/response is missing data.
+   - The server/backend uses pytest to test the functionality of the server/flask app.
 2. Integration Testing
    - Test gamemoves/updating of the board state is also done with pytest on the backend.
 3. Security/Risk Evaluation:
