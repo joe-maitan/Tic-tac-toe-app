@@ -1,7 +1,6 @@
 # Tic-tac-toe-app
-CS457 Term Project
 
-# Python Version and Software
+## Python Version and Software
 We used a version of Python that was at 3.10 or greater. To load python 3.10 on the CSU CS machines run the following command:
 ```
 module load python/bundle-3.10
