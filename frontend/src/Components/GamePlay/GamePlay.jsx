@@ -105,12 +105,11 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
         });
 
         return () => {
-            // Clean up: Optionally leave the room if needed when component unmounts
-            // socket.emit('leave_game', { gameId });
-            // socket.off('load_board');
-            // socket.off('move_made');
+            socket.emit('leave_game', { gameId });
+            socket.off('load_board');
+            socket.off('move_made');
         };
-    }, [gameId]);
+    }, [socket]);
 
     const toggle = (index) => {
         if (lock || board[index]) {

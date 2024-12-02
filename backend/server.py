@@ -216,6 +216,7 @@ def handle_registration(data):
     addUserToActiveUserSockets(load_user(data.get('userID')), request.sid)
     print(f"{data.get('userID')} has connected to the server")
     print(f"Active Users: {active_user_sockets}")
+    emit("user_joined", data.get('userID'), broadcast=True)
 
     
 @socketio.on('disconnect')
