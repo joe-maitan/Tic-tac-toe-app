@@ -2,14 +2,14 @@
 CS457 Term Project
 
 # Python Version and Software
-The Python version used for developing this project was 3.11. If you have a greater version than 3.11 everything will work regardless, do not worry about using 3.11 specifically.
-
-To load python 3.11 on the CSU CS machines run the following command:
+We used a version of Python that was at 3.10 or greater. To load python 3.10 on the CSU CS machines run the following command:
 ```
 module load python/bundle-3.10
 ```
 
-We developed this using Google Chrome, finding it was the most friendly web browser for our login and signup forms.
+If you have another version of Python installed greater than 3.10 do not worry about running the module load command.
+
+We developed this using Google Chrome, finding it was the most friendly web browser for our login/signup forms and debugging our game logic.
 
 # Sprints
 ## Sprint 1 - Implement Client and Server architecture
@@ -23,8 +23,8 @@ We developed this using Google Chrome, finding it was the most friendly web brow
    - Use of HTTP requests for logging in and signing up, logging out, getting the list of active users. And the use of a socket for inviting other users
 4. Error Handling
 5. Testing and Debugging:
-  - Server can handle multiple client connections and distinguish their socket ID's from one another.
-  - Client can exchange messages to the server and they will be processed accordingly.
+   - Server can handle multiple client connections and distinguish their socket ID's from one another.
+   - Client can exchange messages to the server and they will be processed accordingly.
 
 ## Sprint 2 - Design and Implement Message Protocol
 - The client has two ways of sending messages to the server. The first is through HTTP requests and the second through SocketIO.
@@ -53,16 +53,16 @@ We developed this using Google Chrome, finding it was the most friendly web brow
    - Inviter is the first person who can make a move and is always 'X'
    - Server manages game state and whos turn it is. Keeping track of the current player and board state
 2. Input Handling:
-  - Client can click with a mouse but if it is not their turn, nothing will be placed until the player whose turn it is
+   - Client can click with a mouse but if it is not their turn, nothing will be placed until the player whose turn it is
     places their symbol.
-  - Validate the placement of the symbol by checking if the index is not taken and is in bounds.
-3. Winning Conditions:
-  - The game can end either in a draw or one player winning. On both conditions a unqiue message is played.
-  - Players can opt to play with the same person again, reseting the game board but keeping track of their current symbols.
+   - Validate the placement of the symbol by checking if the index is not taken and is in bounds.
+4. Winning Conditions:
+   - The game can end either in a draw or one player winning. On both conditions a unqiue message is played.
+   - Players can opt to play with the same person again, reseting the game board but keeping track of their current symbols.
 4. Game Over Handling
    - If a player declines playing again after the match concludes, they are redirected to the lobby. But they can
      opt to play with the same person again.
-5. User Interface
+6. User Interface
    - Use of WebServer UI and images for the Tic Tac Toe symbols.
 
 ## Sprint 5 - Error Handling and Testing
@@ -73,7 +73,7 @@ We developed this using Google Chrome, finding it was the most friendly web brow
 2. Integration Testing
    - Test gamemoves/updating of the board state is also done with pytest on the backend.
 3. Security/Risk Evaluation:
-   - 
+   - will get to later....
 
 # How to run the app
 1. Clone the repository
