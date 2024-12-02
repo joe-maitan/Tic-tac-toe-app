@@ -73,10 +73,12 @@ We developed this using Google Chrome, finding it was the most friendly web brow
 2. Integration Testing
    - Test gamemoves/updating of the board state is also done with pytest on the backend.
 3. Security/Risk Evaluation:
-   - will get to later....
+   - This development of the Flask App uses HTTP which lacks the encryption/reliability of HTTPS.
+   - The cookie is not encrypted in a safe manner which only stores the username of the user but is still information that is out there for whoever.
+   - It could be possible to overload the login/signup requests causing the server to crash because we have no mechanism to stop after a certain number of failed tries.
 
 # How to run the app
-**Depending on what version of Python you have installed/loaded your command will either be python/pip or python3/pip3**
+Depending on what **version of Python** you have installed/loaded your command will either be **python/pip** or **python3/pip3** respectively. The basis of the commands remains the same
 1. Clone the repository
 ```
 git clone https://github.com/joe-maitan/Tic-tac-toe-app.git
@@ -93,17 +95,11 @@ cd backend
 ```
 
 4. Create a virtual enviornment
-* On MacOS and Linux
+* On MacOS, Linux and Windows:
 ```
 python3 -m venv venv
 ```
-
-* On Windows
-```
-python -m venv venv
-```
-
-NOTE: The venv is already included in the project, just needs to be activated.
+NOTE: The venv is NOT included in the code provided.
 
 5. Activate the virtual enviornment:
 * On MacOS and Linux:
@@ -117,22 +113,13 @@ venv/Scripts/activate
 ```
 
 6. Install dependencies:
-* On MacOS and Linux:
+* On MacOS, Linux and Windows:
 ```
 pip3 install -r requirements.txt
 ```
 
-* On Windows:
-```
-pip install -r requirements.txt
-```
-
-7. Navigate to the frontend directory:
-```
-cd ../frontend
-```
-
-8. Running the code!
+7. Running the code!
+**The Server and Client need to be run on different machines**
 * For the backend (server):
 ```
 C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py -p <port>
@@ -145,6 +132,6 @@ C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py
 ```
 C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend python3 client.py -i <hostaddress> -p <port>
 ```
-When the npm run dev is finished, you can click on the 'Network' option to be visibile to other hosts.
+This client command will install all necessary dependencies. When the npm run dev is finished, you can click on the 'Network' option to be visibile to other hosts.
 
 
