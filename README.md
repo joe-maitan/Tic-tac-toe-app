@@ -15,20 +15,30 @@ We developed this using Google Chrome, finding it was the most friendly web brow
 1. Basic Server Setup:
    - The backend Server runs a flask app that processes requests and socket events.
 2. Client-Side connection
-   - The client is a web browser that can be booted up by running the client script as shown below.
+   - The client is a web browser that can be booted up by running the client script as shown below. This will connect them to the backend server.
    - When the client is on the web page they are greated with a sign up/ log in page where they will need to create an account that is stored in our database managed by the backend.
-   - Once the client has created an account or logged in, they wait in the lobby waiting to invite other players
+   - Once the client has created an account or logged in, they wait in the lobby waiting to invite other players.
 3. Simple Message Exchange
-   - Use of HTTP requests for logging in and signing up, logging out, getting the list of active users. And the use of a socket for inviting other users
+   - Use of HTTP requests for logging in and signing up, logging out, getting the list of active users. They can invite other players through the use of SocketIO.
 4. Error Handling
 5. Testing and Debugging:
    - Server can handle multiple client connections and distinguish their socket ID's from one another.
    - Client can exchange messages to the server and they will be processed accordingly.
 
 ## Sprint 2 - Design and Implement Message Protocol
-- The client has two ways of sending messages to the server. The first is through HTTP requests and the second through SocketIO.
-- The HTTP requests manage signing up or logging the user in, logging them out, getting a list of active users.
-- The SocketIO manages the events of inviting another player and making a game move
+1. Game-Message Protocol Specification:
+   - The client has two ways of sending messages to the server. The first is through HTTP requests and the second through SocketIO.
+   - The HTTP requests manage signing up or logging the user in, logging them out, getting a list of active users.
+   - The SocketIO manages the events of inviting another player and taking a turn in game.
+2. Server-Side Message Handling:
+   - The server parses all HTTP requests and specific SocketIO events. The data sent from either a request or socket event is a JSON object that we can parse in python, and then the response sent back is a dictionary with unique fields for each response.
+3. Client-Side Message Handling:
+   - As stated above, the client has two ways of sending messages to the server. The first is through HTTP requests and the second through SocketIO.
+   - The HTTP requests manage signing up or logging the user in, logging them out, getting a list of active users.
+   - The SocketIO manages the events of inviting another player and taking a turn in game.
+4. Connection Management:
+   - Everytime a user makes it to the lobby, they register into the backend server, where we add them into the active users list with their username and SocketID, this way we can keep track of disconnections and logouts.
+   - When a user disconnects or logouts, they are deregistered from the server, which removes them from the active users list.
 
 ## Sprint 3 - Multiplayer Functionality
 - Clients can invite eachother through the use of SocketIO. The invite mechanism is handled on the backend and then forwarded to the invitee's socket where a pop up will prompt them to accept or decline the invite.
