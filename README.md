@@ -76,6 +76,7 @@ We developed this using Google Chrome, finding it was the most friendly web brow
    - will get to later....
 
 # How to run the app
+**Depending on what version of Python you have installed/loaded your command will either be python/pip or python3/pip3**
 1. Clone the repository
 ```
 git clone https://github.com/joe-maitan/Tic-tac-toe-app.git
