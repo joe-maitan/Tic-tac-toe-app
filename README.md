@@ -33,7 +33,7 @@ We developed this using Google Chrome, finding it was the most friendly web brow
 ## Sprint 3 - Multiplayer Functionality
 - Clients can invite eachother through the use of SocketIO. The invite mechanism is handled on the backend and then forwarded to the invitee's socket where a pop up will prompt them to accept or decline the invite.
 - If accepted a new game object is created where it will pick a player to go first, following the rules of tic tac toe, until there is a winner or draw
-- 
+
 1. Game State Synchronization:
    - The server creates a new game for each of the invitations accepted and groups those players in that game.
    - Server then handles turn login, updating the board after a turn, and will not allow a player to go if it is not their turn.
