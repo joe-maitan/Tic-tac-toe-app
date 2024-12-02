@@ -60,10 +60,9 @@ To make the most fun online tic tac toe game. We aim to do this by creating a fu
 - Access to an internet connection.
 
 ## Software
-- Python version 3.9 or greater.
+- Python version 3.10 or greater.
 - Libraries used will be:
-        - Flask
-        - pymongo
+        - Flask and SocketIO
         - npm
         
 - Web based application. 
