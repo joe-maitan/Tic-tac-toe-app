@@ -9,6 +9,7 @@ import cookie from '../utils/cookie';
 
 import './Lobby.css';
 
+//page for lobby
 const Lobby = ({ currentUser, setCurrentUser }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeUsers, setActiveUsers] = useState([]);
@@ -19,6 +20,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     const socket = useContext(SocketContext);
     const apiUrl = useApi();
 
+    //returns the list of active users when called
     const getActiveUsers = () => {
         axios.get(apiUrl + '/active_users')
             .then(response => {
@@ -64,6 +66,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         });
     };
 
+    //registers or reregisters users when lobby page is rendered
     const handleRegisterUser = () => {
         if (!currentUser) {
             console.log("No currentUser found. Checking cookie");
@@ -87,11 +90,13 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         }); // End socket on successful_registration event
     }; // End handleRegisterUser func
 
+    //notifies the invitee that their invite it being sent
     const inviteUser = (invitee) => {
         toast.success(`Sending invite to ${invitee}...`);
         socket.emit('send_invite', { inviter: currentUser.userID, invitee });
     };
 
+    //handles the invite response of acceptance or denial
     const handleInvite = async (invite) => {
         console.log(invite);
         const response = await new Promise((resolve) => {
@@ -131,6 +136,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
     useEffect(() => { getActiveUsers(); }, []); // Update the list of active users with every render of the page
 
+    //listens for socket events of user joinging, invited receieved, and the response to the invite
     useEffect(() => {
       const registerUserAndHandleInvites = async () => {
         
@@ -173,6 +179,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
       window.addEventListener('beforeunload', handleLogout);
       registerUserAndHandleInvites();
 
+        //if socket non-reponsive, it unmounts and closes all loose ends
         return () => {
             socket.off('user_joined');
             socket.off('invite_recieved');
@@ -183,6 +190,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         };
     }, [socket]);
 
+    //returns the active users on the website
     return (
         <>
             <nav className="navbar">
