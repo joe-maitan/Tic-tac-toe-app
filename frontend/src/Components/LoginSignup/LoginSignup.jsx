@@ -46,7 +46,7 @@ const LoginSignup = ({ setCurrentUser }) => {
             }
           })
           .catch(error => {
-            toast.error("Error logging in. " + error.message)
+            toast.error("Error logging in - " + error.response.data['error']);
             if (error.response) {
               console.error('Error response data:', error.response.data);
               console.error('Error status:', error.response.status);
@@ -83,7 +83,7 @@ const LoginSignup = ({ setCurrentUser }) => {
             } 
           })
           .catch(error => {
-            toast.error("Sign In Error.");
+            toast.error("Error signing up - " + error.response.data['error']);
 
             if (error.response) {
               console.error('Error response data:', error.response.data);
