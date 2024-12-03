@@ -1,3 +1,9 @@
+##
+# @file config.py
+# 
+# @brief Defines the config for the Flask app.
+
+# Imports
 from pymongo import MongoClient
 from flask import Flask
 from flask_socketio import SocketIO
