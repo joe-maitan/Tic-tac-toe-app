@@ -38,7 +38,8 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     };
 
     const handleLogout = () => {
-        console.log("Logging out user " + currentUser.userID);  
+        console.log("Logging out user " + currentUser.userID);
+        socket.emit('logout_user', currentUser.userID);
         axios.post(apiUrl + '/logout', {"user_id": currentUser.userID})
         .then(response => {
             if (response.status === 200) {
@@ -150,6 +151,14 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             });
         });
 
+        socket.on('user_left', async(leftUser) => {
+            console.log(`User left: ${leftUser}`);
+            setActiveUsers((prevUsers) => prevUsers.filter((activeUsers) => activeUsers !== leftUser));
+            if (leftUser != currentUser.userID) {
+                toast.error(`${leftUser} disconnected from the server`);
+            }
+        });
+
         socket.on('invite_recieved', async(data) => {
             console.log("Inside of invite_recieved", data);
             const response = await handleInvite(data);
@@ -186,6 +195,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             socket.off('handle_invite_response');
             socket.off('successful_registration');
             socket.off('game_created');
+            socket.off('user_left');
             window.removeEventListener('beforeunload', handleLogout);
         };
     }, [socket]);
