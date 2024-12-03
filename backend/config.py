@@ -5,12 +5,20 @@ from flask import Flask
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_login import LoginManager
+import logging
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!' #os.u_random(100)
 
 socketio = SocketIO(app, cors_allowed_origins="*", manage_session=True, logger=True) # the only accepted origin is our front end server
 CORS(app, origins='*', supports_credentials=True)
+
+logging.basicConfig(
+    filename='app.log',
+    filemode='w',
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 app.logger.info("congfig.py - Flask app created")
 app.logger.info("congfig.py - Establishing connection to database")
