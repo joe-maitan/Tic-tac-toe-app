@@ -144,4 +144,17 @@ C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend python3 client.py -i <h
 ```
 This client command will install all necessary dependencies. When the npm run dev is finished, you can click on the 'Network' option to be visibile to other hosts.
 
+# Where we would take this project
+Joe:
+- First I would try to fix some of the security issues such as being able to spam the login forms.
 
+# Retrospective
+## What went right
+- The design of the full stack app went really smoothly, besides encountering some weird bugs we kept cruising forward.
+- The Sprints were very manageable and the work load was easy to balance.
+- We were able to bounce back from a bad start to sprint 2 to having a full-stack Tic Tac Toe application!
+
+## What could have gone better.
+- Distributing the work load could have gone a lot better. We should have evenly distributed the work load instead of having only one to two us of working on the project at a time.
+- Meeting as a team. After Sprint 2 we lacked communication and getting together as a team to handle these sprints.
+- Learning how to use tools like React in previous classes instead of learning it in 2 months.
