@@ -141,7 +141,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     useEffect(() => {
       const registerUserAndHandleInvites = async () => {
         
-        handleRegisterUser();
+        await handleRegisterUser();
         
         socket.on('user_joined', async(newUser) => {
             console.log(`User joined: ${newUser}`);
@@ -190,6 +190,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
         //if socket non-reponsive, it unmounts and closes all loose ends
         return () => {
+            // TODO: When a user refreshes the page it is not loving this at all
             socket.off('user_joined');
             socket.off('invite_recieved');
             socket.off('handle_invite_response');
