@@ -20,7 +20,12 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     const socket = useContext(SocketContext);
     const apiUrl = useApi();
 
-    //returns the list of active users when called
+    /* getActiveUsers()
+        @param None
+        @brief When a user renders the lobby page. This request is sent to the server to get the 
+        list of active users currrently in the system.
+        @return None
+    */
     const getActiveUsers = () => {
         axios.get(apiUrl + '/active_users')
             .then(response => {
@@ -37,6 +42,12 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             });
     };
 
+    /* handleLogout()
+        @param None
+        @brief When the user quits the page or clicks the Logout button, they send a request to logout
+        of the server and are navigated to the main page.
+        @return None
+    */
     const handleLogout = () => {
         console.log("Logging out user " + currentUser.userID);
         socket.emit('logout_user', currentUser.userID);
@@ -47,8 +58,8 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
                 console.log("Index of user logging out: " + activeUsers.indexOf(currentUser.userID));
                 delete activeUsers[activeUsers.indexOf(currentUser.userID)];
                 console.log("Active users after handleLogout: " + activeUsers);
-                cookie.delete("currentUser", JSON.stringify(currentUser));
-                setCurrentUser(null);
+                // cookie.delete("currentUser", JSON.stringify(currentUser));
+                // setCurrentUser(null);
                 navigate('/');
             }
 
@@ -67,7 +78,13 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         });
     };
 
-    //registers or reregisters users when lobby page is rendered
+    /* handleRegisterUser()
+        @param None
+        @brief When a user renders the lobby page we need to register their username with their socketID that is going
+        to be sending requests such as invites and game moves. This is done here by grabbing the cookie in the system,
+        then sending the username attacthed to the socketID to the backend.
+        @return None
+    */
     const handleRegisterUser = () => {
         if (!currentUser) {
             console.log("No currentUser found. Checking cookie");
@@ -91,13 +108,21 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         }); // End socket on successful_registration event
     }; // End handleRegisterUser func
 
-    //notifies the invitee that their invite it being sent
+    /* inviteUser()
+        @param None
+        @brief Handles logic of inviting a user.
+        @return None
+    */
     const inviteUser = (invitee) => {
         toast.success(`Sending invite to ${invitee}...`);
         socket.emit('send_invite', { inviter: currentUser.userID, invitee });
     };
 
-    //handles the invite response of acceptance or denial
+    /* handleInvite()
+        @param None
+        @brief Handles the logic of accepting or declining the invite.
+        @return None
+    */
     const handleInvite = async (invite) => {
         console.log(invite);
         const response = await new Promise((resolve) => {
@@ -135,13 +160,16 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         );
       };
 
-    useEffect(() => { getActiveUsers(); }, []); // Update the list of active users with every render of the page
+    useEffect(() => { 
+        getActiveUsers(); 
+        handleRegisterUser();
+    }, []);
 
     //listens for socket events of user joinging, invited receieved, and the response to the invite
     useEffect(() => {
-      const registerUserAndHandleInvites = async () => {
+      const handleInvites = async () => {
         
-        await handleRegisterUser();
+        // await handleRegisterUser();
         
         socket.on('user_joined', async(newUser) => {
             console.log(`User joined: ${newUser}`);
@@ -186,7 +214,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     };
 
       window.addEventListener('beforeunload', handleLogout);
-      registerUserAndHandleInvites();
+      handleInvites();
 
         //if socket non-reponsive, it unmounts and closes all loose ends
         return () => {
