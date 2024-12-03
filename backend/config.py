@@ -1,5 +1,3 @@
-# import eventlet
-# eventlet.monkey_patch()
 from pymongo import MongoClient
 from flask import Flask
 from flask_socketio import SocketIO
@@ -8,7 +6,7 @@ from flask_login import LoginManager
 import logging
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!' #os.u_random(100)
+app.config['SECRET_KEY'] = 'secret!' 
 
 socketio = SocketIO(app, cors_allowed_origins="*", manage_session=True, logger=True) # the only accepted origin is our front end server
 CORS(app, origins='*', supports_credentials=True)
@@ -25,7 +23,6 @@ app.logger.info("congfig.py - Establishing connection to database")
 
 try:
     client = MongoClient('mongodb+srv://erinktaketa:Tictactoe123!@tictactoedb.l8kom.mongodb.net/?retryWrites=true&w=majority&appName=TicTacToeDB')
-    # client = MongoClient(host='tictactoedb-shard-00-00.l8kom.mongodb.net', port=27017, username='erinktaketa', password='Tictactoe123!')
     app.logger.info("congfig.py - Successfully connected to database.")
 except Exception as e:
     app.logger.error("congfig.py - Error connecting to database.")
@@ -34,11 +31,7 @@ except Exception as e:
 
 db = client['TicTacToeDB']
 
-# db['users'].insert_one({"username": "test", "email": "test@email.com", "password": "test"})
-# db['users'].insert_one({"username": "jjmaitan", "email": "test@email.com", "password": "test"})
-
 try:
-    # db.create_collection('users')
     db['users'].create_index("username", unique=True)
     db['users'].create_index("email", unique=True)
 except Exception as e:
