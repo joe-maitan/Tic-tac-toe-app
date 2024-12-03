@@ -163,6 +163,7 @@ def login() -> jsonify:
         
         user = load_user(searched_username["username"])
         login_user(user, remember=True)
+        addUserToActiveUsers(user)
         app.logger.info("login_user() - User logged in successfully")
         return jsonify({"message": f"{user.get_id()} logged in successfully"}), 201
     except Exception as e:
@@ -212,7 +213,7 @@ def update_user_list() -> jsonify:
 @socketio.on('register_user')
 def handle_registration(data):
     print(f"handle_connection - event register_user hit - {data}")
-    addUserToActiveUsers(load_user(data.get('userID')))
+    # addUserToActiveUsers(load_user(data.get('userID'))) this is handled in signup and login routes
     addUserToActiveUserSockets(load_user(data.get('userID')), request.sid)
     print(f"{data.get('userID')} has connected to the server")
     print(f"Active Users: {active_user_sockets}")

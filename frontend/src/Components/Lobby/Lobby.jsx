@@ -97,6 +97,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         }
 
         console.log("Registering user " + currentUser.userID);
+      
         socket.emit('register_user', {userID: currentUser.userID}); // Send a register event to the server
 
         socket.on('successful_registration', (data) => {
@@ -161,11 +162,12 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
       };
 
     useEffect(() => { 
+        sessionStorage.setItem('isPageLoaded', 'true');
         getActiveUsers(); 
         handleRegisterUser();
     }, []);
 
-    //listens for socket events of user joinging, invited receieved, and the response to the invite
+    //listens for socket events of user joining, invited receieved, and the response to the invite
     useEffect(() => {
       const handleInvites = async () => {
         
@@ -213,19 +215,33 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         });
     };
 
-      window.addEventListener('beforeunload', handleLogout);
-      handleInvites();
+        const handleBeforeUnload = (e) => {
+            sessionStorage.setItem('isClosing', 'true');
+            setTimeout(() => { sessionStorage.removeItem('isClosing'); }, 100); // Slight delay to ensure the flag is cleared on refresh
+            e.preventDefault();
+            e.returnValue = "data will get lost";
+        }; // End handleBeforeUnload
+
+        const handleUnload = () => {
+            if (sessionStorage.getItem('isClosing') === 'true') {
+              navigator.sendBeacon(`${serverURL}${basePath}/logout`, '');
+            }
+        }; // End handleUnload
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('unload', handleUnload);
+        handleInvites();
 
         //if socket non-reponsive, it unmounts and closes all loose ends
         return () => {
-            // TODO: When a user refreshes the page it is not loving this at all
             socket.off('user_joined');
             socket.off('invite_recieved');
             socket.off('handle_invite_response');
             socket.off('successful_registration');
             socket.off('game_created');
             socket.off('user_left');
-            window.removeEventListener('beforeunload', handleLogout);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('unload', handleUnload);
         };
     }, [socket]);
 
