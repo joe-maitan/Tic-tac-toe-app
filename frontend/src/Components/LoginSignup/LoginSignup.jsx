@@ -13,6 +13,7 @@ import cookie from '../utils/cookie';
 
 import './LoginSignup.css'
 
+//page for loging in and signing up
 const LoginSignup = ({ setCurrentUser }) => {
     const [action, setAction] = useState('Login');
     const [username, setUsername] = useState('');
@@ -23,6 +24,7 @@ const LoginSignup = ({ setCurrentUser }) => {
     const socket = useContext(SocketContext);
     const apiUrl = useApi();
 
+    //handles log in input and sends to backend, if password and user info is correct, navigates to lobby page
     const handleLoginInput = (username, password) => {
         axios.post(apiUrl + '/login', 
           {
@@ -56,6 +58,7 @@ const LoginSignup = ({ setCurrentUser }) => {
           });        
     } // End handleLoginInput
 
+    //handles sign up input, sends to backend and if account is successfully created, navigates to lobby page
     const handleSignUpInput = (username, email, password) => {
         axios.post(apiUrl + '/signup', 
           {
@@ -93,6 +96,7 @@ const LoginSignup = ({ setCurrentUser }) => {
           });  
     } // End handleSignUpInput
 
+    //returns the contents of the page
   return (
     <div className="container">
         <div className="header">

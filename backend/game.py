@@ -1,4 +1,4 @@
-
+#handles game play rules and keeps track of current turn
 
 class Game():
     game_id = None

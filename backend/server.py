@@ -16,26 +16,27 @@ active_user_sockets = {}  # dictionary of active users {user_id: "socket_id"}
 active_users = []  # list of active user objects
 games = {}
 
+#allows clients to connect to the server that's running on a different machine
 def updateEnvFile(host: str, port: str) -> None:
     with open('../frontend/.env', 'w') as env_file:
         env_file.write(f"VITE_FLASK_HOST={host}\n")
         env_file.write(f"VITE_FLASK_SERVER_PORT={port}\n")
 
-
+#adds new user to active users list when entering lobby
 def addUserToActiveUsers(user: User) -> None:
     if user not in active_users:
         active_users.append(user)
     else:
         print(f"User {user.get_id()} is already in the active users list.")
 
-
+#adds new user to active sockets list when entering lobby
 def addUserToActiveUserSockets(user: User, socket_id: str) -> None:
     if user not in active_user_sockets:
         active_user_sockets[user.get_id()] = socket_id
     else:
         print(f"User {user.get_id()} is already in the active user sockets list.")
 
-
+#handles users disconnecting from the server
 def logout_user(user: User) -> None:
     
     print(f"logout_user() - Current active users list {active_users}")
@@ -50,11 +51,11 @@ def logout_user(user: User) -> None:
         print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
         active_user_sockets.pop(user.get_id())
 
-
+#generate game ID
 def generateGameID() -> str:
     return str(uuid.uuid4())
 
-
+#loads use from the data base
 @login_manager.user_loader
 def load_user(user_id: str) -> User:
     # return User.get(user_id)
@@ -66,13 +67,13 @@ def load_user(user_id: str) -> User:
 
     return None
 
-
+#default route
 @app.route("/")
 def hello_world() -> jsonify:
     app.logger.info("Index route was hit")
     return jsonify({"message": "Hello, World!"}), 200
 
-
+#signup route if user does not have an account
 @app.route("/signup", methods=["POST"])
 def create_user() -> jsonify:
     app.logger.info("/signup route was hit, creating a new user")
@@ -129,7 +130,7 @@ def create_user() -> jsonify:
         app.logger.error(f"create_user() - Error creating user {e}")
         return jsonify({"error": "Internal server error"}), 500
     
-
+#login route - checks for valid username and password
 @app.route('/login', methods=["POST"])
 def login() -> jsonify:
     app.logger.info("/login route was hit, logging in a user")
@@ -166,7 +167,7 @@ def login() -> jsonify:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
 
-
+#logout route - logs user out
 @app.route('/logout', methods=["POST"])
 def logout() -> jsonify:
     print(f"logout route hit")
@@ -196,7 +197,7 @@ def profile() -> jsonify:
     else:
         return jsonify({"error": "User not authenticated"}), 401
 
-
+#updates active user list
 @app.route('/active_users', methods=["GET"])
 def update_user_list() -> jsonify:
     if not active_users:  # Check if active_users is populated
@@ -208,7 +209,7 @@ def update_user_list() -> jsonify:
 
     return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
     
-
+#registers user
 @socketio.on('register_user')
 def handle_registration(data):
     print(f"handle_connection - event register_user hit - {data}")
@@ -231,7 +232,7 @@ def handle_disconnect(data):
     # leave_room(game_id)
     pass
 
-
+#keeps track of who invited who and stores data for later use
 @socketio.on('send_invite')
 def handle_send_invite(data):  # send the invite to the invitee
     print(f"server.py - handle_send_invite() - event hit")
@@ -245,7 +246,7 @@ def handle_send_invite(data):  # send the invite to the invitee
     invitee_socket_id = active_user_sockets[str(data.get('invitee'))]
     socketio.emit('invite_recieved', {"inviter": data.get('inviter')}, to=invitee_socket_id)
 
-
+#handle invite response and logs the data
 @socketio.on('invite_response')
 def handle_respond_invite(data):   # send the response from the invitee back to the inviter
     print(f"server.py - handle_response_invite() - event hit")
@@ -265,7 +266,7 @@ def handle_respond_invite(data):   # send the response from the invitee back to 
         socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
     
 
-
+#creates a new game when user's invite is accepted
 @socketio.on('create_game')
 def create_a_game(data):
     print(f"server.py - create_a_game() - event hit")
@@ -294,7 +295,7 @@ def create_a_game(data):
     socketio.emit("game_created", {"game_id": game_id}, to=player1_socketID)
     socketio.emit("game_created", {"game_id": game_id}, to=player2_socketID)
 
-
+#joins the users to a new room
 @socketio.on('join_game')
 def join_a_game(data):
     game_id = data.get('gameId')
@@ -304,7 +305,7 @@ def join_a_game(data):
     emit('load_board', {'board': games[game_id].get_game_board(), 'user' : username}, to=game_id)
 
 
-
+#handles making a move on the backend by checking winning conditions
 @socketio.on('make_move')
 def make_a_move(data):
     game_id = data.get('game_id')
@@ -327,13 +328,13 @@ def make_a_move(data):
     else:
         print(f"It is not {data.get('player')}'s turn")
 
-
+#makes a new game if players want to play again
 @socketio.on('new_game')
 def play_again(data):
     game_id = data['game_id']
     games[game_id].reset_game_board()
 
-
+#sets up server backend to specify port, and accept connects from clients
 if __name__ == "__main__":
     ip_address = socket.gethostbyname(socket.gethostname()) # "0.0.0.0"
 

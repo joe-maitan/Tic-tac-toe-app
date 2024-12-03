@@ -7,6 +7,7 @@ import circle_pic from '../Images/circle.png';
 import x_pic from '../Images/x.png';
 import cookie from '../utils/cookie';
 
+//page for playing a game of tic tac toe
 const GamePlay = ({ currentUser, setCurrentUser }) => {
     const { gameId } = useParams();
     let [count, setCount] = useState(0);
@@ -17,6 +18,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
     const socket = useContext(SocketContext);
     console.log(currentUser);
 
+    //handles the response to playing again after a win or draw
     const playAgain = async (game_state) => {
         const won = game_state['won'];
         const player = game_state['player'];
@@ -64,8 +66,8 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
             );
     };
 
+    //listens for socket events like joining a game or making a move
     useEffect(() => {
-        // Use the gameId for game-specific actions, like joining a socket room
         socket.emit('join_game', { 'gameId': gameId, 'user': currentUser.userID });
 
         socket.on('load_board', (data) => {
@@ -111,6 +113,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
         };
     }, [socket]);
 
+    //triggered when player presses a button on the tic tac toe board
     const toggle = (index) => {
         if (lock || board[index]) {
             return;
@@ -119,6 +122,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
         socket.emit('make_move', {'game_id': gameId, 'index': index, 'player': currentUser.userID})
     } // End toggle func
 
+    //returns the current game state
     return(
         <div className="CONTAINER">
             <h1 className="title">Play Game!</h1>
