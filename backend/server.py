@@ -172,7 +172,6 @@ def login() -> jsonify:
 def logout() -> jsonify:
     print(f"logout route hit")
     app.logger.info("/logout route was hit, logging out a user")
-    
     try: 
         print(f"Inside of try block in logout route")       
         data = request.get_json()
@@ -219,18 +218,11 @@ def handle_registration(data):
     print(f"Active Users: {active_user_sockets}")
     emit("user_joined", data.get('userID'), broadcast=True)
 
-    
-@socketio.on('disconnect')
-def handle_disconnect(data):
-    # game_id = data['game_id']
-    # quitter = data['quitter']
-    # player = data['player']
 
-    # player_socket_id = active_user_sockets[load_user(str(player))]
-
-    # socketio.emit('opponent_left', {"message": f"{quitter} has left the game. You won!"}, to=player_socket_id)
-    # leave_room(game_id)
-    pass
+@socketio.on('logout_user')
+def log_out(user):
+    print(f"{user} is disconnecting from the server")
+    emit("user_left", user, broadcast=True)
 
 #keeps track of who invited who and stores data for later use
 @socketio.on('send_invite')
