@@ -15,6 +15,7 @@ CORS(app, origins='*', supports_credentials=True)
 
 logging.basicConfig(
     filename='app.log',
+    filemode='w',
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
