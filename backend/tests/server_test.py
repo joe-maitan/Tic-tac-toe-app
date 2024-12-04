@@ -42,11 +42,10 @@ def test_signup(client, mock_db):
     }
 
     response = client.post('/signup', json=test_user_information)
-    print(f"response: {response}")
+    logout_reply = client.post('/logout', json=test_user_information)
     assert response.status_code == 201
     assert response.json == {"message": "User created successfully"}
-    client.get('/logout')
-    db['users'].delete_one({"username": "bobbybiceps"})
+    assert logout_reply.json == {'message': 'bobbybiceps logged out successfully'}
     
 
 def test_signup_missing_data(client, mock_db):
@@ -56,7 +55,6 @@ def test_signup_missing_data(client, mock_db):
     }
 
     response = client.post('/signup', json=test_user_information)
-    print(f"{response}")
     assert response.status_code == 400
     assert response.json == {"error": "Missing username"}
 
@@ -92,10 +90,12 @@ def test_login(client):
     }
 
     response = client.post('/login', json=test_login_information)
+    logout_reply = client.post('/logout', json=test_login_information)
     assert response.status_code == 201
     assert response.json == {"message": "jjmaitan logged in successfully"}
+    assert logout_reply.json == {'message': 'jjmaitan logged out successfully'}
+    
 
-    client.get('/logout')
 
 
 def test_login_missing_data_password(client):
@@ -148,10 +148,10 @@ def test_profile(client):
     client.post('/login', json=test_login_information)
     response = client.get('/profile')
 
-    print(response)
-
+    logout_reply = client.post('/logout', json=test_login_information)
     assert response.status_code == 200
     assert response.json == {"user_id": "jjmaitan", "is_authenticated": True}
+    assert logout_reply.json == {'message': 'jjmaitan logged out successfully'}
 
 
 def test_get_active_users(client):

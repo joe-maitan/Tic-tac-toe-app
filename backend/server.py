@@ -38,13 +38,13 @@ def addUserToActiveUserSockets(user: User, socket_id: str) -> None:
 
 #handles users disconnecting from the server
 def logout_user(user: User) -> None:
-    
     print(f"logout_user() - Current active users list {active_users}")
-    if user in active_users:
-        print(f"logout_user() - {user} is being removed from active_users list")
-        active_users.remove(user)
-        print(f"logout_user() - After removal of the user active users list {active_users}")
-        print(f"logout_user() - {user.get_id()} removed from active_users list")
+    for temp_user in active_users:
+        if temp_user.get_id() == user.get_id():
+            print(f"logout_user() - {user} is being removed from active_users list")
+            active_users.remove(temp_user)
+            print(f"logout_user() - After removal of the user active users list {active_users}")
+            print(f"logout_user() - {user.get_id()} removed from active_users list")
 
     print(f"logout_user() - Current active user sockets list {active_user_sockets}")
     if user in active_user_sockets:
@@ -175,7 +175,7 @@ def logout() -> jsonify:
     try: 
         print(f"Inside of try block in logout route")       
         data = request.get_json()
-        user = load_user(data.get('user_id'))
+        user = load_user(data.get('username'))
         print(f"User ID: {user.get_id()}")
         logout_user(user)
         # TODO: emit a message to everyone in the server/lobby that this client has left
