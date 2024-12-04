@@ -123,6 +123,7 @@ def create_user() -> jsonify:
         try:
             db['users'].insert_one(newUser)
             user = load_user(db['users'].find_one({"username": username})["username"])
+            # hash password
             login_user(user, remember=True)
             addUserToActiveUsers(user)
             app.logger.info("create_user() - User created and added to database successfully")
@@ -294,7 +295,10 @@ def join_a_game(data):
 #handles making a move on the backend by checking winning conditions
 @socketio.on('make_move')
 def make_a_move(data):
+    print(request)
     game_id = data.get('game_id')
+
+    # rooms(get his socket id) this will return the list of rooms the player is in. Ideally list of 1, grab that and update the board for that game
 
     player_socket_id = active_user_sockets[data.get('player')]
     if games[game_id].get_current_turn() == player_socket_id:
@@ -314,7 +318,7 @@ def make_a_move(data):
     else:
         print(f"It is not {data.get('player')}'s turn")
 
-#makes a new game if players want to play again
+#makes a new game if players want to play again #sending twice from client??
 @socketio.on('new_game')
 def play_again(data):
     game_id = data['game_id']
