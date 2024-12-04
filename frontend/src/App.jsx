@@ -11,6 +11,7 @@ import { ApiProvider } from "./apiContext";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [activeUsers, setActiveUsers] = useState([]);
   
   return (
     <>
@@ -19,8 +20,8 @@ export default function App() {
         <SocketProvider>
           <Routes>
               <Route path='/' element={<LoginSignup setCurrentUser={setCurrentUser} />} />
-              <Route path='/lobby' element={<Lobby currentUser={currentUser} setCurrentUser={setCurrentUser}/>} />
-              <Route path='/gameplay/:gameId' element={<GamePlay currentUser={currentUser} setCurrentUser={setCurrentUser}/>} />
+              <Route path='/lobby' element={<Lobby currentUser={currentUser} setCurrentUser={setCurrentUser} activeUsers={activeUsers} setActiveUsers={setActiveUsers}/>} />
+              <Route path='/gameplay/:gameId' element={<GamePlay currentUser={currentUser} setCurrentUser={setCurrentUser} activeUsers={activeUsers} setActiveUsers={setActiveUsers}/>} />
           </Routes>
         </SocketProvider>
       </ApiProvider>

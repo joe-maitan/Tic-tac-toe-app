@@ -48,10 +48,12 @@ def logout_user(user: User) -> None:
             print(f"logout_user() - After removal of the user active users list {active_users}")
             print(f"logout_user() - {user.get_id()} removed from active_users list")
 
-    print(f"logout_user() - Current active user sockets list {active_user_sockets}")
-    if user in active_user_sockets:
-        print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
-        active_user_sockets.pop(user.get_id())
+    print(f"logout_user() - Current active user sockets list {active_user_sockets} before removal")
+    for temp_user in active_users:
+        if temp_user.get_id() == user.get_id():
+            print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
+            active_user_sockets.pop(user.get_id())
+            print(f"logout_user() - Current active user sockets list {active_user_sockets} after removal")
 
 
 #generate game ID

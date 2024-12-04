@@ -37,24 +37,24 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
-    display: none;
+    display: flex;
     flex-direction: column;
     background-color: #444;
-    position: absolute;
-    top: 50px;
-    left: 20px;
     width: 150px;
     border-radius: 4px;
+    top: 60px;
+    left: 10px;
   }
   
   .menu.open {
     display: flex;
   }
-  
-  .menu li {
+
+  .menu li button {
     padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
   }
-  
   .menu li a {
     color: white;
     text-decoration: none;
@@ -102,27 +102,5 @@ body {
     cursor: pointer;
     display: block;
     color: white;
-  }
-  
-  /* Responsive for larger screens */
-  @media (min-width: 768px) {
-    .menu {
-      display: flex;
-      flex-direction: row;
-      position: static;
-      background: none;
-    }
-  
-    .menu-icon {
-      display: flex;
-    }
-  
-    .dropdown-menu {
-      display: flex;
-    }
-  
-    .dropdown-menu.open {
-      display: block;
-    }
   }
   
