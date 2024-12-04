@@ -6,5 +6,6 @@ venv/
 __pycache__/
 backend/__pycache__/
 backend/__pycache__/*.pyc
+backend/app.log
 .pytest_cache/
 backend/.pytest_cache/
