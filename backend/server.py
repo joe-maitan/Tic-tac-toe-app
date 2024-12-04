@@ -48,10 +48,12 @@ def logout_user(user: User) -> None:
             print(f"logout_user() - After removal of the user active users list {active_users}")
             print(f"logout_user() - {user.get_id()} removed from active_users list")
 
-    print(f"logout_user() - Current active user sockets list {active_user_sockets}")
-    if user in active_user_sockets:
-        print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
-        active_user_sockets.pop(user.get_id())
+    print(f"logout_user() - Current active user sockets list {active_user_sockets} before removal")
+    for temp_user in active_users:
+        if temp_user.get_id() == user.get_id():
+            print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
+            active_user_sockets.pop(user.get_id())
+            print(f"logout_user() - Current active user sockets list {active_user_sockets} after removal")
 
 
 #generate game ID
@@ -179,10 +181,9 @@ def logout() -> jsonify:
     try: 
         print(f"Inside of try block in logout route")       
         data = request.get_json()
-        user = load_user(data.get('username'))
+        user = load_user(data.get('user_id'))
         print(f"User ID: {user.get_id()}")
         logout_user(user)
-        # TODO: emit a message to everyone in the server/lobby that this client has left
         app.logger.info(f"logout_user() - {user.get_id()} logged out successfully")
         return jsonify({"message": f"{user.get_id()} logged out successfully"}), 200
     except Exception as e:
