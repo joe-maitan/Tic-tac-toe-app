@@ -60,7 +60,7 @@ class Game():
 
 
     def get_player_symbol(self, player):
-        if player == self.player1['username']:
+        if player['username'] == self.player1['username']:
             return self.player1['symbol']
         else:
             return self.player2['symbol']

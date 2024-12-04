@@ -5,6 +5,17 @@ from pytest_mock_resources import create_mongo_fixture
 from flask import Flask
 from config import app, db
 from server import *
+import game
+
+player1 = {
+    "username": "jjmaitan",
+    "socketID": 5678
+}
+player2 = {
+    "username": "erin",
+    "socketID": 9012
+}
+default_game = game.Game(1234, player1, player2)
 
 
 @pytest.fixture()
@@ -96,8 +107,6 @@ def test_login(client):
     assert logout_reply.json == {'message': 'jjmaitan logged out successfully'}
     
 
-
-
 def test_login_missing_data_password(client):
     test_login_information = {
         "username": "jjmaitan"
@@ -174,3 +183,140 @@ def test_get_active_users(client):
     response = client.get('/active_users')
     assert response.status_code == 200
     assert response.json == {"active_users": ["jjmaitan", "erin"]}
+
+
+def test_game_constructor():
+    assert default_game.game_id == 1234
+    assert default_game.get_current_turn() == 5678
+    assert default_game.board == ["","","","","","","","",""]
+    assert default_game.get_player_symbol(player1) == "X"
+    assert default_game.get_player_symbol(player2) == "O"
+
+def test_empty_board_win_condition():
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'Draw'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'Draw'
+
+def test_basic_make_move():
+    default_game.make_move(player1, 0)
+    assert default_game.board == ["X","","","","","","","",""]
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'Draw'
+
+def test_switch_turn():
+    default_game.switch_turn()
+    assert default_game.get_current_turn() == 9012
+
+def test_complex_make_move():
+    default_game.make_move(player2, 8)
+    assert default_game.board == ["X","","","","","","","","O"]
+    default_game.switch_turn()
+    default_game.make_move(player1, 2)
+    assert default_game.board == ["X","","X","","","","","","O"]
+    default_game.switch_turn()
+    default_game.make_move(player2, 1)
+    assert default_game.board == ["X","O","X","","","","","","O"]
+    default_game.switch_turn()
+    default_game.make_move(player1, 3)
+    assert default_game.board == ["X","O","X","X","","","","","O"]
+
+def test_no_win_condition():
+    assert default_game.board == ["X","O","X","X","","","","","O"]
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'Draw'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'Draw'
+
+def test_first_col_win_condition():
+    default_game.switch_turn()
+    default_game.make_move(player2, 7)
+    assert default_game.board == ["X","O","X","X","","","","O","O"]
+    default_game.switch_turn()
+    assert default_game.make_move(player1, 6)
+    assert default_game.board == ["X","O","X","X","","","X","O","O"]
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) == 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'Draw'
+
+def test_invalid_move():
+    assert default_game.make_move(player2, 0) == 'Invalid move'
+    assert default_game.board == ["X","O","X","X","","","X","O","O"]
+    assert default_game.make_move(player1, 8) == 'Invalid move'
+    assert default_game.board == ["X","O","X","X","","","X","O","O"]
+    assert default_game.make_move(player1, 3) == 'Invalid move'
+    assert default_game.board == ["X","O","X","X","","","X","O","O"]
+
+def test_reset_board():
+    default_game.reset_game_board()
+    assert default_game.board == ["","","","","","","","",""]
+
+def test_second_col_win_condition():
+    default_game.make_move(player2, 1)
+    default_game.make_move(player2, 4)
+    default_game.make_move(player2, 7)
+    assert default_game.board == ["","O","","","O","","","O",""]
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) == 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'Draw'
+    default_game.reset_game_board()
+
+def test_third_col_win_condition():
+    default_game.make_move(player1, 2)
+    default_game.make_move(player1, 5)
+    default_game.make_move(player1, 8)
+    assert default_game.board == ["","","X","","","X","","","X"]
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) == 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'Draw'
+    default_game.reset_game_board()
+
+def test_first_row_win_condition():
+    default_game.make_move(player2, 0)
+    default_game.make_move(player2, 1)
+    default_game.make_move(player2, 2)
+    assert default_game.board == ["O","O","O","","","","","",""]
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) == 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'Draw'
+    default_game.reset_game_board()
+
+def test_second_row_win_condition():
+    default_game.make_move(player1, 3)
+    default_game.make_move(player1, 4)
+    default_game.make_move(player1, 5)
+    assert default_game.board == ["","","","X","X","X","","",""]
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) == 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'Draw'
+    default_game.reset_game_board()
+
+def test_third_row_win_condition():
+    default_game.make_move(player2, 6)
+    default_game.make_move(player2, 7)
+    default_game.make_move(player2, 8)
+    assert default_game.board == ["","","","","","","O","O","O"]
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) == 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'Draw'
+    default_game.reset_game_board()
+
+def test_backslash_diagonal_win_condition():
+    default_game.make_move(player1, 0)
+    default_game.make_move(player1, 4)
+    default_game.make_move(player1, 8)
+    assert default_game.board == ["X","","","","X","","","","X"]
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) == 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) != 'Draw'
+    default_game.reset_game_board()
+
+def test_forwardslash_diagonal_win_condition():
+    default_game.make_move(player2, 2)
+    default_game.make_move(player2, 4)
+    default_game.make_move(player2, 6)
+    assert default_game.board == ["","","O","","O","","O","",""]
+    assert default_game.check_winner(default_game.get_player_symbol(player2)) == 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'True'
+    assert default_game.check_winner(default_game.get_player_symbol(player1)) != 'Draw'
+    default_game.reset_game_board()
