@@ -52,8 +52,12 @@ def test_signup(client, mock_db):
         "password": "Ultra85"
     }
 
+    logout_info = {
+        "user_id": "bobbybiceps"
+    }
+
     response = client.post('/signup', json=test_user_information)
-    logout_reply = client.post('/logout', json=test_user_information)
+    logout_reply = client.post('/logout', json=logout_info)
     assert response.status_code == 201
     assert response.json == {"message": "User created successfully"}
     assert logout_reply.json == {'message': 'bobbybiceps logged out successfully'}
@@ -100,8 +104,12 @@ def test_login(client):
         "password": "joePassword"
     }
 
+    logout_info = {
+        "user_id": "jjmaitan"
+    }
+
     response = client.post('/login', json=test_login_information)
-    logout_reply = client.post('/logout', json=test_login_information)
+    logout_reply = client.post('/logout', json=logout_info)
     assert response.status_code == 201
     assert response.json == {"message": "jjmaitan logged in successfully"}
     assert logout_reply.json == {'message': 'jjmaitan logged out successfully'}
@@ -154,10 +162,15 @@ def test_profile(client):
         "username": "jjmaitan",
         "password": "joePassword"
     }
+
+    logout_info = {
+        "user_id": "jjmaitan"
+    }
+
     client.post('/login', json=test_login_information)
     response = client.get('/profile')
 
-    logout_reply = client.post('/logout', json=test_login_information)
+    logout_reply = client.post('/logout', json=logout_info)
     assert response.status_code == 200
     assert response.json == {"user_id": "jjmaitan", "is_authenticated": True}
     assert logout_reply.json == {'message': 'jjmaitan logged out successfully'}

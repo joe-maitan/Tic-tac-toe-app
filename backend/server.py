@@ -179,10 +179,9 @@ def logout() -> jsonify:
     try: 
         print(f"Inside of try block in logout route")       
         data = request.get_json()
-        user = load_user(data.get('username'))
+        user = load_user(data.get('user_id'))
         print(f"User ID: {user.get_id()}")
         logout_user(user)
-        # TODO: emit a message to everyone in the server/lobby that this client has left
         app.logger.info(f"logout_user() - {user.get_id()} logged out successfully")
         return jsonify({"message": f"{user.get_id()} logged out successfully"}), 200
     except Exception as e:

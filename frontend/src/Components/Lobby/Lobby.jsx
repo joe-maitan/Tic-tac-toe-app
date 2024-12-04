@@ -224,7 +224,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
         const handleUnload = () => {
             if (sessionStorage.getItem('isClosing') === 'true') {
-              navigator.sendBeacon(`${serverURL}${basePath}/logout`, '');
+              handleLogout();
             }
         }; // End handleUnload
 
