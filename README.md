@@ -146,7 +146,9 @@ This client command will install all necessary dependencies. When the npm run de
 
 # Where we would take this project
 Joe:
-- First I would try to fix some of the security issues such as being able to spam the login forms.
+- I would try to fix some of the security issues such as being able to spam the login forms.
+- I see this project as being a great resume builder as we had to figure out how to set up our own database, learn frontend developement, and learn how to use Flask all in the span of a semester.
+- This project has beena culmination of all my skills and I am proud to say I am happy with where it is at.
 
 # Retrospective
 ## What went right
