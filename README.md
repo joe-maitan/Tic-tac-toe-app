@@ -158,5 +158,5 @@ Joe:
 
 ## What could have gone better.
 - Distributing the work load could have gone a lot better. We should have evenly distributed the work load instead of having only one to two us of working on the project at a time.
-- Meeting as a team. After Sprint 2 we lacked communication and getting together as a team to handle these sprints.
-- Learning how to use tools like React in previous classes instead of learning it in 2 months.
+- Meeting as a team. After sprint 2 we lacked communication and getting together as a team.
+- Learning how to use tools like React in previous classes instead of learning it on the fly. It was a great expereince but some previous knowledge could have made the process go a lot faster.
