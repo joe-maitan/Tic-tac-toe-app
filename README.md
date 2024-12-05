@@ -75,10 +75,6 @@ We developed this using Google Chrome, finding it was the most friendly web brow
    - Use of WebServer UI and images for the Tic Tac Toe symbols.
 
 ## Sprint 5 - Error Handling and Testing
-### You can run the tests by using this command while being the backend directory:
-```
-python3 -m pytest
-```
 1. Error Handling:
    - Client and Server have their own unique try-catch blocks. For example, the server processes the requests but will return an error code if the username they tried to register with is already in the database.
    - Informative error messages will occur if user input is not what was expected like invalid password or username as an example.
@@ -141,7 +137,7 @@ pip3 install -r requirements.txt
 ```
 C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py -p <port>
 ```
-If you do not specify a port number it will default to 5000.
+This will run all of the backend unit tests we have added as well before launching the server. If you do not specify a port number it will default to 5000.
 ```
 C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\backend python3 server.py
 ```
