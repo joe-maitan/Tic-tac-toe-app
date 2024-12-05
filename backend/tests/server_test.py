@@ -15,6 +15,7 @@ player2 = {
     "username": "erin",
     "socketID": 9012
 }
+
 default_game = game.Game(1234, player1, player2)
 
 
@@ -61,6 +62,7 @@ def test_signup(client, mock_db):
     assert response.status_code == 201
     assert response.json == {"message": "User created successfully"}
     assert logout_reply.json == {'message': 'bobbybiceps logged out successfully'}
+    db['users'].delete_one({"username": "bobbybiceps"})
     
 
 def test_signup_missing_data(client, mock_db):

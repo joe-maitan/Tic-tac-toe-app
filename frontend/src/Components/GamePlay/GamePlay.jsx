@@ -142,8 +142,9 @@ const GamePlay = ({ currentUser, setCurrentUser, activeUsers, setActiveUsers }) 
                     setBoard(Array(9).fill(""));
                     setLock(false);
                     setCount(0);
-                    socket.emit('new_game', {'game_id' : gameId});
+                    socket.emit('new_game', {'game_id' : gameId}); // create a new game instead of calling this method
                 } else {
+                    // socket.emit the opponent did not want to play again -> redirect other user to lobby
                     navigate('/lobby');
                 }
             }
