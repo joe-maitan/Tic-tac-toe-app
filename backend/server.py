@@ -8,6 +8,8 @@ import sys
 import socket
 import uuid
 import game
+import subprocess
+import hashlib
 
 from flask import request, jsonify
 from flask_login import login_required, login_user, current_user, logout_user
@@ -21,15 +23,43 @@ active_users = []  # list of active user objects
 games = {} # dictionary of games
 
 
-#allows clients to connect to the server that's running on a different machine
-def updateEnvFile(host: str, port: str) -> None:
+# update_env_file(host, port)
+# @param host, A String for the name of the host
+# @param port, A String for the port number the host is running on
+# @brief Because the server can be dynamically allocated, we needed a way to tell clients how to connect to the API.
+# @return None
+def update_env_file(host: str, port: str) -> None:
     with open('../frontend/.env', 'w') as env_file:
         env_file.write(f"VITE_FLASK_HOST={host}\n")
         env_file.write(f"VITE_FLASK_SERVER_PORT={port}\n")
 
 
+# run_server_tests()
+# @param None
+# @brief This creates a subprocess that will run all of the unit tests on the backend. 
+# This grabs whatever version of python you have and executes the tests
+# @return a boolean value depending on if the tests passed or not
+def run_server_tests():
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "pytest"],
+            text=True  # Ensures output is handled as text, not bytes
+        )
+
+        print("Test Output:\n", result.stdout)
+        if result.returncode == 0:
+            print("Tests passed successfully!")
+            return True
+        else:
+            print("Tests failed!")
+            return False
+    except Exception as e:
+        print(f"An error occurred while running tests: {e}")
+        return False
+
+
 #adds new user to active users list when entering lobby
-def addUserToActiveUsers(user: User) -> None:
+def add_user_to_active_users(user: User) -> None:
     if user not in active_users:
         active_users.append(user)
     else:
@@ -37,7 +67,7 @@ def addUserToActiveUsers(user: User) -> None:
 
 
 #adds new user to active sockets list when entering lobby
-def addUserToActiveUserSockets(user: User, socket_id: str) -> None:
+def add_user_to_active_users_sockets(user: User, socket_id: str) -> None:
     if user not in active_user_sockets:
         active_user_sockets[user.get_id()] = socket_id
     else:
@@ -62,8 +92,11 @@ def logout_user(user: User) -> None:
             print(f"logout_user() - Current active user sockets list {active_user_sockets} after removal")
 
 
-#generate game ID
-def generateGameID() -> str:
+# generate_game_ID() 
+# @param None
+# @brief Generates a unique game ID for the new game created
+# @return The unique game ID
+def generate_game_ID() -> str:
     return str(uuid.uuid4())
 
 
@@ -132,7 +165,7 @@ def create_user() -> jsonify:
             db['users'].insert_one(newUser)
             user = load_user(db['users'].find_one({"username": username})["username"])
             login_user(user, remember=True)
-            addUserToActiveUsers(user)
+            add_user_to_active_users(user)
             app.logger.info("create_user() - User created and added to database successfully")
             return jsonify({"message": "User created successfully"}), 201
         except Exception as e:
@@ -166,13 +199,15 @@ def login() -> jsonify:
             app.logger.info("/login username not found in database")
             return {"error": "Username not found"}, 404
         
-        if searched_username.get("password") != password:
+        searched_user_password = searched_username.get("password")
+        #if hashlib.sha256(password.encode()) != searched_user_password:
+        if password != searched_user_password:
             return {"error": "Invalid password"}, 400
         
         
         user = load_user(searched_username["username"])
         login_user(user, remember=True)
-        addUserToActiveUsers(user)
+        add_user_to_active_users(user)
         app.logger.info("login_user() - User logged in successfully")
         return jsonify({"message": f"{user.get_id()} logged in successfully"}), 201
     except Exception as e:
@@ -220,8 +255,7 @@ def update_user_list() -> jsonify:
 @socketio.on('register_user')
 def handle_registration(data):
     print(f"handle_connection - event register_user hit - {data}")
-    # addUserToActiveUsers(load_user(data.get('userID'))) this is handled in signup and login routes
-    addUserToActiveUserSockets(load_user(data.get('userID')), request.sid)
+    add_user_to_active_users_sockets(load_user(data.get('userID')), request.sid)
     print(f"{data.get('userID')} has connected to the server")
     print(f"Active Users: {active_user_sockets}")
     emit("user_joined", data.get('userID'), broadcast=True)
@@ -254,7 +288,7 @@ def handle_respond_invite(data):
     app.logger.info(f"{invitee} has {response} {inviter}'s invite")
 
     if (response == "accepted"):
-        game_id = generateGameID()
+        game_id = generate_game_ID()
         app.logger.info(f"Game ID for {inviter} and {invitee}: {game_id}")
         socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response, "game_id": game_id})
     else:
@@ -301,7 +335,10 @@ def join_a_game(data):
 #handles making a move on the backend by checking winning conditions
 @socketio.on('make_move')
 def make_a_move(data):
+    print(request)
     game_id = data.get('game_id')
+
+    # rooms(get his socket id) this will return the list of rooms the player is in. Ideally list of 1, grab that and update the board for that game
 
     player_socket_id = active_user_sockets[data.get('player')]
     if games[game_id].get_current_turn() == player_socket_id:
@@ -321,7 +358,7 @@ def make_a_move(data):
     else:
         print(f"It is not {data.get('player')}'s turn")
 
-#makes a new game if players want to play again
+#makes a new game if players want to play again #sending twice from client??
 @socketio.on('new_game')
 def play_again(data):
     game_id = data['game_id']
@@ -336,6 +373,11 @@ if __name__ == "__main__":
     else:
         port_number = 5000
 
-    updateEnvFile(ip_address, port_number)
+    update_env_file(ip_address, port_number)
+    # if run_server_tests() is True:
+    #     socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
+    # else:
+    #     quit()
 
+    # DELETE AFTER PASSWORD ISSUES
     socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
