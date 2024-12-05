@@ -2,13 +2,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useContext} from 'react';
 import { SocketContext } from '../../SocketProvider';
 import { toast } from 'react-hot-toast';
+import axios from "axios";
 import './GamePlay.css';
 import circle_pic from '../Images/circle.png';
 import x_pic from '../Images/x.png';
+import { useApi } from '../../apiContext';
 import cookie from '../utils/cookie';
 
 //page for playing a game of tic tac toe
-const GamePlay = ({ currentUser, setCurrentUser }) => {
+const GamePlay = ({ currentUser, setCurrentUser, activeUsers, setActiveUsers }) => {
+    const [menuOpen, setMenuOpen] = useState(false);
     const { gameId } = useParams();
     let [count, setCount] = useState(0);
     let [lock, setLock] = useState(false);
@@ -18,7 +21,14 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
     const socket = useContext(SocketContext);
     console.log(currentUser);
 
-    //handles the response to playing again after a win or draw
+    const apiUrl = useApi();
+    const toggleMenu = () => setMenuOpen(!menuOpen);
+
+    /* playAgain()
+        @param None
+        @brief toast to notify players of a win or draw and quieries to play again
+        @return response to the quiery of quit or play again
+    */
     const playAgain = async (game_state) => {
         const won = game_state['won'];
         const player = game_state['player'];
@@ -66,6 +76,43 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
             );
     };
 
+    /* handleLogout()
+        @param None
+        @brief When the user quits the page or clicks the Logout button, they send a request to logout
+        of the server and are navigated to the main page.
+        @return None
+    */
+    const handleLogout = () => {
+        console.log("Logging out user " + currentUser.userID);
+        socket.emit('logout_user', currentUser.userID);
+        axios.post(apiUrl + '/logout', {"user_id": currentUser.userID})
+        .then(response => {
+            if (response.status === 200) {
+                toast.success("Logged out!");
+                console.log("Index of user logging out: " + activeUsers.indexOf(currentUser.userID));
+                delete activeUsers[activeUsers.indexOf(currentUser.userID)];
+                console.log("Active users after handleLogout: " + activeUsers);
+                navigate('/');
+            }
+            console.log("Cookie after logging out: " + cookie);
+            console.log("CurrentUser object after logging out: " + currentUser);
+        }).catch(error => {
+            toast.error("Error logging out. " + error.message)
+            if (error.response) {
+                console.error('Error response data:', error.response.data);
+                console.error('Error status:', error.response.status);
+            } else if (error.request) {
+                console.error('Error request:', error.request);
+            } else {
+                console.error('Error message:', error.message);
+            }
+        });
+    };
+
+    useEffect(() => { 
+        sessionStorage.setItem('isPageLoaded', 'true');
+    }, []);
+
     //listens for socket events like joining a game or making a move
     useEffect(() => {
         socket.emit('join_game', { 'gameId': gameId, 'user': currentUser.userID });
@@ -77,6 +124,7 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
             console.log(`current user: ${currentUser}`);
         });
 
+        // updates the frontend board and handles play again or quit if game ends
         socket.on('move_made', async(data) =>{
             const index = data['index'];
             const player_symbol = data['player_symbol'];
@@ -89,7 +137,6 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
                 return newBoard;
             });
 
-            console.log(board)
             if (count == 0)
                 setCount((prevCount) => prevCount + 1);
             if (won === 'True' || won === 'Draw') {
@@ -107,10 +154,38 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
             }
         });
 
+        // notifies players if someone leaves while on the game play page
+        socket.on('user_left', async(leftUser) => {
+            console.log(`User left: ${leftUser}`);
+            setActiveUsers((prevUsers) => prevUsers.filter((activeUsers) => activeUsers !== leftUser));
+            if (leftUser != currentUser.userID) {
+                toast.error(`${leftUser} disconnected from the server`);
+            }
+        });
+
+        const handleBeforeUnload = (e) => {
+            sessionStorage.setItem('isClosing', 'true');
+            setTimeout(() => { sessionStorage.removeItem('isClosing'); }, 100); // Slight delay to ensure the flag is cleared on refresh
+            e.preventDefault();
+            e.returnValue = "data will get lost";
+        }; // End handleBeforeUnload
+
+        const handleUnload = () => {
+            if (sessionStorage.getItem('isClosing') === 'true') {
+              handleLogout();
+            }
+        }; // End handleUnload
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('unload', handleUnload);
+
         return () => {
             socket.emit('leave_game', { gameId });
             socket.off('load_board');
             socket.off('move_made');
+            socket.off('user_left');
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('unload', handleUnload);
         };
     }, [socket]);
 
@@ -126,6 +201,14 @@ const GamePlay = ({ currentUser, setCurrentUser }) => {
     //returns the current game state
     return(
         <div className="CONTAINER">
+            <nav className="navbar">
+                <div className="menu-icon" onClick={toggleMenu}>
+                    &#9776;
+                </div>
+                {menuOpen && (<ul className="menu">
+                    <li><button onClick={handleLogout}>Logout</button></li>
+                </ul>)}
+            </nav>
             <h1 className="title">Play Game!</h1>
             <div className="board">
                 {board.map((cell, index) => (

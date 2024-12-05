@@ -17,6 +17,7 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins="*", manage_session=True, logger=True) # the only accepted origin is our front end server
 CORS(app, origins='*', supports_credentials=True)
 
+# Defines the logger to write to a file in the backend called 'app.log'
 logging.basicConfig(
     filename='app.log',
     filemode='w',
@@ -27,6 +28,7 @@ logging.basicConfig(
 app.logger.info("congfig.py - Flask app created")
 app.logger.info("congfig.py - Establishing connection to database")
 
+# Connects app to the database for logging in and signing up
 try:
     client = MongoClient('mongodb+srv://erinktaketa:Tictactoe123!@tictactoedb.l8kom.mongodb.net/?retryWrites=true&w=majority&appName=TicTacToeDB')
     app.logger.info("congfig.py - Successfully connected to database.")
@@ -37,6 +39,7 @@ except Exception as e:
 
 db = client['TicTacToeDB']
 
+# Creates user collection
 try:
     db['users'].create_index("username", unique=True)
     db['users'].create_index("email", unique=True)

@@ -152,7 +152,6 @@ def create_user() -> jsonify:
             app.logger.error("create_user() - email in use for another account")
             return jsonify({"error": "Email already exists. Please choose another."}), 400
               
-        # hashed_password = hashlib.sha256(password.encode())  # hash the password
         hashed_password = password
 
         newUser = {
@@ -161,13 +160,14 @@ def create_user() -> jsonify:
             "password": hashed_password
         }
 
+        # inserts new user into the database, so they can login when they visit the database next time
         try:
             db['users'].insert_one(newUser)
             user = load_user(db['users'].find_one({"username": username})["username"])
             login_user(user, remember=True)
             add_user_to_active_users(user)
             app.logger.info("create_user() - User created and added to database successfully")
-            return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
+            return jsonify({"message": "User created successfully"}), 201
         except Exception as e:
             app.logger.error(f"create_user() - Error inserting user into database - {e}")
             return jsonify({"error": "Bad request"}), 400
@@ -248,10 +248,9 @@ def logout() -> jsonify:
     try: 
         print(f"Inside of try block in logout route")       
         data = request.get_json()
-        user = load_user(data.get('username'))
+        user = load_user(data.get('user_id'))
         print(f"User ID: {user.get_id()}")
         logout_user(user)
-        # TODO: emit a message to everyone in the server/lobby that this client has left
         app.logger.info(f"logout_user() - {user.get_id()} logged out successfully")
         return jsonify({"message": f"{user.get_id()} logged out successfully"}), 200
     except Exception as e:
@@ -333,7 +332,7 @@ def handle_send_invite(data):  # send the invite to the invitee
 # the person they invited has declined their invite and they stay in the lobby.
 # @return 'handle_invite_response' event depending on if the invitee accepeted or declined the invite
 @socketio.on('invite_response')
-def handle_respond_invite(data):   # send the response from the invitee back to the inviter
+def handle_respond_invite(data):
     invitee = data.get('invitee')
     inviter = data.get('inviter')
     response = data.get('response')

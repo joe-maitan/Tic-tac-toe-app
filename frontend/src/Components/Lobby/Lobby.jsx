@@ -10,9 +10,8 @@ import cookie from '../utils/cookie';
 import './Lobby.css';
 
 //page for lobby
-const Lobby = ({ currentUser, setCurrentUser }) => {
+const Lobby = ({ currentUser, setCurrentUser, activeUsers, setActiveUsers }) => {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [activeUsers, setActiveUsers] = useState([]);
     const navigate = useNavigate();
 
     const toggleMenu = () => setMenuOpen(!menuOpen);
@@ -58,8 +57,6 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
                 console.log("Index of user logging out: " + activeUsers.indexOf(currentUser.userID));
                 delete activeUsers[activeUsers.indexOf(currentUser.userID)];
                 console.log("Active users after handleLogout: " + activeUsers);
-                // cookie.delete("currentUser", JSON.stringify(currentUser));
-                // setCurrentUser(null);
                 navigate('/');
             }
 
@@ -68,12 +65,12 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
         }).catch(error => {
             toast.error("Error logging out. " + error.message)
             if (error.response) {
-              console.error('Error response data:', error.response.data);
-              console.error('Error status:', error.response.status);
+                console.error('Error response data:', error.response.data);
+                console.error('Error status:', error.response.status);
             } else if (error.request) {
-              console.error('Error request:', error.request);
+                console.error('Error request:', error.request);
             } else {
-              console.error('Error message:', error.message);
+                console.error('Error message:', error.message);
             }
         });
     };
@@ -171,8 +168,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
     useEffect(() => {
       const handleInvites = async () => {
         
-        // await handleRegisterUser();
-        
+        // update active users list on the frontend when another player join lobby
         socket.on('user_joined', async(newUser) => {
             console.log(`User joined: ${newUser}`);
             setActiveUsers((prevUsers) => {
@@ -181,6 +177,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
             });
         });
 
+        // update active users list on the frontend when a player leaves the lobby
         socket.on('user_left', async(leftUser) => {
             console.log(`User left: ${leftUser}`);
             setActiveUsers((prevUsers) => prevUsers.filter((activeUsers) => activeUsers !== leftUser));
@@ -224,7 +221,7 @@ const Lobby = ({ currentUser, setCurrentUser }) => {
 
         const handleUnload = () => {
             if (sessionStorage.getItem('isClosing') === 'true') {
-              navigator.sendBeacon(`${serverURL}${basePath}/logout`, '');
+              handleLogout();
             }
         }; // End handleUnload
 
