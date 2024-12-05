@@ -68,22 +68,6 @@ def add_user_to_active_users_sockets(user: User, socket_id: str) -> None:
         print(f"User {user.get_id()} is already in the active user sockets list.")
 
 
-#handles users disconnecting from the server
-def logout_user(user: User) -> None:
-    print(f"logout_user() - Current active users list {active_users}")
-    for temp_user in active_users:
-        if temp_user.get_id() == user.get_id():
-            print(f"logout_user() - {user} is being removed from active_users list")
-            active_users.remove(temp_user)
-            print(f"logout_user() - After removal of the user active users list {active_users}")
-            print(f"logout_user() - {user.get_id()} removed from active_users list")
-
-    print(f"logout_user() - Current active user sockets list {active_user_sockets}")
-    if user in active_user_sockets:
-        print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
-        active_user_sockets.pop(user.get_id())
-
-
 # generate_game_ID() 
 # @param None
 # @brief Generates a unique game ID for the new game created
@@ -92,7 +76,10 @@ def generate_game_ID() -> str:
     return str(uuid.uuid4())
 
 
-#loads use from the data base
+# load_user(user_id)
+# @param user_id This is the users username that we use to uniquely identify them
+# @return A user object with that user id stored or None if we dont have a user with that 
+# username in our database
 @login_manager.user_loader
 def load_user(user_id: str) -> User:
     user_data = db['users'].find_one({"username": user_id})
@@ -103,14 +90,20 @@ def load_user(user_id: str) -> User:
     return None
 
 
-#default route
+# hello_world()
+# @brief default app route for testing the website
 @app.route("/")
 def hello_world() -> jsonify:
     app.logger.info("Index route was hit")
     return jsonify({"message": "Hello, World!"}), 200
 
 
-#signup route if user does not have an account
+# create_user()
+# @param None
+# @brief This is the function for our app route of signup. This route only takes POST requests and will return whatever message
+# appropriate based on the criteria. This function is in charge of creating the users account if the account does not exist, email is not 
+# already in use, and username is not already in use.
+# @return A jsonify object with the appropriate response message and status code
 @app.route("/signup", methods=["POST"])
 def create_user() -> jsonify:
     app.logger.info("/signup route was hit, creating a new user")
@@ -168,7 +161,10 @@ def create_user() -> jsonify:
         return jsonify({"error": "Internal server error"}), 500
     
 
-#login route - checks for valid username and password
+# def login()
+# @param None
+# @brief This is the function responsible for handling our login logic. This checks if a user exists in our system (does the username and password match)
+# @return a jsonify response based on the criteria met
 @app.route('/login', methods=["POST"])
 def login() -> jsonify:
     app.logger.info("/login route was hit, logging in a user")
@@ -206,7 +202,30 @@ def login() -> jsonify:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
 
-#logout route - logs user out
+
+# logout_user(user)
+# @param a user Object that we use to check if the user is a active user.
+# @brief if the user object is in either of the lists, this function will remove them from those lists
+# @return None
+def logout_user(user: User) -> None:
+    print(f"logout_user() - Current active users list {active_users}")
+    for temp_user in active_users:
+        if temp_user.get_id() == user.get_id():
+            print(f"logout_user() - {user} is being removed from active_users list")
+            active_users.remove(temp_user)
+            print(f"logout_user() - After removal of the user active users list {active_users}")
+            print(f"logout_user() - {user.get_id()} removed from active_users list")
+
+    print(f"logout_user() - Current active user sockets list {active_user_sockets}")
+    if user in active_user_sockets:
+        print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
+        active_user_sockets.pop(user.get_id())
+
+
+# def logout()
+# @param None
+# @brief This is the function responsible for handling our logout logic. We use logout_user(user) to help with this logic.
+# @return a jsonify response based on if the user was able to successfully log out or not.
 @app.route('/logout', methods=["POST"])
 def logout() -> jsonify:
     print(f"logout route hit")
@@ -225,7 +244,8 @@ def logout() -> jsonify:
         return {"error": "Invalid JSON"}, 400
        
 
-
+# profile()
+# @brief another method/route made for testing the Flask app
 @app.route('/profile', methods=["GET"])
 @login_required
 def profile() -> jsonify:
@@ -234,6 +254,7 @@ def profile() -> jsonify:
         return jsonify({"user_id": user_id, "is_authenticated": current_user.is_authenticated}), 200
     else:
         return jsonify({"error": "User not authenticated"}), 401
+
 
 #updates active user list
 @app.route('/active_users', methods=["GET"])
@@ -245,6 +266,7 @@ def update_user_list() -> jsonify:
     app.logger.info("/active_users route was hit, updating the list of active users")
     return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
     
+
 #registers user
 @socketio.on('register_user')
 def handle_registration(data):
@@ -259,6 +281,7 @@ def handle_registration(data):
 def log_out(user):
     print(f"{user} is disconnecting from the server")
     emit("user_left", user, broadcast=True)
+
 
 #keeps track of who invited who and stores data for later use
 @socketio.on('send_invite')
@@ -349,6 +372,7 @@ def make_a_move(data):
         games[game_id].switch_turn()
     else:
         print(f"It is not {data.get('player')}'s turn")
+
 
 #makes a new game if players want to play again #sending twice from client??
 @socketio.on('new_game')
