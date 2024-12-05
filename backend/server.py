@@ -1,3 +1,12 @@
+##
+# @file server.py
+# 
+# @brief Defines the server class.
+# 
+# This is the server class. It boots up the Flask app
+# and processes all of the routes we have programmed on the client
+
+# imports
 import sys
 import socket
 import uuid
