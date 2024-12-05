@@ -1,6 +1,9 @@
+# Allows convienient start up by installing everything needed to run the frontend and then running it once successful
+
 import subprocess
 
 def run_command_realtime(command):
+    # try/catch for a graceful Ctrl C exit instead of error
     try:
         process = subprocess.Popen(command, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         for line in process.stdout:
@@ -12,5 +15,5 @@ def run_command_realtime(command):
     except KeyboardInterrupt:
         print("Disconnecting from backend")
 
-# Run the commands
+# Runs the frontend install commands then starts up the program
 run_command_realtime("./set_environment.sh")

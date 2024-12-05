@@ -105,7 +105,7 @@ class Game():
     # make_move(player, position)
     # @param player who made the move
     # @param position that was picked on the board
-    # @brief Check if the move is valid, if it is, fill the space and update the board
+    # @brief Check if the move is valid, if it is, call update board
     # @return board update
     def make_move(self, player, position):
         if self.board[position] != "":
@@ -114,23 +114,29 @@ class Game():
         return self.update_board(position, player)
 
 
-    # make_move(player, position)
-    # @param player who made the move
+    # update_board(position, player)
     # @param position that was picked on the board
-    # @brief Check if the move is valid, if it is, fill the space and update the board
-    # @return board update
+    # @param player who made a move
+    # @brief updates the board with X or O depending on the player and position then calls check winner
+    # @return check_winner results
     def update_board(self, position, player):
         self.board[position] = self.get_player_symbol(player)
         return self.check_winner(self.get_player_symbol(player))
 
-
+    # check_winner(player)
+    # @param player to check winning condition
+    # @brief calls methods to check if there was a win in a row, column, or diagonal
+    # @return True if player won, Draw if there was a draw
     def check_winner(self, player):
         if (self.checkRows(player) or self.checkCols(player) or self.checkDiagonals(player)):
             return 'True'
         if "" not in self.board:
             return 'Draw'
         
-
+    # checkRows(player)
+    # @param player to check winning condition
+    # @brief checks all rows to see if player won
+    # @return True if player won, False if not
     def checkRows(self, player):
         if self.board[0] == player and self.board[1] == player and self.board[2] == player:
             return True
@@ -140,7 +146,10 @@ class Game():
             return True
         return False
     
-
+    # checkCols(player)
+    # @param player to check winning condition
+    # @brief checks all columns to see if player won
+    # @return True if player won, False if not
     def checkCols(self, player):
         if self.board[0] == player and self.board[3] == player and self.board[6] == player:
             return True
@@ -150,7 +159,10 @@ class Game():
             return True
         return False
     
-
+    # checkDiagonals(player)
+    # @param player to check winning condition
+    # @brief checks all diagonals to see if player won
+    # @return True if player won, False if not
     def checkDiagonals(self, player):
         if self.board[0] == player and self.board[4] == player and self.board[8] == player:
             return True

@@ -168,8 +168,7 @@ const Lobby = ({ currentUser, setCurrentUser, activeUsers, setActiveUsers }) => 
     useEffect(() => {
       const handleInvites = async () => {
         
-        // await handleRegisterUser();
-        
+        // update active users list on the frontend when another player join lobby
         socket.on('user_joined', async(newUser) => {
             console.log(`User joined: ${newUser}`);
             setActiveUsers((prevUsers) => {
@@ -178,6 +177,7 @@ const Lobby = ({ currentUser, setCurrentUser, activeUsers, setActiveUsers }) => 
             });
         });
 
+        // update active users list on the frontend when a player leaves the lobby
         socket.on('user_left', async(leftUser) => {
             console.log(`User left: ${leftUser}`);
             setActiveUsers((prevUsers) => prevUsers.filter((activeUsers) => activeUsers !== leftUser));

@@ -46,6 +46,7 @@ const LoginSignup = ({ setCurrentUser }) => {
             }
           })
           .catch(error => {
+            // notifies the user that their info was incorrect
             toast.error("Error logging in - " + error.response.data['error']);
             if (error.response) {
               console.error('Error response data:', error.response.data);

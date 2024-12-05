@@ -1,3 +1,4 @@
+/* Stylization for the App */
 .header {
     display: flex;
     flex-direction: column;
@@ -49,7 +50,6 @@
     background-color: #555;
   }
   
-  /* Dropdown Styles */
   .dropdown {
     position: relative;
   }
@@ -81,7 +81,6 @@
     background-color: #666;
   }
   
-  /* Menu Icon */
   .menu-icon {
     font-size: 24px;
     cursor: pointer;
