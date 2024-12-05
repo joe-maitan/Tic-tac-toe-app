@@ -20,9 +20,9 @@ from config import socketio, app, login_manager, db
 from User import *
 
 
-active_user_sockets = {}  # dictionary of active users {user_id: "socket_id"}
-active_users = []  # list of active user objects
-games = {}
+active_user_sockets = {}  # Dictionary of active users {user_id: "socket_id"}
+active_users = []  # List of active user objects
+games = {}  # Dictionary of games {game_id: game_object}
 
 
 # update_env_file(host, port)
@@ -424,12 +424,13 @@ def make_a_move(data):
         print(f"It is not {data.get('player')}'s turn")
 
 
-# play_again(data)  # possibly being sent twice from the client??
+# play_again(data)  
 # @param data, which is the data recieved from the socket
 # @brief When the players are prompted to play again, this resets the board of the game room they are currently in and resets whose turn it is.
 # @ return None
 @socketio.on('new_game')
 def play_again(data):
+    # possibly being sent twice from the client??
     game_id = data['game_id']
     games[game_id].reset_game_board()
 
