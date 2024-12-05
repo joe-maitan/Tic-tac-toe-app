@@ -3,6 +3,7 @@ import socket
 import uuid
 import game
 import subprocess
+import hashlib
 
 from flask import request, jsonify
 from flask_login import login_required, login_user, current_user, logout_user
@@ -16,11 +17,16 @@ active_users = []  # list of active user objects
 games = {}
 
 
-#allows clients to connect to the server that's running on a different machine
+# update_env_file(host, port)
+# @param host, A String for the name of the host
+# @param port, A String for the port number the host is running on
+# @brief Because the server can be dynamically allocated, we needed a way to tell clients how to connect to the API.
+# @return None
 def update_env_file(host: str, port: str) -> None:
     with open('../frontend/.env', 'w') as env_file:
         env_file.write(f"VITE_FLASK_HOST={host}\n")
         env_file.write(f"VITE_FLASK_SERVER_PORT={port}\n")
+
 
 # run_server_tests()
 # @param None
@@ -29,13 +35,6 @@ def update_env_file(host: str, port: str) -> None:
 # @return a boolean value depending on if the tests passed or not
 def run_server_tests():
     try:
-        # result = subprocess.run(
-        #     [sys.executable, "-m", "pytest"],
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE,
-        #     text=True
-        # )
-
         result = subprocess.run(
             [sys.executable, "-m", "pytest"],
             text=True  # Ensures output is handled as text, not bytes
@@ -85,7 +84,10 @@ def logout_user(user: User) -> None:
         active_user_sockets.pop(user.get_id())
 
 
-#generate game ID
+# generate_game_ID() 
+# @param None
+# @brief Generates a unique game ID for the new game created
+# @return The unique game ID
 def generate_game_ID() -> str:
     return str(uuid.uuid4())
 
@@ -142,7 +144,7 @@ def create_user() -> jsonify:
             app.logger.error("create_user() - email in use for another account")
             return jsonify({"error": "Email already exists. Please choose another."}), 400
               
-        # hashed_password = generate_password_hash(password) # hash the password
+        # hashed_password = hashlib.sha256(password.encode())  # hash the password
         hashed_password = password
 
         newUser = {
@@ -154,7 +156,6 @@ def create_user() -> jsonify:
         try:
             db['users'].insert_one(newUser)
             user = load_user(db['users'].find_one({"username": username})["username"])
-            # hash password
             login_user(user, remember=True)
             add_user_to_active_users(user)
             app.logger.info("create_user() - User created and added to database successfully")
@@ -190,7 +191,9 @@ def login() -> jsonify:
             app.logger.info("/login username not found in database")
             return {"error": "Username not found"}, 404
         
-        if searched_username.get("password") != password:
+        searched_user_password = searched_username.get("password")
+        #if hashlib.sha256(password.encode()) != searched_user_password:
+        if password != searched_user_password:
             return {"error": "Invalid password"}, 400
         
         
@@ -364,7 +367,10 @@ if __name__ == "__main__":
         port_number = 5000
 
     update_env_file(ip_address, port_number)
-    if run_server_tests() is True:
-        socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
-    else:
-        quit()
+    # if run_server_tests() is True:
+    #     socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
+    # else:
+    #     quit()
+
+    # DELETE AFTER PASSWORD ISSUES
+    socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API

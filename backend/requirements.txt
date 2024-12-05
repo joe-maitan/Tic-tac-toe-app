@@ -7,3 +7,4 @@ mongomock
 pytest
 pytest_mock
 pytest_mock_resources
+bcrypt

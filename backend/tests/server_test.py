@@ -15,6 +15,7 @@ player2 = {
     "username": "erin",
     "socketID": 9012
 }
+
 default_game = game.Game(1234, player1, player2)
 
 
