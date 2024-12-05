@@ -328,7 +328,6 @@ def join_a_game(data):
 #handles making a move on the backend by checking winning conditions
 @socketio.on('make_move')
 def make_a_move(data):
-    print(request)
     game_id = data.get('game_id')
 
     # rooms(get his socket id) this will return the list of rooms the player is in. Ideally list of 1, grab that and update the board for that game
@@ -367,10 +366,7 @@ if __name__ == "__main__":
         port_number = 5000
 
     update_env_file(ip_address, port_number)
-    # if run_server_tests() is True:
-    #     socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
-    # else:
-    #     quit()
-
-    # DELETE AFTER PASSWORD ISSUES
-    socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
+    if run_server_tests() is True:
+        socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
+    else:
+        quit()
