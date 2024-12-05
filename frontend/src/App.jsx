@@ -13,6 +13,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeUsers, setActiveUsers] = useState([]);
   
+  // allows users to navigate to different jsx pages and defines toast notification format
   return (
     <>
     

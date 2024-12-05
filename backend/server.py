@@ -1,3 +1,9 @@
+##
+# @file server.py
+# 
+# @brief Defines the config for the Flask app.
+
+# Imports
 import sys
 import socket
 import uuid
@@ -14,7 +20,7 @@ from User import *
 
 active_user_sockets = {}  # dictionary of active users {user_id: "socket_id"}
 active_users = []  # list of active user objects
-games = {}
+games = {} # dictionary of games
 
 
 # update_env_file(host, port)
@@ -146,7 +152,6 @@ def create_user() -> jsonify:
             app.logger.error("create_user() - email in use for another account")
             return jsonify({"error": "Email already exists. Please choose another."}), 400
               
-        # hashed_password = hashlib.sha256(password.encode())  # hash the password
         hashed_password = password
 
         newUser = {
@@ -155,13 +160,14 @@ def create_user() -> jsonify:
             "password": hashed_password
         }
 
+        # inserts new user into the database, so they can login when they visit the database next time
         try:
             db['users'].insert_one(newUser)
             user = load_user(db['users'].find_one({"username": username})["username"])
             login_user(user, remember=True)
             add_user_to_active_users(user)
             app.logger.info("create_user() - User created and added to database successfully")
-            return jsonify({"message": "User created successfully"}), 201 # This is the status code for created
+            return jsonify({"message": "User created successfully"}), 201
         except Exception as e:
             app.logger.error(f"create_user() - Error inserting user into database - {e}")
             return jsonify({"error": "Bad request"}), 400
@@ -170,7 +176,7 @@ def create_user() -> jsonify:
         return jsonify({"error": "Internal server error"}), 500
     
 
-#login route - checks for valid username and password
+#login route - checks for valid username and password in the database
 @app.route('/login', methods=["POST"])
 def login() -> jsonify:
     app.logger.info("/login route was hit, logging in a user")
@@ -225,8 +231,7 @@ def logout() -> jsonify:
         app.logger.error(f"logout_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
        
-
-
+# profile route - checks if the user is authenticated
 @app.route('/profile', methods=["GET"])
 @login_required
 def profile() -> jsonify:
@@ -255,7 +260,7 @@ def handle_registration(data):
     print(f"Active Users: {active_user_sockets}")
     emit("user_joined", data.get('userID'), broadcast=True)
 
-
+# logs user out if they exit from the browser
 @socketio.on('logout_user')
 def log_out(user):
     print(f"{user} is disconnecting from the server")
@@ -272,9 +277,10 @@ def handle_send_invite(data):  # send the invite to the invitee
     socketio.emit('invite_recieved', {"inviter": inviter}, to=invitee_socket_id)
 
 
-#handle invite response and logs the data
+# handle invite response and logs the data
+# send the response from the invitee back to the inviter
 @socketio.on('invite_response')
-def handle_respond_invite(data):   # send the response from the invitee back to the inviter
+def handle_respond_invite(data):
     invitee = data.get('invitee')
     inviter = data.get('inviter')
     response = data.get('response')

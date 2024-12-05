@@ -24,7 +24,11 @@ const GamePlay = ({ currentUser, setCurrentUser, activeUsers, setActiveUsers }) 
     const apiUrl = useApi();
     const toggleMenu = () => setMenuOpen(!menuOpen);
 
-    //handles the response to playing again after a win or draw
+    /* playAgain()
+        @param None
+        @brief toast to notify players of a win or draw and quieries to play again
+        @return response to the quiery of quit or play again
+    */
     const playAgain = async (game_state) => {
         const won = game_state['won'];
         const player = game_state['player'];
@@ -120,6 +124,7 @@ const GamePlay = ({ currentUser, setCurrentUser, activeUsers, setActiveUsers }) 
             console.log(`current user: ${currentUser}`);
         });
 
+        // updates the frontend board and handles play again or quit if game ends
         socket.on('move_made', async(data) =>{
             const index = data['index'];
             const player_symbol = data['player_symbol'];
@@ -132,7 +137,6 @@ const GamePlay = ({ currentUser, setCurrentUser, activeUsers, setActiveUsers }) 
                 return newBoard;
             });
 
-            console.log(board)
             if (count == 0)
                 setCount((prevCount) => prevCount + 1);
             if (won === 'True' || won === 'Draw') {
@@ -150,6 +154,7 @@ const GamePlay = ({ currentUser, setCurrentUser, activeUsers, setActiveUsers }) 
             }
         });
 
+        // notifies players if someone leaves while on the game play page
         socket.on('user_left', async(leftUser) => {
             console.log(`User left: ${leftUser}`);
             setActiveUsers((prevUsers) => prevUsers.filter((activeUsers) => activeUsers !== leftUser));
