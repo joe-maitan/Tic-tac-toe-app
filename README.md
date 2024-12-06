@@ -80,6 +80,7 @@ We developed this using Google Chrome, finding it was the most friendly web brow
    - Informative error messages will occur if user input is not what was expected like invalid password or username as an example.
    - The Client will throw an error if the request/response is missing data.
    - The server/backend uses pytest to test the functionality of the server/flask app.
+   - The app now logs to an app.log file created/overwritten on running the server.py script.
 2. Integration Testing
    - Tests gamemoves/updating of the board state is also done with pytest on the backend.
    - Tests invalid moves on the board behave correctly.
