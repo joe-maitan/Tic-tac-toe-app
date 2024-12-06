@@ -372,3 +372,24 @@ def test_draw_win_condition():
     assert default_game.check_winner(default_game.player1['symbol']) == 'Draw'
     assert default_game.check_winner(default_game.player2['symbol']) == 'Draw'
     default_game.reset_game_board()
+
+
+def test_make_move_invalid_positions():
+    assert default_game.make_move(player1['username'], -1) == "Move out of bounds"
+    assert default_game.make_move(player1['username'], 9) == "Move out of bounds"
+    # default_game.reset_game_board()
+
+
+def test_make_move_taken_position():
+    default_game.make_move(player1['username'], 0)
+    assert default_game.make_move(player2['username'], 0) == "Invalid move"
+    default_game.reset_game_board()
+
+
+def test_make_move_taken_position_same_symbol():
+    default_game.make_move(player1['username'], 0)
+    default_game.make_move(player2['username'], 1)
+    default_game.make_move(player1['username'], 2)
+    assert default_game.get_game_board() == ["X","O","X","","","","","",""]
+    assert default_game.make_move(player1['username'], 0) == "Invalid move"
+    assert default_game.get_game_board() == ["X","O","X","","","","","",""]
