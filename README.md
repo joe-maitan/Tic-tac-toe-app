@@ -148,6 +148,19 @@ C:\Users\jjmai\Documents\GitHub\Tic-tac-toe-app\frontend python3 client.py -i <h
 ```
 This client command will install all necessary dependencies. When the npm run dev is finished, you can click on the 'Network' option to be visibile to other hosts.
 
+# Features and Limitations
+## Features:
+- Setting up a working database to allow users to sign up and login whenever they please.
+- A working lobby that updates if users logout or leave.
+- From the lobby, users can invite other active users to play a game of Tic Tac Toe
+- Once accepted, the 2 players will be taken to a separate game room and complete a game of Tic Tac Toe with row, column, and diagonal wins.
+- If someone wins or there's a draw, they are prompted to play again or quit. Quitting navigates the player back to the lobby page.
+- You can logout of the website by pressing the menu icon, which will display a button to logout in the lobby or the game play page.
+
+## Limitations:
+- Security issues with how we handle user information in our code and database.
+- We do not notify a player if 1 player decides to hit quit the game and not play another round while the other one presses play again. We only notify if players logout and disconnect from the server. This issue is something we would definitely work on further.
+
 # Where we would take this project
 Joe:
 - I would try to fix some of the security issues such as being able to spam the login forms.
