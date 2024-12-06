@@ -72,7 +72,7 @@ def add_user_to_active_users(user: User) -> None:
     if user not in active_users:
         active_users.append(user)
     else:
-        print(f"User {user.get_id()} is already in the active users list.")
+        app.logger.info(f"User {user.get_id()} is already in the active users list.")
 
 
 # add_user_to_active_users(user)
@@ -84,7 +84,7 @@ def add_user_to_active_users_sockets(user: User, socket_id: str) -> None:
     if user not in active_user_sockets:
         active_user_sockets[user.get_id()] = socket_id
     else:
-        print(f"User {user.get_id()} is already in the active user sockets list.")
+        app.logger.info(f"User {user.get_id()} is already in the active user sockets list.")
 
 
 # generate_game_ID() 
@@ -227,17 +227,17 @@ def login() -> jsonify:
 # @brief if the user object is in either of the lists, this function will remove them from those lists
 # @return None
 def logout_user(user: User) -> None:
-    print(f"logout_user() - Current active users list {active_users}")
+    app.logger.info(f"logout_user() - Current active users list {active_users}")
     for temp_user in active_users:
         if temp_user.get_id() == user.get_id():
-            print(f"logout_user() - {user} is being removed from active_users list")
+            app.logger.info(f"logout_user() - {user} is being removed from active_users list")
             active_users.remove(temp_user)
-            print(f"logout_user() - After removal of the user active users list {active_users}")
-            print(f"logout_user() - {user.get_id()} removed from active_users list")
+            app.logger.info(f"logout_user() - After removal of the user active users list {active_users}")
+            app.logger.info(f"logout_user() - {user.get_id()} removed from active_users list")
 
-    print(f"logout_user() - Current active user sockets list {active_user_sockets}")
+    app.logger.info(f"logout_user() - Current active user sockets list {active_user_sockets}")
     if user in active_user_sockets:
-        print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
+        app.logger.info(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
         active_user_sockets.pop(user.get_id())
 
 
@@ -250,10 +250,10 @@ def logout() -> jsonify:
     print(f"logout route hit")
     app.logger.info("/logout route was hit, logging out a user")
     try: 
-        print(f"Inside of try block in logout route")       
+        app.logger.info(f"Inside of try block in logout route")       
         data = request.get_json()
         user = load_user(data.get('user_id'))
-        print(f"User ID: {user.get_id()}")
+        app.logger.info(f"User ID: {user.get_id()}")
         logout_user(user)
         app.logger.info(f"logout_user() - {user.get_id()} logged out successfully")
         return jsonify({"message": f"{user.get_id()} logged out successfully"}), 200
@@ -295,10 +295,10 @@ def update_user_list() -> jsonify:
 # @return another socket event depending on successful or unsuccessful registration of the user
 @socketio.on('register_user')
 def handle_registration(data):
-    print(f"handle_connection - event register_user hit - {data}")
+    app.logger.info(f"handle_connection - event register_user hit - {data}")
     add_user_to_active_users_sockets(load_user(data.get('userID')), request.sid)
-    print(f"{data.get('userID')} has connected to the server")
-    print(f"Active Users: {active_user_sockets}")
+    app.logger.info(f"{data.get('userID')} has connected to the server")
+    app.logger.info(f"Active Users: {active_user_sockets}")
     emit("user_joined", data.get('userID'), broadcast=True)
 
 
@@ -309,7 +309,7 @@ def handle_registration(data):
 # @return None
 @socketio.on('logout_user')
 def broadcast_logout(user):
-    print(f"{user} is disconnecting from the server")
+    app.logger.info(f"{user} is disconnecting from the server")
     emit("user_left", user, broadcast=True)
 
 
@@ -358,9 +358,7 @@ def handle_respond_invite(data):
 # @return 'game_created' socket event.
 @socketio.on('create_game')
 def create_a_game(data):
-    print(f"server.py - create_a_game() - event hit")
-    print(f"{data}")
-
+    app.logger.info(f"server.py - create_a_game() - event hit")
     game_id = data.get('game_id')
     
     player1_socketID = active_user_sockets[data.get('player1')]
@@ -393,7 +391,7 @@ def join_a_game(data):
     game_id = data.get('gameId')
     username = data.get('user')
     join_room(game_id)
-    print(f"{username} has joined game room with an id of {game_id}")
+    app.logger.info(f"{username} has joined game room with an id of {game_id}")
     emit('load_board', {'board': games[game_id].get_game_board(), 'user' : username}, to=game_id)
 
 
@@ -412,7 +410,7 @@ def make_a_move(data):
     if games[game_id].get_current_turn() == player_socket_id:
         index = data.get('index')
         player_name = data.get('player')
-        print(f"{player_name} is making a move")
+        app.logger.info(f"{player_name} is making a move")
         game_state = games[game_id].make_move(player_name, index)
 
         if game_state == 'True':
@@ -424,7 +422,7 @@ def make_a_move(data):
 
         games[game_id].switch_turn()
     else:
-        print(f"It is not {data.get('player')}'s turn")
+        app.logger.info(f"It is not {data.get('player')}'s turn")
 
 
 # play_again(data)  
