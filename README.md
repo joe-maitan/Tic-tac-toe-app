@@ -152,7 +152,12 @@ This client command will install all necessary dependencies. When the npm run de
 Joe:
 - I would try to fix some of the security issues such as being able to spam the login forms.
 - I see this project as being a great resume builder as we had to figure out how to set up our own database, learn frontend developement, and learn how to use Flask all in the span of a semester.
-- This project has beena culmination of all my skills and I am proud to say I am happy with where it is at.
+- This project has been a culmination of all my skills and I am proud to say I am happy with where it is at.
+
+Erin
+- Like, Joe I would definitely fix security risks and issues with how we are handling our users information and the security of the website as a whole.
+- I would also add more features that would be convienient for the users and making the website a little more aesthetically pleasing.
+- This project as a whole for me has been super challenging and frustrating at times, but in the end, I learned so much and I do not regret a thing. Pushing myself to do this has definitely expanded my coding skills, and I am also very proud of what we accomplished in the amount of time we had.
 
 # Retrospective
 ## What went right
