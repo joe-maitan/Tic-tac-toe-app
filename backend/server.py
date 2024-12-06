@@ -8,6 +8,7 @@
 
 # imports
 import sys
+import os
 import socket
 import uuid
 import game
@@ -42,18 +43,21 @@ def update_env_file(host: str, port: str) -> None:
 # This grabs whatever version of python you have and executes the tests
 # @return a boolean value depending on if the tests passed or not
 def run_server_tests():
+    if os.environ.get("RUNNING_TESTS") == "1":
+        # this is to fix the issue of the tests running recursively
+        return True
+
+    os.environ["RUNNING_TESTS"] = "1"  # Mark tests as running
+
     try:
         result = subprocess.run(
             [sys.executable, "-m", "pytest"],
             text=True  # Ensures output is handled as text, not bytes
         )
 
-        print("Test Output:\n", result.stdout)
         if result.returncode == 0:
-            print("Tests passed successfully!")
             return True
         else:
-            print("Tests failed!")
             return False
     except Exception as e:
         print(f"An error occurred while running tests: {e}")
@@ -443,7 +447,6 @@ if __name__ == "__main__":
         port_number = 5000
 
     update_env_file(ip_address, port_number)
-    if run_server_tests() is True:
+    if run_server_tests():
+        app.logger.info(f"Passed all unit tests. Running server logic...")
         socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
-    else:
-        quit()

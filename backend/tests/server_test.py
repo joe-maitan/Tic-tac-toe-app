@@ -1,20 +1,26 @@
+# imports
 import pytest
+import game
+from server import *
+
 from pymongo import MongoClient
 from pytest_mock_resources import create_mongo_fixture
 
 from flask import Flask
 from config import app, db
-from server import *
-import game
+
 
 player1 = {
     "username": "jjmaitan",
     "socketID": 5678
 }
+
+
 player2 = {
     "username": "erin",
     "socketID": 9012
 }
+
 
 default_game = game.Game(1234, player1, player2)
 
@@ -207,11 +213,13 @@ def test_game_constructor():
     assert default_game.player1['symbol'] == "X"
     assert default_game.player2['symbol'] == "O"
 
+
 def test_empty_board_win_condition():
     assert default_game.check_winner(default_game.player1['symbol']) != 'True'
     assert default_game.check_winner(default_game.player1['symbol']) != 'Draw'
     assert default_game.check_winner(default_game.player2['symbol']) != 'True'
     assert default_game.check_winner(default_game.player2['symbol']) != 'Draw'
+
 
 def test_basic_make_move():
     default_game.make_move(player1['username'], 0)
@@ -219,9 +227,11 @@ def test_basic_make_move():
     assert default_game.check_winner(default_game.player1['symbol']) != 'True'
     assert default_game.check_winner(default_game.player1['symbol']) != 'Draw'
 
+
 def test_switch_turn():
     default_game.switch_turn()
     assert default_game.get_current_turn() == 9012
+
 
 def test_complex_make_move():
     default_game.make_move(player2['username'], 8)
@@ -236,12 +246,14 @@ def test_complex_make_move():
     default_game.make_move(player1['username'], 3)
     assert default_game.board == ["X","O","X","X","","","","","O"]
 
+
 def test_no_win_condition():
     assert default_game.board == ["X","O","X","X","","","","","O"]
     assert default_game.check_winner(default_game.player1['symbol']) != 'True'
     assert default_game.check_winner(default_game.player1['symbol']) != 'Draw'
     assert default_game.check_winner(default_game.player2['symbol']) != 'True'
     assert default_game.check_winner(default_game.player2['symbol']) != 'Draw'
+
 
 def test_first_col_win_condition():
     default_game.switch_turn()
@@ -254,6 +266,7 @@ def test_first_col_win_condition():
     assert default_game.check_winner(default_game.player2['symbol']) != 'True'
     assert default_game.check_winner(default_game.player2['symbol']) != 'Draw'
 
+
 def test_invalid_move():
     assert default_game.make_move(player2['username'], 0) == 'Invalid move'
     assert default_game.board == ["X","O","X","X","","","X","O","O"]
@@ -262,9 +275,11 @@ def test_invalid_move():
     assert default_game.make_move(player1['username'], 3) == 'Invalid move'
     assert default_game.board == ["X","O","X","X","","","X","O","O"]
 
+
 def test_reset_board():
     default_game.reset_game_board()
     assert default_game.board == ["","","","","","","","",""]
+
 
 def test_second_col_win_condition():
     default_game.make_move(player2['username'], 1)
@@ -276,6 +291,7 @@ def test_second_col_win_condition():
     assert default_game.check_winner(default_game.player1['symbol']) != 'Draw'
     default_game.reset_game_board()
 
+
 def test_third_col_win_condition():
     default_game.make_move(player1['username'], 2)
     default_game.make_move(player1['username'], 5)
@@ -285,6 +301,7 @@ def test_third_col_win_condition():
     assert default_game.check_winner(default_game.player2['symbol']) != 'True'
     assert default_game.check_winner(default_game.player2['symbol']) != 'Draw'
     default_game.reset_game_board()
+
 
 def test_first_row_win_condition():
     default_game.make_move(player2['username'], 0)
@@ -296,6 +313,7 @@ def test_first_row_win_condition():
     assert default_game.check_winner(default_game.player1['symbol']) != 'Draw'
     default_game.reset_game_board()
 
+
 def test_second_row_win_condition():
     default_game.make_move(player1['username'], 3)
     default_game.make_move(player1['username'], 4)
@@ -305,6 +323,7 @@ def test_second_row_win_condition():
     assert default_game.check_winner(default_game.player2['symbol']) != 'True'
     assert default_game.check_winner(default_game.player2['symbol']) != 'Draw'
     default_game.reset_game_board()
+
 
 def test_third_row_win_condition():
     default_game.make_move(player2['username'], 6)
@@ -316,6 +335,7 @@ def test_third_row_win_condition():
     assert default_game.check_winner(default_game.player1['symbol']) != 'Draw'
     default_game.reset_game_board()
 
+
 def test_backslash_diagonal_win_condition():
     default_game.make_move(player1['username'], 0)
     default_game.make_move(player1['username'], 4)
@@ -326,6 +346,7 @@ def test_backslash_diagonal_win_condition():
     assert default_game.check_winner(default_game.player2['symbol']) != 'Draw'
     default_game.reset_game_board()
 
+
 def test_forwardslash_diagonal_win_condition():
     default_game.make_move(player2['username'], 2)
     default_game.make_move(player2['username'], 4)
@@ -335,6 +356,7 @@ def test_forwardslash_diagonal_win_condition():
     assert default_game.check_winner(default_game.player1['symbol']) != 'True'
     assert default_game.check_winner(default_game.player1['symbol']) != 'Draw'
     default_game.reset_game_board()
+
 
 def test_draw_win_condition():
     default_game.make_move(player1['username'], 0)
