@@ -1,15 +1,17 @@
 ##
 # @file server.py
 # 
-# @brief Defines the config for the Flask app.
+# @brief Defines the server class.
+# 
+# This is the server class. It boots up the Flask app
+# and processes all of the routes we have programmed on the client
 
-# Imports
+# imports
 import sys
 import socket
 import uuid
 import game
 import subprocess
-import hashlib
 
 from flask import request, jsonify
 from flask_login import login_required, login_user, current_user, logout_user
@@ -18,9 +20,9 @@ from config import socketio, app, login_manager, db
 from User import *
 
 
-active_user_sockets = {}  # dictionary of active users {user_id: "socket_id"}
-active_users = []  # list of active user objects
-games = {} # dictionary of games
+active_user_sockets = {}  # Dictionary of active users {user_id: "socket_id"}
+active_users = []  # List of active user objects
+games = {}  # Dictionary of games {game_id: game_object}
 
 
 # update_env_file(host, port)
@@ -58,7 +60,10 @@ def run_server_tests():
         return False
 
 
-#adds new user to active users list when entering lobby
+# add_user_to_active_users(user)
+# @param user, a user object
+# @brief Adds the user object to the active users list if they are not in the list
+# @return None
 def add_user_to_active_users(user: User) -> None:
     if user not in active_users:
         active_users.append(user)
@@ -66,30 +71,16 @@ def add_user_to_active_users(user: User) -> None:
         print(f"User {user.get_id()} is already in the active users list.")
 
 
-#adds new user to active sockets list when entering lobby
+# add_user_to_active_users(user)
+# @param user, a user object
+# @param socket_id, A string that represents the socket id
+# @brief pairs the user object to that socket id that sent the registration request, if they are already in the list, update the socketID
+# @return None
 def add_user_to_active_users_sockets(user: User, socket_id: str) -> None:
     if user not in active_user_sockets:
         active_user_sockets[user.get_id()] = socket_id
     else:
         print(f"User {user.get_id()} is already in the active user sockets list.")
-
-
-#handles users disconnecting from the server
-def logout_user(user: User) -> None:
-    print(f"logout_user() - Current active users list {active_users}")
-    for temp_user in active_users:
-        if temp_user.get_id() == user.get_id():
-            print(f"logout_user() - {user} is being removed from active_users list")
-            active_users.remove(temp_user)
-            print(f"logout_user() - After removal of the user active users list {active_users}")
-            print(f"logout_user() - {user.get_id()} removed from active_users list")
-
-    print(f"logout_user() - Current active user sockets list {active_user_sockets} before removal")
-    for temp_user in active_users:
-        if temp_user.get_id() == user.get_id():
-            print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
-            active_user_sockets.pop(user.get_id())
-            print(f"logout_user() - Current active user sockets list {active_user_sockets} after removal")
 
 
 # generate_game_ID() 
@@ -100,7 +91,10 @@ def generate_game_ID() -> str:
     return str(uuid.uuid4())
 
 
-#loads use from the data base
+# load_user(user_id)
+# @param user_id This is the users username that we use to uniquely identify them
+# @return A user object with that user id stored or None if we dont have a user with that 
+# username in our database
 @login_manager.user_loader
 def load_user(user_id: str) -> User:
     user_data = db['users'].find_one({"username": user_id})
@@ -111,14 +105,20 @@ def load_user(user_id: str) -> User:
     return None
 
 
-#default route
+# hello_world()
+# @brief default app route for testing the website
 @app.route("/")
 def hello_world() -> jsonify:
     app.logger.info("Index route was hit")
     return jsonify({"message": "Hello, World!"}), 200
 
 
-#signup route if user does not have an account
+# create_user()
+# @param None
+# @brief This is the function for our app route of signup. This route only takes POST requests and will return whatever message
+# appropriate based on the criteria. This function is in charge of creating the users account if the account does not exist, email is not 
+# already in use, and username is not already in use.
+# @return A jsonify object with the appropriate response message and status code
 @app.route("/signup", methods=["POST"])
 def create_user() -> jsonify:
     app.logger.info("/signup route was hit, creating a new user")
@@ -176,7 +176,10 @@ def create_user() -> jsonify:
         return jsonify({"error": "Internal server error"}), 500
     
 
-#login route - checks for valid username and password in the database
+# def login()
+# @param None
+# @brief This is the function responsible for handling our login logic. This checks if a user exists in our system (does the username and password match)
+# @return a jsonify response based on the criteria met
 @app.route('/login', methods=["POST"])
 def login() -> jsonify:
     app.logger.info("/login route was hit, logging in a user")
@@ -214,7 +217,30 @@ def login() -> jsonify:
         app.logger.error(f"login_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
 
-#logout route - logs user out
+
+# logout_user(user)
+# @param a user Object that we use to check if the user is a active user.
+# @brief if the user object is in either of the lists, this function will remove them from those lists
+# @return None
+def logout_user(user: User) -> None:
+    print(f"logout_user() - Current active users list {active_users}")
+    for temp_user in active_users:
+        if temp_user.get_id() == user.get_id():
+            print(f"logout_user() - {user} is being removed from active_users list")
+            active_users.remove(temp_user)
+            print(f"logout_user() - After removal of the user active users list {active_users}")
+            print(f"logout_user() - {user.get_id()} removed from active_users list")
+
+    print(f"logout_user() - Current active user sockets list {active_user_sockets}")
+    if user in active_user_sockets:
+        print(f"logout_user() - {user.get_id()} removed from active_user_sockets list")
+        active_user_sockets.pop(user.get_id())
+
+
+# def logout()
+# @param None
+# @brief This is the function responsible for handling our logout logic. We use logout_user(user) to help with this logic.
+# @return a jsonify response based on if the user was able to successfully log out or not.
 @app.route('/logout', methods=["POST"])
 def logout() -> jsonify:
     print(f"logout route hit")
@@ -231,7 +257,9 @@ def logout() -> jsonify:
         app.logger.error(f"logout_user() - Error parsing JSON {e}")
         return {"error": "Invalid JSON"}, 400
        
-# profile route - checks if the user is authenticated
+
+# profile()
+# @brief another method/route made for testing the Flask app
 @app.route('/profile', methods=["GET"])
 @login_required
 def profile() -> jsonify:
@@ -241,7 +269,12 @@ def profile() -> jsonify:
     else:
         return jsonify({"error": "User not authenticated"}), 401
 
-#updates active user list
+
+# update_user_list()
+# @param None
+# @brief This route is responsible for querying the backend to get the current list of active users with every render
+# of the lobby page.
+# @return a jsonify object with the appropraite message based on if there are active users or not
 @app.route('/active_users', methods=["GET"])
 def update_user_list() -> jsonify:
     if not active_users:  # Check if active_users is populated
@@ -251,7 +284,11 @@ def update_user_list() -> jsonify:
     app.logger.info("/active_users route was hit, updating the list of active users")
     return jsonify({"active_users": [user.get_id() for user in active_users]}), 200
     
-#registers user
+
+# handle_registration(data)
+# @param data, this is the data that is being sent with the socket event 'register_user'
+# @brief This registers the user who sent this request with that socket id that sent the request.
+# @return another socket event depending on successful or unsuccessful registration of the user
 @socketio.on('register_user')
 def handle_registration(data):
     print(f"handle_connection - event register_user hit - {data}")
@@ -260,13 +297,24 @@ def handle_registration(data):
     print(f"Active Users: {active_user_sockets}")
     emit("user_joined", data.get('userID'), broadcast=True)
 
-# logs user out if they exit from the browser
+
+# broadcast_logout(user)
+# @param user, which is the username of the user disconnecting
+# @brief this function is responsible for broadcasting to all the other users connected that
+# this specific user has left the server
+# @return None
 @socketio.on('logout_user')
-def log_out(user):
+def broadcast_logout(user):
     print(f"{user} is disconnecting from the server")
     emit("user_left", user, broadcast=True)
 
-#keeps track of who invited who and stores data for later use
+
+# handle_send_invite(data)
+# @param data, which is the data recieved from the socket
+# @brief This method handles the sending of invitations. This is done by grabbing the username of the inviter and invitee,
+# checking through the active users list, grabbing the invitee's socketID and sending the invite recieved event to them
+# specifically, letting them know who invited them.
+# @return 'invite_recieved' socket event
 @socketio.on('send_invite')
 def handle_send_invite(data):  # send the invite to the invitee
     inviter = data.get('inviter')
@@ -277,8 +325,12 @@ def handle_send_invite(data):  # send the invite to the invitee
     socketio.emit('invite_recieved', {"inviter": inviter}, to=invitee_socket_id)
 
 
-# handle invite response and logs the data
-# send the response from the invitee back to the inviter
+# handle_respond_invite(data)
+# @param data, which is the data recieved from the socket
+# @brief depending on if the invite is accepted or declined two different events will happen. If accepeted, a game is created and the
+# event 'handle_invite_response' carries an additional property of game id to redirect the client to. Else, the client is notified that
+# the person they invited has declined their invite and they stay in the lobby.
+# @return 'handle_invite_response' event depending on if the invitee accepeted or declined the invite
 @socketio.on('invite_response')
 def handle_respond_invite(data):
     invitee = data.get('invitee')
@@ -295,7 +347,11 @@ def handle_respond_invite(data):
         socketio.emit('handle_invite_response', {"invitee": invitee, "inviter": inviter, "response": response})
     
 
-#creates a new game when user's invite is accepted
+# create_a_game(data)
+# @param data, which is the data recieved from the socket
+# @brief creates a game with the username and socket id's of both players thanks to the invite response. This creation of the game lets
+# the client-side know to now imply the rules of the game/lets both players actually play now.
+# @return 'game_created' socket event.
 @socketio.on('create_game')
 def create_a_game(data):
     print(f"server.py - create_a_game() - event hit")
@@ -322,7 +378,12 @@ def create_a_game(data):
     socketio.emit("game_created", {"game_id": game_id}, to=player1_socketID)
     socketio.emit("game_created", {"game_id": game_id}, to=player2_socketID)
 
-#joins the users to a new room
+
+# join_a_game(data)
+# @param data, which is the data recieved from the socket
+# @brief after game creation, the players join the game. We group them to this common room thanks to the unique game ID generated.
+# every room is unique to every game.
+# @return 'load_board' event to the game_id where both players will be notified of the board.
 @socketio.on('join_game')
 def join_a_game(data):
     game_id = data.get('gameId')
@@ -332,10 +393,13 @@ def join_a_game(data):
     emit('load_board', {'board': games[game_id].get_game_board(), 'user' : username}, to=game_id)
 
 
-#handles making a move on the backend by checking winning conditions
+# make_a_move(data)
+# @param data, which is the data recieved from the socket
+# @brief This is where the game between the players is played out. This manages turns and win conditions. After every move a 'move_made'
+# event is emitted to the client so that the game on that end is correctly updated.
+# @return 'move_made' event, prompting the client side to update their board.
 @socketio.on('make_move')
 def make_a_move(data):
-    print(request)
     game_id = data.get('game_id')
 
     # rooms(get his socket id) this will return the list of rooms the player is in. Ideally list of 1, grab that and update the board for that game
@@ -358,9 +422,14 @@ def make_a_move(data):
     else:
         print(f"It is not {data.get('player')}'s turn")
 
-#makes a new game if players want to play again #sending twice from client??
+
+# play_again(data)  
+# @param data, which is the data recieved from the socket
+# @brief When the players are prompted to play again, this resets the board of the game room they are currently in and resets whose turn it is.
+# @ return None
 @socketio.on('new_game')
 def play_again(data):
+    # possibly being sent twice from the client??
     game_id = data['game_id']
     games[game_id].reset_game_board()
 
@@ -374,10 +443,7 @@ if __name__ == "__main__":
         port_number = 5000
 
     update_env_file(ip_address, port_number)
-    # if run_server_tests() is True:
-    #     socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
-    # else:
-    #     quit()
-
-    # DELETE AFTER PASSWORD ISSUES
-    socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
+    if run_server_tests() is True:
+        socketio.run(app, host=ip_address, port=port_number, debug=True)  # Run all of different routes and our API
+    else:
+        quit()
