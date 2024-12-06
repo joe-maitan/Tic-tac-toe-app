@@ -108,6 +108,9 @@ class Game():
     # @brief Check if the move is valid, if it is, call update board
     # @return board update
     def make_move(self, player, position):
+        if position < 0 or position > len(self.board) - 1:
+            return "Move out of bounds"
+
         if self.board[position] != "":
             return "Invalid move"
         
